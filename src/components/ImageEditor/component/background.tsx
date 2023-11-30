@@ -8,7 +8,7 @@ function Background() {
   const imagePath = [
     {
       id: "1",
-      path: "http://localhost:5173/images/sample/scott-circle-image.png",
+      path: "/images/sample/scott-circle-image.png",
     },
   ];
 
