@@ -3,7 +3,7 @@
   
     {
       "type": "image",
-      "src": "http://localhost:5173/images/sample/scott-bg-image.jpeg",
+      "src": "/images/sample/scott-bg-image.jpeg",
      "custom-type": "background",
       "selectable" :false,
       "lockMovementX" :true,
@@ -16,8 +16,6 @@
       "fill": "blue",
       "left": 50,
       "top": 50
-
-
     },
     {
       "type": "text",
