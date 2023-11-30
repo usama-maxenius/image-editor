@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
 interface TitleContextProps {
   title: string;
-  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  background: string;
+  setTitle: Dispatch<SetStateAction<string>>;
+  setBackground: Dispatch<SetStateAction<string>>;
 }
 
 const TitleContext = createContext<TitleContextProps | undefined>(undefined);
@@ -13,9 +15,11 @@ interface TitleProviderProps {
 
 export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
   const [title, setTitle] = useState<string>("");
+  const [background, setBackground] = useState<string>("");
+
 
   return (
-    <TitleContext.Provider value={{ title, setTitle }}>
+    <TitleContext.Provider value={{ title, background, setTitle, setBackground }}>
       {children}
     </TitleContext.Provider>
   );

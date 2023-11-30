@@ -4,7 +4,7 @@
     {
       "type": "image",
       "src": "http://localhost:5173/images/sample/scott-bg-image.jpeg",
-     
+     "custom-type": "background",
       "selectable" :false,
       "lockMovementX" :true,
       "lockMovementY" :true
@@ -21,7 +21,7 @@
     },
     {
       "type": "text",
-      "cs-type":"title", 
+      "custom-type":"title", 
       "text": "Hello, Faizan!",
       "fontSize": 16,
       "left": 70,

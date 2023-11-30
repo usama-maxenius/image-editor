@@ -1,4 +1,3 @@
-import React from 'react';
 import TextField from '@mui/material/TextField';
 import { styled } from '@mui/system';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -13,7 +12,7 @@ const StyledTextField = styled(TextField)({
   
 });
 
-function Input({ onChange }) {
+function Input({ onChange }: any) {
   return (
     <StyledTextField
       variant="outlined"
