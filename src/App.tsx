@@ -1,38 +1,24 @@
-import { useState } from "react";
-import "./App.css"; // Import the CSS file
-import ImageEditor from "./components/ImageEditor/fabricImageEditor";
+import LandingPage from "./pages/landing page/landingPage";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import EgBanner from "./pages/egBannar/egBanner";
+
 
 function App() {
-  const [showCanvas, setShowCanvas] = useState<boolean>(false);
-  const [filePath, setFilePath] = useState<string>('');
-
-
-  const selectedHandler = (fileName: string) => {
-    setShowCanvas(true);
-    setFilePath('fileName')
-    console.log("filename", fileName);
-  };
+ 
   return (
-    <div className="app-container">
-      {/* <ImageEditor /> */}
+    <>
+    
+    <Router>
+        <Routes>
+        <Route path="/" element={<LandingPage/>} />
+        <Route path="/next" element={<EgBanner/>} />
 
-      {!showCanvas ? (
-        <div>
-          <div onClick={() => selectedHandler("first")} className="boxes">
-            1
-          </div>
-          <div onClick={() => selectedHandler("second")} className="boxes">
-            2
-          </div>
-          <div onClick={() => selectedHandler("third")} className="boxes">
-            3
-          </div>
-        </div>
-      ) : (
-        <ImageEditor selectedCard={filePath} />
-      )}
-    </div>
-  );
+        </Routes>
+    </Router>
+    
+   
+    </>
+  ); 
 }
 
 export default App;
