@@ -1,9 +1,8 @@
-import React from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
   height: 400,
   width: 300,
   backgroundColor: "#1E1E3C",
@@ -22,7 +21,7 @@ function MainCard() {
   const navigate = useNavigate();
 
   return (
-    <StyledCard onClick={()=> navigate("/image-editor")}>
+    <StyledCard onClick={() => navigate("/image-editor")}>
       <StyledCardContent>
         <Typography variant="h4" gutterBottom>
           Welcome to My App
