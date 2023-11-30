@@ -1,0 +1,39 @@
+{
+  "objects": [
+    {
+      "type": "rect",
+      "width": 100,
+      "height": 50,
+      "fill": "blue",
+      "left": 50,
+      "top": 50,
+      "selectable" :false,
+      "lockMovementX" :true,
+      "lockMovementY" :true
+
+
+    },
+    {
+      "type": "text",
+      "text": "Hello, Faizan!",
+      "fontSize": 16,
+      "left": 70,
+      "top": 70,
+      "fill": "white",
+      "selectable" :false,
+      "lockMovementX" :true,
+      "lockMovementY" :true
+    },
+    {
+      "type": "image",
+      "src": "http://localhost:5173/images/sample/br9.png",
+      "width": 50,  
+      "height": 50,
+      "left": 120,
+      "top": 120,
+      "selectable" :false,
+      "lockMovementX" :true,
+      "lockMovementY" :true
+    }
+  ]
+}
