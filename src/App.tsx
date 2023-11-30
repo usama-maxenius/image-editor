@@ -15,19 +15,13 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/templates" element={<Templates />} />
-          <Route path="/image-editor" element={<ImageEditor />} >
+          <Route path="/image-editor" element={<ImageEditor />}>
             <Route path="background" element={<Background />} />
             <Route path="title" element={<Title />} />
             <Route path="element" element={<Element />} />
             <Route path="write-post" element={<WritePost />} />
             <Route path="bubble" element={<Bubble />} />
-
-
-
           </Route>
-                
-          
-
         </Routes>
       </Router>
     </>
