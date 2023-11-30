@@ -26,7 +26,7 @@ function LandingPage() {
         Welcome to My App
       </Typography>
       <Input onChange={''}/>
-    <Link to='/next'>  <Button variant="contained"  sx={{mt:'30px', bgcolor: 'white', color:'black','&:hover':{bgcolor: 'white', color:'black'} }}>
+    <Link to='/templates'>  <Button variant="contained"  sx={{mt:'30px', bgcolor: 'white', color:'black','&:hover':{bgcolor: 'white', color:'black'} }}>
         Submit
       </Button></Link>
     </StyledContainer>

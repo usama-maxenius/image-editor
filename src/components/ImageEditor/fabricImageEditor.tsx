@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import { fabric } from "fabric";
-import yourJsonFile from "./first.json"; // Update the path
+import yourJsonFile from "../Templates/first.json"; // Update the path
 
-interface ImageEditorProps {
-  selectedCard: string;
-}
 
-const ImageEditor: React.FC<ImageEditorProps> = ({ selectedCard }) => {
-  const canvasRef = useRef<fabric.Canvas | null>(null);
+
+const ImageEditor = () => {
+  const canvasRef: React.MutableRefObject<fabric.Canvas | null> =
+    useRef<fabric.Canvas | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,35 +17,30 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ selectedCard }) => {
 
     if (!canvasRef.current) return;
 
-    //@ts-ingore
-    const canvas = new fabric.Canvas(canvasRef.current, {
+    //@ts-ignore
+    const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
-      backgroundColor: "gray",
-      selection: false, // Disable object selection
-      isDrawingMode: false, // Disable drawing mode
+    });
+
+    // Set canvas background color to red
+    canvas.setBackgroundColor("red", () => {
+      canvas.renderAll();
     });
 
     const loadJsonFile = async (json: any) => {
       try {
         canvas.loadFromJSON(json, () => {
           hideLoading();
+          const imageObject = canvas
+            .getObjects()
+            .find((object) => object.type === "image");
+          if (imageObject) {
+            //@ts-ignore
+            imageObject.setSrc(imageObject.src);
+          }
           canvas.renderAll();
         });
-
-        canvas.getObjects().forEach((obj) => {
-          obj.set({
-            selectable: false,
-            evented: false,
-            hasControls: false,
-            hasBorders: false,
-            lockMovementX: true,
-            lockMovementY: true,
-            hoverCursor: "default",
-          });
-        });
-
-        canvas.renderAll();
       } catch (error) {
         console.error("Error loading JSON file:", error);
         hideLoading();
@@ -53,12 +48,48 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ selectedCard }) => {
     };
 
     loadJsonFile(yourJsonFile);
-  }, []); // No dependencies as it's a static import
+  }, []);
+
+  const handleButtonClick = (message: string) => {
+    // Handle button click based on the message
+    console.log(message);
+  };
 
   return (
     <>
-      {loading && <div>Loading...</div>}
-      <canvas ref={canvasRef as React.LegacyRef<HTMLCanvasElement>}></canvas>
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "black",
+        }}
+      >
+        {loading && <div>Loading...</div>}
+        <div
+          style={{
+            width: "500px",
+            height: "500px",
+            border: "3px solid yellow",
+          }}
+        >
+          <canvas
+            ref={canvasRef as React.LegacyRef<HTMLCanvasElement>}
+          ></canvas>
+        </div>
+        <div style={{ display: "flex", marginTop: "16px" }}>
+          <button onClick={() => handleButtonClick("It's Background")}>
+            Background
+          </button>
+          <button onClick={() => handleButtonClick("It's Title")}>Title</button>
+          <button onClick={() => handleButtonClick("Add Bubble")}>
+            Add Bubble
+          </button>
+        </div>
+      </div>
     </>
   );
 };
