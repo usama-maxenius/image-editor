@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { fabric } from "fabric";
 import yourJsonFile from "../Templates/first.json"; // Update the path
+import Background from "./component/background";
+import { Link, Outlet } from "react-router-dom";
 
 
 
@@ -69,6 +71,7 @@ const ImageEditor = () => {
         }}
       >
         {loading && <div>Loading...</div>}
+        <div style={{display:'flex',columnGap:'30px'}}>
         <div
           style={{
             width: "500px",
@@ -80,16 +83,21 @@ const ImageEditor = () => {
             ref={canvasRef as React.LegacyRef<HTMLCanvasElement>}
           ></canvas>
         </div>
+
+        <div style={{color:'white', backgroundColor:'red',width:"150px"}}> <Outlet/> </div>
+        </div>
+
         <div style={{ display: "flex", marginTop: "16px" }}>
-          <button onClick={() => handleButtonClick("It's Background")}>
-            Background
-          </button>
-          <button onClick={() => handleButtonClick("It's Title")}>Title</button>
-          <button onClick={() => handleButtonClick("Add Bubble")}>
-            Add Bubble
-          </button>
+        <Link to='/image-editor/background'> <button onClick={() => handleButtonClick("It's Background")}>Background</button></Link>
+        <Link to='/image-editor/title'> <button onClick={() => handleButtonClick("It's Title")}>Title</button></Link> 
+        <Link to='/image-editor/bubble '> <button onClick={() => handleButtonClick("Add Bubble")}>Add Bubble</button></Link> 
+        <Link to='/image-editor/element'> <button onClick={() => handleButtonClick("Add Bubble")}>Elements</button></Link> 
+        <Link to='/image-editor/write-post'> <button onClick={() => handleButtonClick("Add Bubble")}>write post</button></Link> 
+
         </div>
       </div>
+
+      
     </>
   );
 };
