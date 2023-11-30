@@ -3,6 +3,12 @@ import { fabric } from "fabric";
 import yourJsonFile from "../Templates/first.json"; // Update the path
 import { Link, Outlet } from "react-router-dom";
 import { useTitle } from "../../context/TitleContext";
+import LandscapeIcon from '@mui/icons-material/Landscape';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import PersonIcon from '@mui/icons-material/Person';
+import WavesIcon from '@mui/icons-material/Waves';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+
 
 const ImageEditor = () => {
   const { title } = useTitle();
@@ -80,14 +86,14 @@ const ImageEditor = () => {
           width: "100vw",
           height: "100vh",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "black",
+          backgroundColor: "#151433",
         }}
       >
         {loading && <div>Loading...</div>}
-        <div style={{ display: "flex", columnGap: "30px" }}>
+        <div >
           <div
             style={{
               width: "500px",
@@ -101,46 +107,57 @@ const ImageEditor = () => {
             ></canvas>
           </div>
 
-          <div
-            style={{ color: "white", backgroundColor: "red", width: "150px" }}
-          >
-            {" "}
-            <Outlet />{" "}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", marginTop: "16px" }}>
+          
+        <div style={{ display: "flex", marginTop: "16px" , justifyContent : "space-between"}}>
+              
           <Link to="/image-editor/background">
             {" "}
-            <button onClick={() => handleButtonClick("It's Background")}>
-              Background
+           
+            <button onClick={() => handleButtonClick("It's Background")} style={{backgroundColor:'transparent',border: 'none'}}>
+            <LandscapeIcon style={{color:'white',fontSize:'30px'}}/>
+           <p style={{color:'white',margin:'0px',fontWeight:'600'}}> BACKGROUND </p> 
             </button>
           </Link>
           <Link to="/image-editor/title">
             {" "}
-            <button onClick={() => handleButtonClick("It's Title")}>
-              Title
+            <button onClick={() => handleButtonClick("It's Title")} style={{backgroundColor:'transparent',border: 'none'}}>
+            <TextFieldsIcon style={{color:'white',fontSize:'30px'}}/>
+            <p style={{color:'white',margin:'0px',fontWeight:'600'}}> TITLE </p>
             </button>
           </Link>
           <Link to="/image-editor/bubble ">
             {" "}
-            <button onClick={() => handleButtonClick("Add Bubble")}>
-              Add Bubble
+            <button onClick={() => handleButtonClick("Add Bubble")} style={{backgroundColor:'transparent',border: 'none'}}>
+            <PersonIcon style={{color:'white',fontSize:'30px'}}/>
+            <p style={{color:'white',margin:'0px',fontWeight:'600'}}> ADD BUBBLE </p>
             </button>
           </Link>
           <Link to="/image-editor/element">
             {" "}
-            <button onClick={() => handleButtonClick("Add Bubble")}>
-              Elements
+            <button onClick={() => handleButtonClick("Add Bubble")} style={{backgroundColor:'transparent',border: 'none'}}>
+            <WavesIcon style={{color:'white',fontSize:'30px'}}/>
+            <p style={{color:'white',margin:'0px',fontWeight:'600'}}> Elements </p>
             </button>
           </Link>
           <Link to="/image-editor/write-post">
             {" "}
-            <button onClick={() => handleButtonClick("Add Bubble")}>
-              write post
+            <button onClick={() => handleButtonClick("Add Bubble")} style={{backgroundColor:'transparent',border: 'none'}}>
+            <EditNoteIcon style={{color:'white',fontSize:'30px'}}/>
+            <p style={{color:'white',margin:'0px',fontWeight:'600'}}> write post </p>
             </button>
           </Link>
         </div>
+
+        </div>
+
+
+        <div 
+            style={{ color: "white", width: "150px", display: 'inline-block',position: 'relative',left: '7%',height: '450px',border: '1px #272525 solid' }}
+          >
+            {" "}
+            <Outlet />{" "}
+          </div>
+
       </div>
     </>
   );
