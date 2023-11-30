@@ -1,5 +1,14 @@
 {
   "objects": [
+  
+    {
+      "type": "image",
+      "src": "http://localhost:5173/images/sample/scott-bg-image.jpeg",
+     
+      "selectable" :false,
+      "lockMovementX" :true,
+      "lockMovementY" :true
+    },
     {
       "type": "rect",
       "width": 100,
@@ -12,6 +21,7 @@
     },
     {
       "type": "text",
+      "cs-type":"title", 
       "text": "Hello, Faizan!",
       "fontSize": 16,
       "left": 70,
@@ -20,14 +30,7 @@
       "selectable" :false,
       "lockMovementX" :true,
       "lockMovementY" :true
-    },
-    {
-      "type": "image",
-      "src": "http://localhost:5173/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg",
-    
-      "selectable" :false,
-      "lockMovementX" :true,
-      "lockMovementY" :true
     }
+
   ]
 }
