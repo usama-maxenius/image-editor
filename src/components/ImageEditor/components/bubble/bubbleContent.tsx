@@ -1,4 +1,4 @@
-function Bubble(){
+function BubbleContent(){
     return(
         <>
         
@@ -7,4 +7,4 @@ function Bubble(){
     )
 }
 
-export default Bubble
+export default BubbleContent

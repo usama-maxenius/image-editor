@@ -2,11 +2,11 @@ import LandingPage from "./pages/landing page/landingPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Templates from "./pages/templates/templates";
 import ImageEditor from "./components/ImageEditor/fabricImageEditor";
-import Background from "./components/ImageEditor/component/background";
-import Title from "./components/ImageEditor/component/title";
-import Element from "./components/ImageEditor/component/element";
-import WritePost from "./components/ImageEditor/component/write-post";
-import Bubble from "./components/ImageEditor/component/add-bubble";
+import Background from "./components/ImageEditor/components/background/index";
+import Title from "./components/ImageEditor/components/title/index";
+import Element from "./components/ImageEditor/components/elements/index";
+import WritePost from "./components/ImageEditor/components/writePost/index";
+import Bubble from "./components/ImageEditor/components/bubble/index";
 
 function App() {
   return (
