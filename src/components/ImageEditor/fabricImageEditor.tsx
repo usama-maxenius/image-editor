@@ -239,12 +239,14 @@ const ImageEditor = () => {
         <div
           style={{
             color: "white",
-            width: "150px",
+            width: "200px",
             display: "inline-block",
             position: "relative",
             left: "7%",
-            height: "450px",
-            border: "1px #272525 solid",
+            bottom:'1%',
+            padding:'0px 20px',
+            height: "600px",
+            // border: "1px #272525 solid",
           }}
         >
           <Outlet context={[tools]} />
