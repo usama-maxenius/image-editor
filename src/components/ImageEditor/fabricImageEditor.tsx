@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { fabric } from "fabric";
 import yourJsonFile from "../Templates/first.json"; // Update the path
 import { Link, Outlet } from "react-router-dom";
-import { useTitle } from "../../context/TitleContext";
+import { useTitle } from "../../context/fabricContext";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
 import PersonIcon from "@mui/icons-material/Person";
@@ -247,7 +247,6 @@ const ImageEditor = () => {
             border: "1px #272525 solid",
           }}
         >
-          {" "}
           <Outlet context={[tools]} />
         </div>
       </div>

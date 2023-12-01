@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
-import { useTitle } from "../../../context/TitleContext";
+import { useTitle } from "../../../../context/fabricContext";
 
-function Background() {
+function BackgroundContent() {
   const [tools] = useOutletContext() as any[];
 
 
@@ -42,4 +42,4 @@ function Background() {
   );
 }
 
-export default Background;
+export default BackgroundContent;
