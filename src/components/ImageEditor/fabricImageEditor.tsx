@@ -36,8 +36,10 @@ const ImageEditor = () => {
 
     const loadJsonFile = async (json: any) => {
       try {
-        canvas.loadFromJSON(json, () => {
+        canvas.loadFromJSON(yourJsonFile, () => {
           hideLoading();
+
+      
 
           //for Title
           if (title.title.trim() !== "") {
