@@ -4,7 +4,6 @@ import { useTitle } from "../../../../context/fabricContext";
 function BackgroundContent() {
   const [tools] = useOutletContext() as any[];
 
-
   const imagePath = [
     {
       id: "1",
@@ -15,7 +14,7 @@ function BackgroundContent() {
   const { setBackground } = useTitle();
 
   const handleBackgroundChange = (newBackground: string) => {
-    setBackground(newBackground);
+    setBackground((prev) => ({ ...prev, background: newBackground }));
   };
   return (
     <>
