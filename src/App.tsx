@@ -7,10 +7,14 @@ import Title from "./components/ImageEditor/components/title/index";
 import Element from "./components/ImageEditor/components/elements/index";
 import WritePost from "./components/ImageEditor/components/writePost/index";
 import Bubble from "./components/ImageEditor/components/bubble/index";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./components/theme/theme";
 
 function App() {
   return (
     <>
+      <ThemeProvider theme={theme}>
+
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -24,6 +28,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      </ThemeProvider>
     </>
   );
 }
