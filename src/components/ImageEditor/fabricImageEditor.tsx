@@ -13,9 +13,7 @@ import WavesIcon from "@mui/icons-material/Waves";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 
 const ImageEditor = () => {
-  const { title, background } = useTitle();
-
-  console.log("background", background);
+  const { title, background, circleImage } = useTitle();
 
   const canvasRef: React.MutableRefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
@@ -39,8 +37,6 @@ const ImageEditor = () => {
         canvas.loadFromJSON(yourJsonFile, () => {
           hideLoading();
 
-      
-
           //for Title
           if (title.title.trim() !== "") {
             canvas.getObjects().forEach((object) => {
@@ -56,6 +52,7 @@ const ImageEditor = () => {
             canvas.renderAll();
           }
 
+          //background
           if (background.background.trim() !== "") {
             const backgroundImage = canvas
               .getObjects()
@@ -82,29 +79,25 @@ const ImageEditor = () => {
                 left: 0,
               });
 
-              // Apply overlay using an overlay rectangle
               const overlayRect = new fabric.Rect({
                 width: img.width,
                 height: img.height,
-                fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`, // Red overlay with 50% opacity
+                fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`,
                 originX: "left",
                 originY: "top",
               });
 
-              // Apply contrast and brightness using a filter
               img.filters.push(
                 new fabric.Image.filters.Contrast({
-                  contrast: parseInt(background.tools.contrast), // Increase contrast by 50%
+                  contrast: parseInt(background.tools.contrast),
                 }),
                 new fabric.Image.filters.Brightness({
-                  brightness: parseInt(background.tools.brightness), // Decrease brightness by 50%
+                  brightness: parseInt(background.tools.brightness),
                 })
               );
 
-              // Apply additional filters based on the active filter button
               switch (background.tools.filter) {
                 case "invert":
-                  console.log(background.tools.filter);
                   img.filters.push(new fabric.Image.filters.Invert());
                   break;
                 case "sepia":
@@ -131,27 +124,44 @@ const ImageEditor = () => {
                 case "polaroid":
                   img.filters.push(new fabric.Image.filters.Polaroid());
                   break;
-                // Add more cases for other filters as needed
-
                 default:
                   break;
               }
 
-              // Apply all filters to the image
               img.applyFilters();
-
-              // Apply the filters to the image
-              img.applyFilters();
-
-              // Add the image and overlay rectangle to the canvas
               canvas.add(img, overlayRect);
               canvas.sendToBack(img);
               canvas.renderAll();
             });
           } else {
-            // If no background is provided, set a default background color (red in this case)
             canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
+
+          //bubble image
+          canvas.getObjects().forEach((object) => {
+            
+            fabric.Image.fromURL(
+              circleImage
+                ? circleImage
+                : "/images/sample/scott-circle-image.png",
+
+              (img) => {
+                img.scale(0.2).set({
+                  top: 120,
+                  left: 10,
+                  angle: 0,
+                });
+                const clipPath = new fabric.Circle({
+                  radius: 300,
+                  originX: "center",
+                  originY: "center",
+                });
+                img.clipPath = clipPath;
+                canvas.add(img);
+                canvas.renderAll();
+              }
+            );
+          });
 
           canvas.renderAll();
         });
@@ -162,7 +172,7 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-  }, [yourJsonFile, title, background]);
+  }, [yourJsonFile, title, background, circleImage]);
 
   const handleButtonClick = (message: string) => {
     console.log(message);
