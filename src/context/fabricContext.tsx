@@ -29,6 +29,8 @@ interface FabricContextProps {
   background: IBackground;
   setTitle: Dispatch<SetStateAction<ITitle>>;
   setBackground: Dispatch<SetStateAction<IBackground>>;
+  circleImage: string;
+  setCircleImage: Dispatch<SetStateAction<string>>;
 }
 
 const FabricContext = createContext<FabricContextProps | undefined>(undefined);
@@ -38,6 +40,7 @@ interface TitleProviderProps {
 }
 
 export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
+  const [circleImage, setCircleImage] = useState<string>("");
   const [title, setTitle] = useState<ITitle>({
     title: "",
     tools: {
@@ -53,13 +56,20 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
       brightness: "0.9",
       overlay: "0.9",
       contrast: "0.2",
-      filter: ''
+      filter: "",
     },
   });
 
   return (
     <FabricContext.Provider
-      value={{ title, background, setTitle, setBackground }}
+      value={{
+        title,
+        background,
+        setTitle,
+        setBackground,
+        circleImage,
+        setCircleImage,
+      }}
     >
       {children}
     </FabricContext.Provider>

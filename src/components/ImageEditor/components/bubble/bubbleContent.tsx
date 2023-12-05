@@ -1,12 +1,20 @@
 import React from "react";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { useTitle } from "../../../../context/fabricContext";
 
 const imageList = [
   "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2020_34/3405737/200819-putin-trump-mc-1257.JPG",
-  "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2020_34/3405737/200819-putin-trump-mc-1257.JPG",
-  "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2020_34/3405737/200819-putin-trump-mc-1257.JPG",
-  "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2020_34/3405737/200819-putin-trump-mc-1257.JPG",
+  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1681213431/cvavkr0vmq3cmh7q3kqg.jpg",
+  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg",
+  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg",
+];
+
+const AI_images = [
+  "/images/sample/scott-bg-image.jpeg",
+  "/images/sample/scott-circle-image.png",
+  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg",
+  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg",
 ];
 
 const styles = {
@@ -34,6 +42,8 @@ const styles = {
 };
 
 const BubbleContent = () => {
+  const { setCircleImage } = useTitle();
+
   return (
     <>
       <Typography variant="h5">Articles Images</Typography>
@@ -45,6 +55,7 @@ const BubbleContent = () => {
             src={src}
             alt={`Article Image ${index + 1}`}
             style={styles.image}
+            onClick={() => setCircleImage(src)}
           />
         ))}
       </Box>
@@ -52,12 +63,13 @@ const BubbleContent = () => {
       <Typography variant="h5">AI Images</Typography>
 
       <Box {...styles.imageBox}>
-        {[...Array(4)].map((_, index) => (
+        {AI_images.map((item, index) => (
           <img
             key={index}
-            src=""
+            src={item}
             alt={`AI Image ${index + 1}`}
             style={styles.image}
+            onClick={() => setCircleImage(item)}
           />
         ))}
       </Box>
@@ -67,7 +79,24 @@ const BubbleContent = () => {
           <Typography variant="h5" style={{ margin: "6px" }}>
             IMAGE UPLOAD
           </Typography>
-          <input type="file" style={{ display: "none" }} />
+          <form method="post" encType="multipart/form-data">
+            <input
+              onChange={(e) => {
+                console.log("e.target.value", e.target.value);
+                const fileInput = e.target;
+                const files = fileInput.files;
+
+                if (files?.length && files?.length > 0) {
+                  const fileName = files[0].name;
+
+                  setCircleImage(`/images/sample/${fileName}`);
+                }
+              }}
+              type="file"
+              style={{ display: "none" }}
+              accept=".jpg, .jpeg, .png"
+            />
+          </form>
           <IconButton color="primary" component="span">
             <CloudUploadIcon style={{ fontSize: "40px" }} />
           </IconButton>

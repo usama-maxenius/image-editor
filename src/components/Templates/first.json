@@ -27,28 +27,6 @@
       "selectable": false,
       "lockMovementX": true,
       "lockMovementY": true
-    },
-    {
-      "type": "ellipse",
-      "custom-type": "eclipseImage",
-      "rx": 50,
-      "ry": 50,
-      "fill": "red",
-      "left": 150,
-      "top": 150,
-      "originX": "center",
-      "originY": "center",
-      "objects": [
-        {
-          "type": "image",
-          "src": "/images/sample/scott-bg-image.jpeg",
-          "width": 100,
-          "height": 100,
-          "originX": "center",
-          "originY": "center",
-          "selectable": false
-        }
-      ]
     }
   ]
 }
