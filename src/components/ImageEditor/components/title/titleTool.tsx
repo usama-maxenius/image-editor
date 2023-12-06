@@ -182,6 +182,8 @@ const TitleTools = () => {
               color="secondary"
               min={12}
               max={72}
+              valueLabelDisplay="auto"
+
               //eslint-disable-next-line
               onChange={(event: Event, value: number | number[]) => {
                 const e =

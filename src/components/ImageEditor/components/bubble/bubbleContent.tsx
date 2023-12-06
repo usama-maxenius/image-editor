@@ -5,7 +5,7 @@ import { useTitle } from "../../../../context/fabricContext";
 
 const imageList = [
   "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/newscms/2020_34/3405737/200819-putin-trump-mc-1257.JPG",
-  "https://res.cloudinary.com/dkh87tzrg/image/upload/v1681213431/cvavkr0vmq3cmh7q3kqg.jpg",
+  "/images/sample/scott-circle-image.png",
   "https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg",
   "https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg",
 ];
@@ -107,3 +107,6 @@ const BubbleContent = () => {
 };
 
 export default BubbleContent;
+
+// must check this link to perform upload functionality
+// https://stackoverflow.com/questions/44745476/is-there-a-way-to-import-an-image-file-using-fabric-js
