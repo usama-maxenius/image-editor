@@ -19,6 +19,48 @@ const ImageEditor = () => {
     useRef<fabric.Canvas | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const handleFilter = (img, filter, toggle) => {
+  
+    const filterExists = img.filters.some(
+      (existingFilter) => existingFilter.type === filter
+    );
+
+    if (toggle && !filterExists) {
+      switch (filter) {
+        case "invert":
+          img.filters.push(new fabric.Image.filters.Invert());
+          break;
+        case "sepia":
+          img.filters.push(new fabric.Image.filters.Sepia());
+          break;
+        case "brownie":
+          img.filters.push(new fabric.Image.filters.Brownie());
+          break;
+        case "greyscale":
+          img.filters.push(new fabric.Image.filters.Grayscale());
+          break;
+        case "vintage":
+          img.filters.push(new fabric.Image.filters.Vintage());
+          break;
+        case "kodachrome":
+          img.filters.push(new fabric.Image.filters.Kodachrome());
+          break;
+        case "technicolor":
+          img.filters.push(new fabric.Image.filters.Technicolor());
+          break;
+        case "polaroid":
+          img.filters.push(new fabric.Image.filters.Polaroid());
+          break;
+        default:
+          break;
+      }
+    } else if (!toggle && filterExists) {
+      // Remove the filter if it exists
+      img.filters = img.filters.filter(
+        (existingFilter) => existingFilter.type !== filter
+      );
+    }
+  };
 
   useEffect(() => {
     const hideLoading = () => {
@@ -30,6 +72,9 @@ const ImageEditor = () => {
     const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
+      selectable: true,
+      lockMovementX: false,
+      lockMovementY: false,
     });
 
     const loadJsonFile = async (json: any) => {
@@ -46,6 +91,7 @@ const ImageEditor = () => {
                   fill: title?.tools?.color,
                   fontSize: parseInt(title?.tools?.fontSize),
                   fontFamily: title.tools.fontFamily,
+              
                 } as fabric.ITextOptions);
               }
             });
@@ -77,6 +123,7 @@ const ImageEditor = () => {
                 originY: "top",
                 top: 0,
                 left: 0,
+            
               });
 
               const overlayRect = new fabric.Rect({
@@ -98,31 +145,18 @@ const ImageEditor = () => {
 
               switch (background.tools.filter) {
                 case "invert":
-                  img.filters.push(new fabric.Image.filters.Invert());
-                  break;
                 case "sepia":
-                  img.filters.push(new fabric.Image.filters.Sepia());
-                  break;
                 case "brownie":
-                  img.filters.push(new fabric.Image.filters.Brownie());
-                  break;
-                case "brownie":
-                  img.filters.push(new fabric.Image.filters.Brownie());
-                  break;
                 case "greyscale":
-                  img.filters.push(new fabric.Image.filters.Grayscale());
-                  break;
                 case "vintage":
-                  img.filters.push(new fabric.Image.filters.Vintage());
-                  break;
                 case "kodachrome":
-                  img.filters.push(new fabric.Image.filters.Kodachrome());
-                  break;
                 case "technicolor":
-                  img.filters.push(new fabric.Image.filters.Technicolor());
-                  break;
                 case "polaroid":
-                  img.filters.push(new fabric.Image.filters.Polaroid());
+                  handleFilter(
+                    img,
+                    background.tools.filter,
+                    background.tools.filterToggle
+                  );
                   break;
                 default:
                   break;
@@ -139,7 +173,6 @@ const ImageEditor = () => {
 
           //bubble image
           canvas.getObjects().forEach((object) => {
-            
             fabric.Image.fromURL(
               circleImage
                 ? circleImage
@@ -162,6 +195,7 @@ const ImageEditor = () => {
               }
             );
           });
+      
 
           canvas.renderAll();
         });

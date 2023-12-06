@@ -22,6 +22,7 @@ interface IBackground {
     overlay: string;
     contrast: string;
     filter: string;
+    filterToggle: boolean
   };
 }
 interface FabricContextProps {
@@ -57,6 +58,7 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
       overlay: "0.9",
       contrast: "0.2",
       filter: "",
+      filterToggle: false
     },
   });
 

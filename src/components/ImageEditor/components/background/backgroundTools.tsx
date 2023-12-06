@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       color: "white",
     },
   },
-  
+
   sliderContainer: {
     width: "90%",
     display: "flex",
@@ -59,7 +59,7 @@ const BackgroundTools = () => {
   const [activeButton, setActiveButton] = useState("");
 
   const valuetext = (value: number) => `${value}`;
-  const { setBackground } = useTitle();
+  const { background, setBackground } = useTitle();
 
   const handleButtonClick = (buttonType: string) => {
     setActiveButton(buttonType);
@@ -67,13 +67,17 @@ const BackgroundTools = () => {
 
   const [selectedFilter, setSelectedFilter] = useState<string>("");
 
-  const filterHanlder = (value: string) => {
+  const filterHanlder = async (value: string) => {
     setSelectedFilter(value);
     setBackground((prev) => ({
       ...prev,
       tools: {
         ...prev.tools,
         filter: value as unknown as string,
+        filterToggle:
+          value === background.tools.filter && background.tools.filterToggle
+            ? false
+            : true,
       },
     }));
   };
@@ -212,7 +216,9 @@ const BackgroundTools = () => {
         <div className={classes.sliderContainer}>
           <Button
             className={`${classes.button} ${
-              selectedFilter === "greyscale" && classes.buttonActive
+              selectedFilter === "greyscale" &&
+              background.tools.filterToggle &&
+              classes.buttonActive
             }`}
             variant="text"
             color="primary"
@@ -222,7 +228,9 @@ const BackgroundTools = () => {
           </Button>
           <Button
             className={`${classes.button} ${
-              selectedFilter === "invert" && classes.buttonActive
+              selectedFilter === "invert" &&
+              background.tools.filterToggle &&
+              classes.buttonActive
             }`}
             variant="text"
             color="primary"
@@ -232,7 +240,9 @@ const BackgroundTools = () => {
           </Button>
           <Button
             className={`${classes.button} ${
-              selectedFilter === "sepia" && classes.buttonActive
+              selectedFilter === "sepia" &&
+              background.tools.filterToggle &&
+              classes.buttonActive
             }`}
             variant="text"
             color="primary"
@@ -242,7 +252,9 @@ const BackgroundTools = () => {
           </Button>
           <Button
             className={`${classes.button} ${
-              selectedFilter === "brownie" && classes.buttonActive
+              selectedFilter === "brownie" &&
+              background.tools.filterToggle &&
+              classes.buttonActive
             }`}
             variant="text"
             color="primary"
@@ -252,7 +264,9 @@ const BackgroundTools = () => {
           </Button>
           <Button
             className={`${classes.button} ${
-              selectedFilter === "vintage" && classes.buttonActive
+              selectedFilter === "vintage" &&
+              background.tools.filterToggle &&
+              classes.buttonActive
             }`}
             variant="text"
             color="primary"
