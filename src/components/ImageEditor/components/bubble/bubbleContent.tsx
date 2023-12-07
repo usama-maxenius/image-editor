@@ -45,7 +45,18 @@ const BubbleContent = () => {
   const { setCircleImage } = useTitle();
 
   return (
-    <>
+    <Box
+      style={{
+        color: "white",
+        width: "200px",
+        display: "inline-block",
+        position: "relative",
+        left: "7%",
+        bottom: "1%",
+        padding: "0px",
+        height: "600px",
+      }}
+    >
       <Typography variant="h5">Articles Images</Typography>
 
       <Box {...styles.imageBox}>
@@ -102,7 +113,7 @@ const BubbleContent = () => {
           </IconButton>
         </label>
       </Box>
-    </>
+    </Box>
   );
 };
 

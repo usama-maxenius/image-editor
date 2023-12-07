@@ -11,7 +11,7 @@ import TextFieldsIcon from "@mui/icons-material/TextFields";
 import PersonIcon from "@mui/icons-material/Person";
 import WavesIcon from "@mui/icons-material/Waves";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 const ImageEditor = () => {
   const {
     title,
@@ -76,8 +76,6 @@ const ImageEditor = () => {
 
     if (!canvasRef.current) return;
 
-    console.log("i run every time");
-
     const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
@@ -90,6 +88,66 @@ const ImageEditor = () => {
       try {
         canvas.loadFromJSON(yourJsonFile, () => {
           hideLoading();
+
+          //overlay
+
+          canvas.getObjects().forEach((object) => {
+            if (object["custom-type"] === "rect") {
+              const updatedFill = {
+                type: "linear",
+                coords: {
+                  x1: 0,
+                  y1: 0,
+                  x2: 0,
+                  y2: 200,
+                },
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: `rgba(0, 0, 0, ${background.tools.overlay})`,
+                  },
+                  {
+                    offset: 0.2,
+                    color: `rgba(0, 0, 0, ${background.tools.overlay + 0.2} )`,
+                  },
+                  {
+                    offset: 0.5,
+                    color: `rgba(0, 0, 0, ${background.tools.overlay + 0.4})`,
+                  },
+                  {
+                    offset: 1,
+                    color: `rgba(0, 0, 0, ${background.tools.overlay + 0.6})`,
+                  },
+                ],
+                shadow: {
+                  color: `rgba(0, 0, 0, ${background.tools.overlay})`,
+                  blur: 10,
+                  offsetX: 0,
+                  offsetY: -30,
+                },
+              };
+
+              canvas.remove(object);
+
+              const updatedRect = new fabric.Rect({
+                width: object.width,
+                height: object.height,
+                left: object.left,
+                top: object.top,
+                originX: object.originX,
+                originY: object.originY,
+                selectable: object.selectable,
+                lockMovementX: object.lockMovementX,
+                lockMovementY: object.lockMovementY,
+                fill: updatedFill,
+                "custom-type": "rect",
+              });
+              canvas.add(updatedRect);
+              canvas.sendBackwards(updatedRect);
+            }
+          });
+
+          canvas.renderAll();
 
           //for Title
           if (title.title.trim() !== "") {
@@ -133,13 +191,13 @@ const ImageEditor = () => {
                 left: 0,
               });
 
-              const overlayRect = new fabric.Rect({
-                width: img.width,
-                height: img.height,
-                fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`,
-                originX: "left",
-                originY: "top",
-              });
+              // const overlayRect = new fabric.Rect({
+              //   width: img.width,
+              //   height: img.height,
+              //   fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`,
+              //   originX: "left",
+              //   originY: "top",
+              // });
 
               img.filters.push(
                 new fabric.Image.filters.Contrast({
@@ -172,7 +230,7 @@ const ImageEditor = () => {
               }
 
               img.applyFilters();
-              canvas.add(img, overlayRect);
+              canvas.add(img);
               canvas.sendToBack(img);
               canvas.renderAll();
             });
@@ -275,16 +333,15 @@ const ImageEditor = () => {
   const toolsBelow = "false";
 
   return (
-    <>
+    <div
+      style={{ width: "100vw", height: "100vh", backgroundColor: "#151433" }}
+    >
       <div
         style={{
-          width: "100vw",
-          height: "100vh",
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#151433",
         }}
       >
         {loading && <div>Loading...</div>}
@@ -380,12 +437,6 @@ const ImageEditor = () => {
               </button>
             </Link>
           </div>
-          <div
-            onClick={() => setExportCanvas(true)}
-            style={{ color: "white", marginTop: "10px" }}
-          >
-            export
-          </div>
         </div>
 
         <div
@@ -403,7 +454,22 @@ const ImageEditor = () => {
           <Outlet context={[tools]} />
         </div>
       </div>
-    </>
+      <div
+        onClick={() => setExportCanvas(true)}
+        style={{
+          color: "white",
+          marginTop: "10px",
+          width: "100%",
+    
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          padding: "8px",
+        }}
+      >
+        <ArrowForwardIosIcon />
+      </div>
+    </div>
   );
 };
 
