@@ -22,8 +22,13 @@ interface IBackground {
     overlay: string;
     contrast: string;
     filter: string;
-    filterToggle: boolean
+    filterToggle: boolean;
   };
+}
+interface Element {
+  path: string;
+  filter: string;
+  position: string;
 }
 interface FabricContextProps {
   title: ITitle;
@@ -32,6 +37,10 @@ interface FabricContextProps {
   setBackground: Dispatch<SetStateAction<IBackground>>;
   circleImage: string;
   setCircleImage: Dispatch<SetStateAction<string>>;
+  exportCanvas: boolean;
+  setExportCanvas: Dispatch<SetStateAction<boolean>>;
+  addElement: Element;
+  setAddElement: Dispatch<SetStateAction<Element>>;
 }
 
 const FabricContext = createContext<FabricContextProps | undefined>(undefined);
@@ -42,6 +51,13 @@ interface TitleProviderProps {
 
 export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
   const [circleImage, setCircleImage] = useState<string>("");
+  const [exportCanvas, setExportCanvas] = useState<boolean>(false);
+  const [addElement, setAddElement] = useState<Element>({
+    path: "",
+    filter: "",
+    position: "",
+  });
+
   const [title, setTitle] = useState<ITitle>({
     title: "",
     tools: {
@@ -54,11 +70,11 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
   const [background, setBackground] = useState<IBackground>({
     background: "",
     tools: {
-      brightness: "0.9",
-      overlay: "0.9",
-      contrast: "0.2",
+      brightness: "0.5",
+      overlay: "0",
+      contrast: "0",
       filter: "",
-      filterToggle: false
+      filterToggle: false,
     },
   });
 
@@ -71,6 +87,10 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
         setBackground,
         circleImage,
         setCircleImage,
+        setExportCanvas,
+        exportCanvas,
+        addElement,
+        setAddElement,
       }}
     >
       {children}

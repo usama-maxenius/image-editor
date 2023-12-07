@@ -2,9 +2,19 @@
   "objects": [
     {
       "type": "image",
-      "src": "/images/sample/scott-bg-image-500.jpeg",
-      "custom-type": "background"
-      
+      "src": "/images/sample/special-tag.png",
+      "custom-type": "special-tag",
+      "selectable": false,
+      "lockMovementX": false,
+      "lockMovementY": false
+    },
+    {
+      "type": "image",
+      "src": "/images/sample/scott-bg-imag.jpg",
+      "custom-type": "background",
+      "selectable": false,
+      "lockMovementX": false,
+      "lockMovementY": false
     },
     {
       "type": "rect",
@@ -47,10 +57,12 @@
         "offsetY": -30
       },
       "left": 0,
-      "top": 500,
+      "top": 510,
       "originX": "left",
-      "originY": "bottom"
- 
+      "originY": "bottom",
+      "selectable": false,
+      "lockMovementX": false,
+      "lockMovementY": false
     },
     {
       "type": "text",
@@ -62,7 +74,10 @@
       "height": 150,
       "left": 200,
       "top": 400,
-      "fill": "white"
+      "fill": "white",
+      "selectable": false,
+      "lockMovementX": false,
+      "lockMovementY": false
     }
   ]
 }

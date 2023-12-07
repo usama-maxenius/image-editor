@@ -13,18 +13,25 @@ import WavesIcon from "@mui/icons-material/Waves";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 
 const ImageEditor = () => {
-  const { title, background, circleImage } = useTitle();
+  const {
+    title,
+    background,
+    circleImage,
+    exportCanvas,
+    setExportCanvas,
+    addElement,
+  } = useTitle();
 
   const canvasRef: React.MutableRefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
 
   const [loading, setLoading] = useState(true);
   const handleFilter = (img, filter, toggle) => {
-  
     const filterExists = img.filters.some(
       (existingFilter) => existingFilter.type === filter
     );
 
+    console.log("canvasref", canvasRef);
     if (toggle && !filterExists) {
       switch (filter) {
         case "invert":
@@ -69,6 +76,8 @@ const ImageEditor = () => {
 
     if (!canvasRef.current) return;
 
+    console.log("i run every time");
+
     const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
@@ -91,7 +100,6 @@ const ImageEditor = () => {
                   fill: title?.tools?.color,
                   fontSize: parseInt(title?.tools?.fontSize),
                   fontFamily: title.tools.fontFamily,
-              
                 } as fabric.ITextOptions);
               }
             });
@@ -123,7 +131,6 @@ const ImageEditor = () => {
                 originY: "top",
                 top: 0,
                 left: 0,
-            
               });
 
               const overlayRect = new fabric.Rect({
@@ -136,10 +143,12 @@ const ImageEditor = () => {
 
               img.filters.push(
                 new fabric.Image.filters.Contrast({
-                  contrast: parseInt(background.tools.contrast),
+                  contrast: background.tools.contrast,
+                  // contrast: 0.7,
                 }),
                 new fabric.Image.filters.Brightness({
-                  brightness: parseInt(background.tools.brightness),
+                  brightness: background.tools.brightness,
+                  // brightness: 0.2,
                 })
               );
 
@@ -171,31 +180,82 @@ const ImageEditor = () => {
             canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
+          //special tag
+          if (background.background.trim() === "") {
+            fabric.Image.fromURL("/images/sample/special-tag.png", (img) => {
+              img.set({
+                type: "image",
+                "custom-type": "special-tag",
+                originX: "left",
+                originY: "top",
+                top: 10,
+                left: 20,
+              });
+              canvas.add(img);
+              canvas.renderAll();
+            });
+          }
+
           //bubble image
           canvas.getObjects().forEach((object) => {
             fabric.Image.fromURL(
               circleImage
                 ? circleImage
                 : "/images/sample/scott-circle-image.png",
-
               (img) => {
                 img.scale(0.2).set({
                   top: 120,
                   left: 10,
                   angle: 0,
+                  evented: true, // Set evented to true to enable events
                 });
                 const clipPath = new fabric.Circle({
-                  radius: 300,
+                  radius: 400,
                   originX: "center",
                   originY: "center",
                 });
                 img.clipPath = clipPath;
                 canvas.add(img);
-                canvas.renderAll();
               }
             );
+
+            canvas.renderAll();
           });
-      
+
+          if (exportCanvas) {
+            fabric.Image.fromURL(background.background, (backgroundImage) => {
+              backgroundImage.set({
+                type: "image",
+                "custom-type": "background",
+                scaleX:
+                  canvas.width &&
+                  backgroundImage.width &&
+                  canvas.width / backgroundImage.width,
+                scaleY:
+                  canvas.height &&
+                  backgroundImage.height &&
+                  canvas.height / backgroundImage.height,
+                originX: "left",
+                originY: "top",
+                top: 0,
+                left: 0,
+              });
+              canvas.add(backgroundImage);
+              canvas.sendToBack(backgroundImage);
+              canvas.renderAll();
+
+              const dataUrl = canvas.toDataURL({
+                format: "png",
+                quality: 1.0,
+              });
+              const link = document.createElement("a");
+              link.href = dataUrl;
+              link.download = "canvas-export.png";
+              link.click();
+
+              setExportCanvas(false);
+            });
+          }
 
           canvas.renderAll();
         });
@@ -206,7 +266,7 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-  }, [yourJsonFile, title, background, circleImage]);
+  }, [canvasRef, title, background, circleImage, exportCanvas]);
 
   const handleButtonClick = (message: string) => {
     console.log(message);
@@ -319,6 +379,12 @@ const ImageEditor = () => {
                 </p>
               </button>
             </Link>
+          </div>
+          <div
+            onClick={() => setExportCanvas(true)}
+            style={{ color: "white", marginTop: "10px" }}
+          >
+            export
           </div>
         </div>
 
