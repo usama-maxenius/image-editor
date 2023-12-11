@@ -1,14 +1,16 @@
 {
   "objects": [
     {
+      "id": 0,
       "type": "image",
       "src": "/images/sample/special-tag.png",
       "custom-type": "special-tag",
       "selectable": false,
-      "lockMovementX": false,
-      "lockMovementY": false
+      "lockMovementX": true,
+      "lockMovementY": true
     },
     {
+      "id": 1,
       "type": "image",
       "src": "/images/sample/scott-bg-imag.jpg",
       "custom-type": "background",
@@ -17,6 +19,7 @@
       "lockMovementY": false
     },
     {
+      "id": 2,
       "type": "rect",
       "width": 500,
       "height": 150,
@@ -65,6 +68,7 @@
       "lockMovementY": false
     },
     {
+      "id": 3,
       "type": "text",
       "custom-type": "title",
       "text": "Hello, Faizan!",

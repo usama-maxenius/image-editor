@@ -31,7 +31,6 @@ const ImageEditor = () => {
       (existingFilter) => existingFilter.type === filter
     );
 
-    console.log("canvasref", canvasRef);
     if (toggle && !filterExists) {
       switch (filter) {
         case "invert":
@@ -68,6 +67,7 @@ const ImageEditor = () => {
       );
     }
   };
+  const [currentPosition, setCurrentPosition] = useState(null);
 
   useEffect(() => {
     const hideLoading = () => {
@@ -79,9 +79,6 @@ const ImageEditor = () => {
     const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
-      selectable: true,
-      lockMovementX: false,
-      lockMovementY: false,
     });
 
     const loadJsonFile = async (json: any) => {
@@ -191,22 +188,12 @@ const ImageEditor = () => {
                 left: 0,
               });
 
-              // const overlayRect = new fabric.Rect({
-              //   width: img.width,
-              //   height: img.height,
-              //   fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`,
-              //   originX: "left",
-              //   originY: "top",
-              // });
-
               img.filters.push(
                 new fabric.Image.filters.Contrast({
                   contrast: background.tools.contrast,
-                  // contrast: 0.7,
                 }),
                 new fabric.Image.filters.Brightness({
                   brightness: background.tools.brightness,
-                  // brightness: 0.2,
                 })
               );
 
@@ -238,7 +225,7 @@ const ImageEditor = () => {
             canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
-          //special tag
+          // //special tag
           if (background.background.trim() === "") {
             fabric.Image.fromURL("/images/sample/special-tag.png", (img) => {
               img.set({
@@ -255,31 +242,61 @@ const ImageEditor = () => {
           }
 
           //bubble image
-          canvas.getObjects().forEach((object) => {
+          const existingImage = canvas
+            .getObjects()
+            .find(
+              (object) => object.type === "image" && object.src === circleImage
+            );
+
+          if (!existingImage) {
             fabric.Image.fromURL(
               circleImage
                 ? circleImage
                 : "/images/sample/scott-circle-image.png",
               (img) => {
-                img.scale(0.2).set({
-                  top: 120,
-                  left: 10,
-                  angle: 0,
-                  evented: true, // Set evented to true to enable events
+                img.set({
+                  id: "555",
+                  borderColor: "red", // Example additional style
+                  selectable: true,
+                  lockMovementX: false,
+                  lockMovementY: false,
                 });
+                // Use the coordinates dynamically
+                if (currentPosition) {
+                  const { tl, tr, bl, br } = currentPosition;
+                  const top = (tl?.y + bl?.y) / 2 ?? 120; // Vertical center or default to 120
+                  const left = (tl?.x + tr?.x) / 2 ?? 10; // Horizontal center or default to 10
+
+                  img.scale(0.2).set({
+                    top,
+                    left,
+                    angle: 0,
+                    evented: true, // Set evented to true to enable events
+                  });
+                } else {
+                  // Default values if currentPosition is null
+                  img.scale(0.2).set({
+                    top: 120,
+                    left: 10,
+                    angle: 0,
+                    evented: true,
+                  });
+                }
+
                 const clipPath = new fabric.Circle({
                   radius: 400,
                   originX: "center",
                   originY: "center",
                 });
+
                 img.clipPath = clipPath;
                 canvas.add(img);
+                canvas.renderAll();
               }
             );
+          }
 
-            canvas.renderAll();
-          });
-
+          //export canvas
           if (exportCanvas) {
             fabric.Image.fromURL(background.background, (backgroundImage) => {
               backgroundImage.set({
@@ -324,13 +341,105 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-  }, [canvasRef, title, background, circleImage, exportCanvas]);
+    let initialPosition;
+    let originalState;
 
+    // Save the initial position of the selected object
+    function saveInitialPosition() {
+      if (canvas.getActiveObject()) {
+        initialPosition = {
+          left: canvas.getActiveObject().left,
+          top: canvas.getActiveObject().top,
+        };
+      }
+    }
+
+    // Save the original canvas state
+    function saveOriginalState() {
+      originalState = canvas.toObject();
+    }
+
+    // Restore the original canvas state
+    function restoreOriginalState() {
+      canvas.loadFromJSON(originalState, () => {
+        canvas.renderAll();
+      });
+    }
+
+    // Debounce function to control the frequency of rendering
+    const debounceRender = debounce(() => {
+      canvas.renderAll();
+    }, 10);
+
+    var isObjectMoving = false;
+
+    canvas.on("object:moving", function (event) {
+      if (!isObjectMoving) {
+        isObjectMoving = true;
+        setTimeout(function () {
+          isObjectMoving = false;
+          if (
+            event.target &&
+            event.target.type === "image" &&
+            currentPosition !== event.target.aCoords
+          ) {
+            setCurrentPosition(event.target.aCoords);
+          }
+        }, 200); // Adjust the debounce time as needed
+      }
+      // Rest of the code...
+    });
+
+
+
+    function saveCanvasObjects() {
+      const jsonData = JSON.stringify(canvas.toJSON(["id"]));
+      localStorage.setItem("canvasData", jsonData);
+    }
+
+    // Load the current canvas objects from the local storage
+    function loadCanvasObjects() {
+      const jsonData = localStorage.getItem("canvasData");
+
+      if (jsonData) {
+        const loadedData = JSON.parse(jsonData);
+        canvas.loadFromJSON(loadedData, function () {
+          console.log("Canvas loaded successfully.");
+        });
+      } else {
+        console.log("No saved data found.");
+      }
+    }
+    // canvas.on("selection:created", () => {
+    //   saveInitialPosition();
+    //   saveOriginalState();
+    // });
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+  }, [
+    canvasRef,
+    title,
+    background,
+    circleImage,
+    exportCanvas,
+    currentPosition,
+  ]);
   const handleButtonClick = (message: string) => {
     console.log(message);
   };
   const tools = false;
   const toolsBelow = "false";
+  console.log("background", background);
+  console.log("currentPosition", currentPosition);
 
   return (
     <div
@@ -352,8 +461,8 @@ const ImageEditor = () => {
               height: "500px",
               border: "3px solid #9475bf",
               borderRadius: "3px",
-              cursor: "not-allowed",
-              pointerEvents: "none",
+              // cursor: "not-allowed",
+              // pointerEvents: "none",
             }}
           >
             <canvas
@@ -460,11 +569,11 @@ const ImageEditor = () => {
           color: "white",
           marginTop: "10px",
           width: "100%",
-    
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
           padding: "8px",
+          cursor: "pointer",
         }}
       >
         <ArrowForwardIosIcon />
