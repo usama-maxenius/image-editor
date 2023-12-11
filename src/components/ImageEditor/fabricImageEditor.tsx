@@ -341,39 +341,19 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-    let initialPosition;
-    let originalState;
-
-    // Save the initial position of the selected object
-    function saveInitialPosition() {
-      if (canvas.getActiveObject()) {
-        initialPosition = {
-          left: canvas.getActiveObject().left,
-          top: canvas.getActiveObject().top,
-        };
-      }
-    }
-
-    // Save the original canvas state
-    function saveOriginalState() {
-      originalState = canvas.toObject();
-    }
-
-    // Restore the original canvas state
-    function restoreOriginalState() {
-      canvas.loadFromJSON(originalState, () => {
-        canvas.renderAll();
-      });
-    }
-
-    // Debounce function to control the frequency of rendering
-    const debounceRender = debounce(() => {
-      canvas.renderAll();
-    }, 10);
-
+  
     var isObjectMoving = false;
+    let savedObjects = [];
 
     canvas.on("object:moving", function (event) {
+      console.log("yes");
+      savedObjects = [];
+      canvas.forEachObject(function (obj) {
+        console.log("obj", obj);
+        savedObjects.push(obj);
+      });
+      importAndRenderObjects();
+
       if (!isObjectMoving) {
         isObjectMoving = true;
         setTimeout(function () {
@@ -387,44 +367,38 @@ const ImageEditor = () => {
           }
         }, 200); // Adjust the debounce time as needed
       }
+      importAndRenderObjects();
       // Rest of the code...
     });
 
-
-
-    function saveCanvasObjects() {
-      const jsonData = JSON.stringify(canvas.toJSON(["id"]));
-      localStorage.setItem("canvasData", jsonData);
-    }
-
-    // Load the current canvas objects from the local storage
-    function loadCanvasObjects() {
-      const jsonData = localStorage.getItem("canvasData");
-
-      if (jsonData) {
-        const loadedData = JSON.parse(jsonData);
-        canvas.loadFromJSON(loadedData, function () {
-          console.log("Canvas loaded successfully.");
-        });
-      } else {
-        console.log("No saved data found.");
-      }
-    }
-    // canvas.on("selection:created", () => {
-    //   saveInitialPosition();
-    //   saveOriginalState();
+    canvas.off("mouse:down");
+    canvas.off("mouse:up");
+    // canvas.on("mouse:down", function (event) {
+    //   event.isClick = false
+    //   savedObjects = [];
+    //   canvas.forEachObject(function (obj) {
+    //     console.log("obj", obj);
+    //     savedObjects.push(obj);
+    //   });
+    //   importAndRenderObjects();
     // });
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
+
+    // Function to import and render saved objects
+    function importAndRenderObjects() {
+      canvas.clear(); // Clear existing canvas
+
+      // Import saved objects and add them back to the canvas
+      console.log("savedObjects", savedObjects);
+      for (const obj of savedObjects) {
+        canvas.add(obj);
+      }
+
+      canvas.renderAll(); // Render all objects
     }
+
+  
+   
+ 
   }, [
     canvasRef,
     title,
@@ -438,8 +412,6 @@ const ImageEditor = () => {
   };
   const tools = false;
   const toolsBelow = "false";
-  console.log("background", background);
-  console.log("currentPosition", currentPosition);
 
   return (
     <div
