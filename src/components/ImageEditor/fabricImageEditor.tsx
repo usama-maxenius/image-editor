@@ -370,6 +370,7 @@ const ImageEditor = () => {
                   selectable: true,
                   lockMovementX: false,
                   lockMovementY: false,
+                  antiAlias: false,
                 });
                 // Use the coordinates dynamically
                 if (currentPosition) {
@@ -377,12 +378,16 @@ const ImageEditor = () => {
                   const top = (tl?.y + bl?.y) / 2 ?? 120; // Vertical center or default to 120
                   const left = (tl?.x + tr?.x) / 2 ?? 10; // Horizontal center or default to 10
 
-                  img.scale(0.2).set({
-                    top,
-                    left,
-                    angle: 0,
-                    evented: true, // Set evented to true to enable events
-                  });
+                  img
+                    .scale(0.2)
+                    .set({
+                      top,
+                      left,
+                      angle: 0,
+                      evented: true, // Set evented to true to enable events
+                    })
+                    .center()
+                    .setCoords();
                 } else {
                   // Default values if currentPosition is null
                   img.scale(0.2).set({
@@ -392,14 +397,15 @@ const ImageEditor = () => {
                     evented: true,
                   });
                 }
-
                 const clipPath = new fabric.Circle({
-                  radius: 400,
+                  radius: 350,
                   originX: "center",
                   originY: "center",
                 });
 
                 img.clipPath = clipPath;
+                fabric.Object.prototype.objectCaching = false;
+
                 canvas.add(img);
                 canvas.renderAll();
               }
@@ -408,37 +414,67 @@ const ImageEditor = () => {
 
           //export canvas
           if (exportCanvas) {
-            fabric.Image.fromURL(background.background, (backgroundImage) => {
-              backgroundImage.set({
-                type: "image",
-                "custom-type": "background",
-                scaleX:
-                  canvas.width &&
-                  backgroundImage.width &&
-                  canvas.width / backgroundImage.width,
-                scaleY:
-                  canvas.height &&
-                  backgroundImage.height &&
-                  canvas.height / backgroundImage.height,
-                originX: "left",
-                originY: "top",
-                top: 0,
-                left: 0,
-              });
-              canvas.add(backgroundImage);
-              canvas.sendToBack(backgroundImage);
-              canvas.renderAll();
+            // Array of image URLs to preload
+            const imageUrls = [
+              "/images/sample/special-tag.png",
+              circleImage
+                ? circleImage
+                : "/images/sample/scott-circle-image.png",
+              "/images/sample/swipe-left.png",
+              "/images/sample/borders.png",
+              // Add other image URLs here...
+            ];
 
-              const dataUrl = canvas.toDataURL({
-                format: "png",
-                quality: 1.0,
-              });
-              const link = document.createElement("a");
-              link.href = dataUrl;
-              link.download = "canvas-export.png";
-              link.click();
+            // Preload images
+            const images = imageUrls.map((url) => {
+              const img = new Image();
+              img.src = url;
+              return img;
+            });
 
-              setExportCanvas(false);
+            Promise.all(
+              images.map(
+                (img) =>
+                  new Promise((resolve) => {
+                    img.onload = resolve;
+                  })
+              )
+            ).then(() => {
+              // Images are loaded, now proceed with exporting the canvas
+              fabric.Image.fromURL(background.background, (backgroundImage) => {
+                backgroundImage.set({
+                  type: "image",
+                  "custom-type": "background",
+                  scaleX:
+                    canvas.width &&
+                    backgroundImage.width &&
+                    canvas.width / backgroundImage.width,
+                  scaleY:
+                    canvas.height &&
+                    backgroundImage.height &&
+                    canvas.height / backgroundImage.height,
+                  originX: "left",
+                  originY: "top",
+                  top: 0,
+                  left: 0,
+                });
+
+                canvas.add(backgroundImage);
+                canvas.sendToBack(backgroundImage);
+                canvas.renderAll();
+
+                const dataUrl = canvas.toDataURL({
+                  format: "png",
+                  quality: 1.0,
+                });
+
+                const link = document.createElement("a");
+                link.href = dataUrl;
+                link.download = "canvas-export.png";
+                link.click();
+
+                setExportCanvas(false);
+              });
             });
           }
 
