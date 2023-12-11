@@ -19,7 +19,9 @@ const ImageEditor = () => {
     circleImage,
     exportCanvas,
     setExportCanvas,
-    addElement,
+    specialTag,
+    elementBorder,
+    swipeLeft,
   } = useTitle();
 
   const canvasRef: React.MutableRefObject<fabric.Canvas | null> =
@@ -87,7 +89,6 @@ const ImageEditor = () => {
           hideLoading();
 
           //overlay
-
           canvas.getObjects().forEach((object) => {
             if (object["custom-type"] === "rect") {
               const updatedFill = {
@@ -225,9 +226,63 @@ const ImageEditor = () => {
             canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
-          // //special tag
-          if (background.background.trim() === "") {
-            fabric.Image.fromURL("/images/sample/special-tag.png", (img) => {
+          //swipe-left
+          if (swipeLeft.color.trim() !== "") {
+            const leftSwipe = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" &&
+                  object["custom-type"] === "swipe-left"
+              );
+
+            if (leftSwipe) {
+              canvas.remove(leftSwipe);
+            }
+
+            fabric.Image.fromURL(leftSwipe.src, (img) => {
+              img.set({
+                type: "image",
+                "custom-type": "swipe-left",
+                originX: "left",
+                originY: "top",
+                top: 450,
+                left: 200,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
+              });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${swipeLeft?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
+              canvas.add(img);
+
+              canvas.renderAll();
+            });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
+          }
+
+          //special tag
+          if (specialTag.color.trim() !== "") {
+            const specialTaag = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" &&
+                  object["custom-type"] === "special-tag"
+              );
+
+            if (specialTaag) {
+              canvas.remove(specialTaag);
+            }
+
+            fabric.Image.fromURL(specialTaag.src, (img) => {
               img.set({
                 type: "image",
                 "custom-type": "special-tag",
@@ -235,10 +290,65 @@ const ImageEditor = () => {
                 originY: "top",
                 top: 10,
                 left: 20,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
               });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${specialTag?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
               canvas.add(img);
+
               canvas.renderAll();
             });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
+          }
+
+          //border tag
+          if (elementBorder.color.trim() !== "") {
+            const borderElement = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" && object["custom-type"] === "borders"
+              );
+
+            if (borderElement) {
+              canvas.remove(borderElement);
+            }
+
+            fabric.Image.fromURL(borderElement.src, (img) => {
+              img.set({
+                type: "image",
+                "custom-type": "borders",
+                originX: "left",
+                originY: "top",
+                top: 350,
+                left: 200,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
+              });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${elementBorder?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
+              canvas.add(img);
+
+              canvas.renderAll();
+            });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
           //bubble image
@@ -341,15 +451,13 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-  
+
     var isObjectMoving = false;
     let savedObjects = [];
 
     canvas.on("object:moving", function (event) {
-      console.log("yes");
       savedObjects = [];
       canvas.forEachObject(function (obj) {
-        console.log("obj", obj);
         savedObjects.push(obj);
       });
       importAndRenderObjects();
@@ -388,24 +496,22 @@ const ImageEditor = () => {
       canvas.clear(); // Clear existing canvas
 
       // Import saved objects and add them back to the canvas
-      console.log("savedObjects", savedObjects);
       for (const obj of savedObjects) {
         canvas.add(obj);
       }
 
       canvas.renderAll(); // Render all objects
     }
-
-  
-   
- 
   }, [
+    specialTag,
     canvasRef,
     title,
     background,
     circleImage,
     exportCanvas,
     currentPosition,
+    elementBorder,
+    swipeLeft,
   ]);
   const handleButtonClick = (message: string) => {
     console.log(message);

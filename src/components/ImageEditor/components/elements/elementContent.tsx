@@ -8,7 +8,7 @@ import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import { hexToCSSFilter } from "hex-to-css-filter";
 
-const useStyles = makeStyles(()=> ({
+const useStyles = makeStyles(() => ({
   colorPicker: {
     width: "20px",
   },
@@ -36,23 +36,21 @@ function BackgroundContent() {
     },
   ];
 
-  const { setAddElement } = useTitle();
+  const { setSpecialTag, setElementBorder, setSwipeLeft } = useTitle();
 
   const [color, setColor] = useState<any>("008000");
-  const [filter, setFilter] = useState<string>("");
+  // const [filter, setFilter] = useState<string>("");
 
   useEffect(() => {
     if (!color) return;
-    const cssFilter = hexToCSSFilter(`#${color}`);
-    const filterWithoutSemicolon = cssFilter.filter.slice(0, -1);
-    setFilter(filterWithoutSemicolon);
+    // const cssFilter = hexToCSSFilter(`#${color}`);
+    // const filterWithoutSemicolon = cssFilter.filter.slice(0, -1);
+    // setFilter(filterWithoutSemicolon);
   }, [color]);
 
   const handleBackgroundChange = (newBackground: string) => {
-    setAddElement({
-      path: newBackground,
-      filter: filter,
-      position: "top",
+    setSpecialTag({
+      color: color,
     });
   };
 
@@ -74,9 +72,9 @@ function BackgroundContent() {
                     src={item.path}
                     alt=""
                     onClick={() => handleBackgroundChange(item.path)}
-                    style={{
-                      filter: filter,
-                    }}
+                    // style={{
+                    //   filter: filter,
+                    // }}
                   />
                 );
               })}
@@ -84,7 +82,12 @@ function BackgroundContent() {
               <ColorPicker
                 className={classes.colorPicker}
                 value={color}
-                onChange={(e) => setColor(e.value)}
+                onChange={(e) => {
+                  setColor(e.value);
+                  setSwipeLeft({
+                    color: color,
+                  });
+                }}
               />
               <img alt="" src="/images/sample/toggle.png" />
             </Box>
@@ -103,9 +106,9 @@ function BackgroundContent() {
                     src={item.path}
                     alt=""
                     onClick={() => handleBackgroundChange(item.path)}
-                    style={{
-                      filter: filter,
-                    }}
+                    // style={{
+                    //   filter: filter,
+                    // }}
                   />
                 );
               })}
@@ -113,7 +116,12 @@ function BackgroundContent() {
               <ColorPicker
                 className={classes.colorPicker}
                 value={color}
-                onChange={(e) => setColor(e.value)}
+                onChange={(e) => {
+                  setColor(e.value);
+                  setElementBorder({
+                    color: color,
+                  });
+                }}
               />
               <img alt="" src="/images/sample/toggle.png" />
             </Box>
@@ -133,9 +141,9 @@ function BackgroundContent() {
                     src={item.path}
                     alt=""
                     onClick={() => handleBackgroundChange(item.path)}
-                    style={{
-                      filter: filter,
-                    }}
+                    // style={{
+                    //   filter: filter,
+                    // }}
                   />
                 );
               })}
@@ -143,7 +151,12 @@ function BackgroundContent() {
               <ColorPicker
                 className={classes.colorPicker}
                 value={color}
-                onChange={(e) => setColor(e.value)}
+                onChange={(e) => {
+                  setColor(e.value);
+                  setSpecialTag({
+                    color: color,
+                  });
+                }}
               />
               <img alt="" src="/images/sample/toggle.png" />
             </Box>

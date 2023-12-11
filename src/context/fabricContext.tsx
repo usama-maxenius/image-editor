@@ -25,10 +25,8 @@ interface IBackground {
     filterToggle: boolean;
   };
 }
-interface Element {
-  path: string;
-  filter: string;
-  position: string;
+interface SpecialTag {
+  color: string;
 }
 interface FabricContextProps {
   title: ITitle;
@@ -39,8 +37,12 @@ interface FabricContextProps {
   setCircleImage: Dispatch<SetStateAction<string>>;
   exportCanvas: boolean;
   setExportCanvas: Dispatch<SetStateAction<boolean>>;
-  addElement: Element;
-  setAddElement: Dispatch<SetStateAction<Element>>;
+  specialTag: SpecialTag;
+  setSpecialTag: Dispatch<SetStateAction<SpecialTag>>;
+  elementBorder: SpecialTag;
+  setElementBorder: Dispatch<SetStateAction<SpecialTag>>;
+  swipeLeft: SpecialTag;
+  setSwipeLeft: Dispatch<SetStateAction<SpecialTag>>;
 }
 
 const FabricContext = createContext<FabricContextProps | undefined>(undefined);
@@ -52,12 +54,8 @@ interface TitleProviderProps {
 export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
   const [circleImage, setCircleImage] = useState<string>("");
   const [exportCanvas, setExportCanvas] = useState<boolean>(false);
-  const [addElement, setAddElement] = useState<Element>({
-    path: "",
-    filter: "",
-    position: "",
-  });
 
+  //title
   const [title, setTitle] = useState<ITitle>({
     title: "",
     tools: {
@@ -66,7 +64,7 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
       fontFamily: "",
     },
   });
-
+  //background
   const [background, setBackground] = useState<IBackground>({
     background: "",
     tools: {
@@ -76,6 +74,17 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
       filter: "",
       filterToggle: false,
     },
+  });
+  //element special tag
+  const [specialTag, setSpecialTag] = useState<SpecialTag>({
+    color: "#ff0000",
+  });
+  //element special tag
+  const [elementBorder, setElementBorder] = useState<SpecialTag>({
+    color: "#ff0000",
+  });
+  const [swipeLeft, setSwipeLeft] = useState<SpecialTag>({
+    color: "#ff0000",
   });
 
   return (
@@ -89,8 +98,12 @@ export const TitleProvider: React.FC<TitleProviderProps> = ({ children }) => {
         setCircleImage,
         setExportCanvas,
         exportCanvas,
-        addElement,
-        setAddElement,
+        specialTag,
+        setSpecialTag,
+        setElementBorder,
+        elementBorder,
+        swipeLeft,
+        setSwipeLeft,
       }}
     >
       {children}
