@@ -6,7 +6,7 @@ import { ColorPicker } from "primereact/colorpicker";
 import { useEffect, useState } from "react";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
-import { hexToCSSFilter } from "hex-to-css-filter";
+// import { hexToCSSFilter } from "hex-to-css-filter";
 
 const useStyles = makeStyles(() => ({
   colorPicker: {
@@ -48,7 +48,7 @@ function BackgroundContent() {
     // setFilter(filterWithoutSemicolon);
   }, [color]);
 
-  const handleBackgroundChange = (newBackground: string) => {
+  const handleBackgroundChange = () => {
     setSpecialTag({
       color: color,
     });
@@ -71,7 +71,7 @@ function BackgroundContent() {
                     key={item.id}
                     src={item.path}
                     alt=""
-                    onClick={() => handleBackgroundChange(item.path)}
+                    onClick={() => handleBackgroundChange()}
                     // style={{
                     //   filter: filter,
                     // }}
@@ -105,7 +105,7 @@ function BackgroundContent() {
                     key={item.id}
                     src={item.path}
                     alt=""
-                    onClick={() => handleBackgroundChange(item.path)}
+                    onClick={() => handleBackgroundChange()}
                     // style={{
                     //   filter: filter,
                     // }}
@@ -140,7 +140,7 @@ function BackgroundContent() {
                     key={item.id}
                     src={item.path}
                     alt=""
-                    onClick={() => handleBackgroundChange(item.path)}
+                    onClick={() => handleBackgroundChange()}
                     // style={{
                     //   filter: filter,
                     // }}
