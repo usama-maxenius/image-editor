@@ -492,6 +492,7 @@ const ImageEditor = () => {
     let savedObjects = [];
 
     canvas.on("object:moving", function (event) {
+      console.log("event", event);
       savedObjects = [];
       canvas.forEachObject(function (obj) {
         savedObjects.push(obj);
@@ -513,6 +514,24 @@ const ImageEditor = () => {
       }
       importAndRenderObjects();
       // Rest of the code...
+    });
+    canvas.on("selection:created", function (event) {
+      console.log("event.selected[0]", event.selected[0]);
+      if (event && event.selected[0].id === "555") {
+        setCurrentPosition(event.selected[0].lineCoords);
+        return;
+      }
+      // Cancel the selection if the object is not with id "555"
+      canvas.discardActiveObject();
+    });
+
+    canvas.on("before:selection:cleared", function () {
+      if (event && event.selected[0].id === "555") {
+        setCurrentPosition(event.selected[0].lineCoords);
+        return;
+      }
+      // Cancel the selection if the object is not with id "555"
+      canvas.discardActiveObject();
     });
 
     canvas.off("mouse:down");
