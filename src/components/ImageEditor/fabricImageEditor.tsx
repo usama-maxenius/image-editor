@@ -19,7 +19,9 @@ const ImageEditor = () => {
     circleImage,
     exportCanvas,
     setExportCanvas,
-    addElement,
+    specialTag,
+    elementBorder,
+    swipeLeft,
   } = useTitle();
 
   const canvasRef: React.MutableRefObject<fabric.Canvas | null> =
@@ -31,7 +33,6 @@ const ImageEditor = () => {
       (existingFilter) => existingFilter.type === filter
     );
 
-    console.log("canvasref", canvasRef);
     if (toggle && !filterExists) {
       switch (filter) {
         case "invert":
@@ -68,6 +69,7 @@ const ImageEditor = () => {
       );
     }
   };
+  const [currentPosition, setCurrentPosition] = useState(null);
 
   useEffect(() => {
     const hideLoading = () => {
@@ -79,9 +81,6 @@ const ImageEditor = () => {
     const canvas: fabric.Canvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
       height: 500,
-      selectable: true,
-      lockMovementX: false,
-      lockMovementY: false,
     });
 
     const loadJsonFile = async (json: any) => {
@@ -90,7 +89,6 @@ const ImageEditor = () => {
           hideLoading();
 
           //overlay
-
           canvas.getObjects().forEach((object) => {
             if (object["custom-type"] === "rect") {
               const updatedFill = {
@@ -191,22 +189,12 @@ const ImageEditor = () => {
                 left: 0,
               });
 
-              // const overlayRect = new fabric.Rect({
-              //   width: img.width,
-              //   height: img.height,
-              //   fill: `rgba(255, 0, 0, ${parseInt(background.tools.overlay)})`,
-              //   originX: "left",
-              //   originY: "top",
-              // });
-
               img.filters.push(
                 new fabric.Image.filters.Contrast({
                   contrast: background.tools.contrast,
-                  // contrast: 0.7,
                 }),
                 new fabric.Image.filters.Brightness({
                   brightness: background.tools.brightness,
-                  // brightness: 0.2,
                 })
               );
 
@@ -238,9 +226,63 @@ const ImageEditor = () => {
             canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
+          //swipe-left
+          if (swipeLeft.color.trim() !== "") {
+            const leftSwipe = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" &&
+                  object["custom-type"] === "swipe-left"
+              );
+
+            if (leftSwipe) {
+              canvas.remove(leftSwipe);
+            }
+
+            fabric.Image.fromURL(leftSwipe.src, (img) => {
+              img.set({
+                type: "image",
+                "custom-type": "swipe-left",
+                originX: "left",
+                originY: "top",
+                top: 450,
+                left: 200,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
+              });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${swipeLeft?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
+              canvas.add(img);
+
+              canvas.renderAll();
+            });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
+          }
+
           //special tag
-          if (background.background.trim() === "") {
-            fabric.Image.fromURL("/images/sample/special-tag.png", (img) => {
+          if (specialTag.color.trim() !== "") {
+            const specialTaag = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" &&
+                  object["custom-type"] === "special-tag"
+              );
+
+            if (specialTaag) {
+              canvas.remove(specialTaag);
+            }
+
+            fabric.Image.fromURL(specialTaag.src, (img) => {
               img.set({
                 type: "image",
                 "custom-type": "special-tag",
@@ -248,70 +290,191 @@ const ImageEditor = () => {
                 originY: "top",
                 top: 10,
                 left: 20,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
               });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${specialTag?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
               canvas.add(img);
+
               canvas.renderAll();
             });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
+          }
+
+          //border tag
+          if (elementBorder.color.trim() !== "") {
+            const borderElement = canvas
+              .getObjects()
+              .find(
+                (object) =>
+                  object.type === "image" && object["custom-type"] === "borders"
+              );
+
+            if (borderElement) {
+              canvas.remove(borderElement);
+            }
+
+            fabric.Image.fromURL(borderElement.src, (img) => {
+              img.set({
+                type: "image",
+                "custom-type": "borders",
+                originX: "left",
+                originY: "top",
+                top: 350,
+                left: 200,
+                selectable: false,
+                lockMovementX: true,
+                lockMovementY: true,
+              });
+
+              img.filters.push(
+                new fabric.Image.filters.BlendColor({
+                  color: `#${elementBorder?.color}`,
+                  mode: "multiply",
+                })
+              );
+              img.applyFilters();
+              canvas.add(img);
+
+              canvas.renderAll();
+            });
+          } else {
+            canvas.setBackgroundColor("red", canvas.renderAll.bind(canvas));
           }
 
           //bubble image
-          canvas.getObjects().forEach((object) => {
+          const existingImage = canvas
+            .getObjects()
+            .find(
+              (object) => object.type === "image" && object.src === circleImage
+            );
+
+          if (!existingImage) {
             fabric.Image.fromURL(
               circleImage
                 ? circleImage
                 : "/images/sample/scott-circle-image.png",
               (img) => {
-                img.scale(0.2).set({
-                  top: 120,
-                  left: 10,
-                  angle: 0,
-                  evented: true, // Set evented to true to enable events
+                img.set({
+                  id: "555",
+                  borderColor: "red", // Example additional style
+                  selectable: true,
+                  lockMovementX: false,
+                  lockMovementY: false,
+                  antiAlias: false,
                 });
+                // Use the coordinates dynamically
+                if (currentPosition) {
+                  const { tl, tr, bl, br } = currentPosition;
+                  const top = (tl?.y + bl?.y) / 2 ?? 120; // Vertical center or default to 120
+                  const left = (tl?.x + tr?.x) / 2 ?? 10; // Horizontal center or default to 10
+
+                  img
+                    .scale(0.2)
+                    .set({
+                      top,
+                      left,
+                      angle: 0,
+                      evented: true, // Set evented to true to enable events
+                    })
+                    .center()
+                    .setCoords();
+                } else {
+                  // Default values if currentPosition is null
+                  img.scale(0.2).set({
+                    top: 120,
+                    left: 10,
+                    angle: 0,
+                    evented: true,
+                  });
+                }
                 const clipPath = new fabric.Circle({
-                  radius: 400,
+                  radius: 350,
                   originX: "center",
                   originY: "center",
                 });
+
                 img.clipPath = clipPath;
+                fabric.Object.prototype.objectCaching = false;
+
                 canvas.add(img);
+                canvas.renderAll();
               }
             );
+          }
 
-            canvas.renderAll();
-          });
-
+          //export canvas
           if (exportCanvas) {
-            fabric.Image.fromURL(background.background, (backgroundImage) => {
-              backgroundImage.set({
-                type: "image",
-                "custom-type": "background",
-                scaleX:
-                  canvas.width &&
-                  backgroundImage.width &&
-                  canvas.width / backgroundImage.width,
-                scaleY:
-                  canvas.height &&
-                  backgroundImage.height &&
-                  canvas.height / backgroundImage.height,
-                originX: "left",
-                originY: "top",
-                top: 0,
-                left: 0,
-              });
-              canvas.add(backgroundImage);
-              canvas.sendToBack(backgroundImage);
-              canvas.renderAll();
+            // Array of image URLs to preload
+            const imageUrls = [
+              "/images/sample/special-tag.png",
+              circleImage
+                ? circleImage
+                : "/images/sample/scott-circle-image.png",
+              "/images/sample/swipe-left.png",
+              "/images/sample/borders.png",
+              // Add other image URLs here...
+            ];
 
-              const dataUrl = canvas.toDataURL({
-                format: "png",
-                quality: 1.0,
-              });
-              const link = document.createElement("a");
-              link.href = dataUrl;
-              link.download = "canvas-export.png";
-              link.click();
+            // Preload images
+            const images = imageUrls.map((url) => {
+              const img = new Image();
+              img.src = url;
+              return img;
+            });
 
-              setExportCanvas(false);
+            Promise.all(
+              images.map(
+                (img) =>
+                  new Promise((resolve) => {
+                    img.onload = resolve;
+                  })
+              )
+            ).then(() => {
+              // Images are loaded, now proceed with exporting the canvas
+              fabric.Image.fromURL(background.background, (backgroundImage) => {
+                backgroundImage.set({
+                  type: "image",
+                  "custom-type": "background",
+                  scaleX:
+                    canvas.width &&
+                    backgroundImage.width &&
+                    canvas.width / backgroundImage.width,
+                  scaleY:
+                    canvas.height &&
+                    backgroundImage.height &&
+                    canvas.height / backgroundImage.height,
+                  originX: "left",
+                  originY: "top",
+                  top: 0,
+                  left: 0,
+                });
+
+                canvas.add(backgroundImage);
+                canvas.sendToBack(backgroundImage);
+                canvas.renderAll();
+
+                const dataUrl = canvas.toDataURL({
+                  format: "png",
+                  quality: 1.0,
+                });
+
+                const link = document.createElement("a");
+                link.href = dataUrl;
+                link.download = "canvas-export.png";
+                link.click();
+
+                setExportCanvas(false);
+              });
             });
           }
 
@@ -324,8 +487,87 @@ const ImageEditor = () => {
     };
 
     loadJsonFile(yourJsonFile);
-  }, [canvasRef, title, background, circleImage, exportCanvas]);
 
+    var isObjectMoving = false;
+    let savedObjects = [];
+
+    canvas.on("object:moving", function (event) {
+      console.log("event", event);
+      savedObjects = [];
+      canvas.forEachObject(function (obj) {
+        savedObjects.push(obj);
+      });
+      importAndRenderObjects();
+
+      if (!isObjectMoving) {
+        isObjectMoving = true;
+        setTimeout(function () {
+          isObjectMoving = false;
+          if (
+            event.target &&
+            event.target.type === "image" &&
+            currentPosition !== event.target.aCoords
+          ) {
+            setCurrentPosition(event.target.aCoords);
+          }
+        }, 200); // Adjust the debounce time as needed
+      }
+      importAndRenderObjects();
+      // Rest of the code...
+    });
+    canvas.on("selection:created", function (event) {
+      console.log("event.selected[0]", event.selected[0]);
+      if (event && event.selected[0].id === "555") {
+        setCurrentPosition(event.selected[0].lineCoords);
+        return;
+      }
+      // Cancel the selection if the object is not with id "555"
+      canvas.discardActiveObject();
+    });
+
+    canvas.on("before:selection:cleared", function () {
+      if (event && event.selected[0].id === "555") {
+        setCurrentPosition(event.selected[0].lineCoords);
+        return;
+      }
+      // Cancel the selection if the object is not with id "555"
+      canvas.discardActiveObject();
+    });
+
+    canvas.off("mouse:down");
+    canvas.off("mouse:up");
+    // canvas.on("mouse:down", function (event) {
+    //   event.isClick = false
+    //   savedObjects = [];
+    //   canvas.forEachObject(function (obj) {
+    //     console.log("obj", obj);
+    //     savedObjects.push(obj);
+    //   });
+    //   importAndRenderObjects();
+    // });
+
+    // Function to import and render saved objects
+    function importAndRenderObjects() {
+      canvas.clear(); // Clear existing canvas
+
+      // Import saved objects and add them back to the canvas
+      for (const obj of savedObjects) {
+        canvas.add(obj);
+      }
+
+      canvas.renderAll(); // Render all objects
+    }
+  }, [
+    specialTag,
+    canvasRef,
+    title,
+    background,
+    circleImage,
+    exportCanvas,
+    currentPosition,
+    elementBorder,
+    swipeLeft,
+  ]);
   const handleButtonClick = (message: string) => {
     console.log(message);
   };
@@ -352,8 +594,8 @@ const ImageEditor = () => {
               height: "500px",
               border: "3px solid #9475bf",
               borderRadius: "3px",
-              cursor: "not-allowed",
-              pointerEvents: "none",
+              // cursor: "not-allowed",
+              // pointerEvents: "none",
             }}
           >
             <canvas
@@ -460,11 +702,11 @@ const ImageEditor = () => {
           color: "white",
           marginTop: "10px",
           width: "100%",
-    
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
           padding: "8px",
+          cursor: "pointer",
         }}
       >
         <ArrowForwardIosIcon />
