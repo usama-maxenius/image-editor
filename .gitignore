@@ -24,3 +24,4 @@ package-lock.json
 *.sln
 *.sw?
 src/.DS_Store
+node_modules
