@@ -15,6 +15,8 @@ import { Theme } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
+import { ColorPicker } from "primereact/colorpicker";
+
 
 
 
@@ -32,6 +34,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+  },
+  colorPicker: {
+    width: "20px",
   },
   optionsContainer: {
     display: "flex",
@@ -77,6 +82,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   heading: {
     color: "white",
     cursor: "pointer",
+    paddingRight:'30px'
   },
   fontOptionContainer: {
     display: "flex",
@@ -172,6 +178,25 @@ const colors = [
   { id: 2, color: "black" },
   { id: 3, color: "red" },
   { id: 4, color: "grey" },
+];
+
+const elements = [
+  {
+    id: "1",
+    path: "/images/sample/swipe-left.png",
+  },
+];
+const borders = [
+  {
+    id: "1",
+    path: "/images/sample/borders.png",
+  },
+];
+const specialTags = [
+  {
+    id: "1",
+    path: "/images/sample/special-tag.png",
+  },
 ];
 
 const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
@@ -605,11 +630,7 @@ const handleButtonClick = (buttonType: string) => {
       )}
       {show === "font" && (
         <Box className={classes.optionsContainer}>
-          <IconButton
-            className={classes.navigationButton}
-          >
-            <ArrowLeftIcon />
-          </IconButton>
+         
           <Box id="fontOptionContainer" className={classes.fontOptionContainer}>
             {["Arial", "Times New Roman", "Courier New", "Georgia"].map(
               (fontFamily) => (
@@ -623,12 +644,7 @@ const handleButtonClick = (buttonType: string) => {
               )
             )}
           </Box>
-          <IconButton
-            className={classes.navigationButton}
-            
-          >
-            <ArrowRightIcon />
-          </IconButton>
+          
         </Box>
       )}
     </Paper>
@@ -762,7 +778,7 @@ const handleButtonClick = (buttonType: string) => {
                 <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',rowGap:'10px',margin:'10px 0px',height:'152px',overflow:'scroll'}}>
                  
                      {images.map((item)=>{
-                        return <img src={item.url} alt="" width='60px' onClick={()=>{handleImageChange(item.url)}}/>
+                        return <img src={item.url} alt="" width='60px' onClick={()=>{updateBubbleImage(item.url)}}/>
                      })}
                 </div>
  
@@ -784,7 +800,76 @@ const handleButtonClick = (buttonType: string) => {
                 }
 
                 { toolsStep == 'element' && <div>
-                    <h2>element</h2>
+
+                    <>
+          <Box>
+          <h4 >Choose Element</h4>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              {elements.map((item) => {
+                return (
+                  <img
+                    key={item.id}
+                    src={item.path}
+                    alt=""
+                    width='90px'
+                    style={{cursor:'pointer'}}
+                  />
+                );
+              })}
+               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
+            </Box>
+          </Box>
+          <Box>
+          <h4 >Borders</h4>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              {borders.map((item) => {
+                return (
+                  <img
+                    key={item.id}
+                    src={item.path}
+                    alt=""
+                    width='90px'
+                    style={{cursor:'pointer'}}
+                  />
+                );
+              })}
+               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
+               
+            </Box>
+          </Box>
+
+          <Box>
+            <h4>Special Tags</h4>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              {specialTags.map((item) => {
+                return (
+                  <img
+                    key={item.id}
+                    src={item.path}
+                    alt=""
+                    style={{cursor:'pointer'}}
+                    width='90px'
+                  />
+                );
+              })}
+               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
+            </Box>
+          </Box>
+        </>
+
+
                 </div>}
 
                 { toolsStep == 'writePost' && 
