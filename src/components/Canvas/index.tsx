@@ -15,9 +15,8 @@ import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
 import { ColorPicker, ColorPickerChangeEvent, ColorPickerHSBType, ColorPickerRGBType } from "primereact/colorpicker";
 import { Nullable } from 'primereact/ts-helpers';
-
-
-
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 interface CanvasProps {
   text: string;
@@ -213,12 +212,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const canvasRef = useRef<fabric.Canvas | null>(ref || null);
   const [toolsStep, setToolstep] = useState('bg')
   const [selectedFilter, setSelectedFilter] = useState<string>('');
+  const [dropDown, setDropDown] = useState(false)
+  const [filtersRange, setFiltersRange] = useState({ brightness: 0, contrast: 0 })
+  const [colorValue, setColorValue] = useState('red')
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [overlayTextFiltersState, setOverlayTextFiltersState] = useState<FilterState>({
     overlay: 0.6,
     text: '',
     fontSize: 16,
-    color: 'white',
+    color: '#fff',
     fontFamily: 'Arial'
   });
 
@@ -262,50 +264,82 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
     };
   }, [text, image]);
 
-  const updateBubbleImage = (imgUrl: string) => {
-    // Check if a bubble with the custom type already exists
+  const updateBubbleImage = (imgUrl: string, filter?: { strokeWidth: number, stroke: string }) => {
+    const strokeWidth = filter?.strokeWidth || 50;
+    const stroke = filter?.stroke || "red";
+
     const existingBubble = canvasRef.current?.getObjects().find(obj => obj['custom-type'] === 'bubble');
 
+    // Extract existing bubble position
+    const existingBubblePosition = existingBubble ? { left: existingBubble.left, top: existingBubble.top } : { left: 20, top: 50 };
+
     // Create a new bubble if it doesn't exist
-    fabric.Image.fromURL(
-      imgUrl,
-      (img) => {
-        img.set({
-          borderColor: "red", // Example additional style
-          selectable: true,
-          lockMovementX: false,
-          lockMovementY: false,
-        });
+    // fabric.Image.fromURL(
+    //   imgUrl,
+    //   (img) => {
+    //     img.set({
+    //       selectable: true,
+    //       lockMovementX: false,
+    //       lockMovementY: false,
+    //     });
 
-        // Use the coordinates dynamically
-        img
-          .scale(0.2)
-          .set({
-            angle: 0,
-            hasControls: false,
-            evented: true, // Set evented to true to enable events
-          })
-          .center()
-          .setCoords();
+    //     // Use the coordinates dynamically
+    //     img
+    //       .scale(0.2)
+    //       .set({
+    //         angle: 0,
+    //         hasControls: false,
+    //         evented: true, // Set evented to true to enable events
+    //         ...existingBubblePosition,
+    //       })
+    //       .center()
+    //       .setCoords();
 
-        const clipPath = new fabric.Circle({
+    //     const clipPath = new fabric.Circle({
+    //       radius: 350,
+    //       fill: "transparent", // Set fill to transparent to make the circle invisible
+    //       strokeWidth: 100,
+    //       stroke,
+    //       originX: "center",
+    //       originY: "center",
+    //     });
+
+    //     img['custom-type'] = 'bubble';
+    //     img.clipPath = clipPath;
+    //     fabric.Object.prototype.objectCaching = false;
+
+    //     if (existingBubble) canvasRef.current?.remove(existingBubble);
+    //     canvasRef.current?.add(img)
+    //     canvasRef.current?.renderAll();
+    //   },
+    //   {
+    //     crossOrigin: 'anonymous'
+    //   }
+    // );
+
+    fabric.Image.fromURL(imgUrl, function (img) {
+      img.scale(0.2).set({
+        ...existingBubblePosition,
+        angle: 0,
+        clipPath: new fabric.Circle({
           radius: 350,
-          originX: "center",
-          originY: "center",
-        });
+          strokeWidth: 100,
+          stroke: 'white',
+          originX: 'center',
+          originY: 'center',
+          fill: 'transparent',
+        }),
 
-        img['custom-type'] = 'bubble';
-        img.clipPath = clipPath;
-        fabric.Object.prototype.objectCaching = false;
-        if (existingBubble) canvasRef.current?.remove(existingBubble)
-        canvasRef.current?.add(img);
-        canvasRef.current?.renderAll();
-      }, {
+      });
+      img['custom-type'] = 'bubble';
+      if (existingBubble) canvasRef.current?.remove(existingBubble);
+      canvasRef.current?.add(img)
+      canvasRef.current?.renderAll();
+    }, {
       crossOrigin: 'anonymous'
-    }
-    );
-
+    })
   };
+
 
   const applyImageFilters = () => {
     const activeObject = canvasRef.current?.getActiveObject();
@@ -509,7 +543,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
 
       <div>
         <canvas id="canvas" width={800} height={600}></canvas>
-        {toolsStep == 'bg' && <div>
+        {toolsStep == 'bg' && dropDown && <div>
 
           <Paper className={classes.root}>
             <div className={classes.optionsContainer}>
@@ -580,12 +614,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
                   color="secondary"
                   defaultValue={0}
                   min={-1}
+                  value={filtersRange.contrast}
                   max={1}
                   step={0.1}
                   valueLabelDisplay="auto"
                   //eslint-disable-next-line
                   onChange={(e) => {
                     let value = +e.target.value
+                    setFiltersRange({ ...filtersRange, contrast: value })
                     var filter = new fabric.Image.filters.Contrast({
                       contrast: value
                     });
@@ -607,9 +643,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
                   min={-1}
                   max={1}
                   step={0.1}
+                  value={filtersRange.brightness}
                   valueLabelDisplay="auto"
                   onChange={(e: Event) => {
                     let value = +e.target.value
+                    setFiltersRange({ ...filtersRange, brightness: value })
                     var filter = new fabric.Image.filters.Brightness({
                       brightness: value
                     });
@@ -650,7 +688,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
         </div>}
 
         {
-          toolsStep == 'title' && <div>
+          toolsStep == 'title' && dropDown && <div>
             <Paper className={classes.root}>
               <Box className={classes.optionsContainer}>
                 <Typography className={classes.heading}
@@ -671,7 +709,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
 
               {show === "colors" && (
                 <Box className={classes.optionsContainer}>
-                  {colors.map((item) => (
+                  {/* {colors.map((item) => (
                     <IconButton
                       onClick={() => {
                         updateOverlay({ ...overlayTextFiltersState, color: item.color })
@@ -684,7 +722,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
                         style={{ background: item.color }}
                       />
                     </IconButton>
-                  ))}
+                  ))} */}
+                  <ColorPicker format="hex" value={overlayTextFiltersState.color} inputStyle={{ width: '25px' }}
+                    onChange={(e) => {
+                      const color = `#${e.target.value}`
+                      updateOverlay({ ...overlayTextFiltersState, color })
+                      setOverlayTextFiltersState((prev) => ({ ...prev, color }))
+                    }}
+                  /> <input type="text" value={colorValue} onChange={(e) => { setColorValue(e.target.value) }} />
                 </Box>
               )}
               {show === "size" && (
@@ -731,6 +776,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
             </Paper>
           </div>
         }
+
+        <Paper style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { dropDown ? setDropDown(false) : setDropDown(true) }}>{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}</Paper>
 
         <div
           style={{
@@ -806,14 +853,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
 
                 {images.map((item) => {
-                  return <img src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
+                  return <img key={item.url} src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
                 })}
               </div>
               <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
 
                 {images.map((item) => {
-                  return <img src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
+                  return <img key={item.url} src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
                 })}
               </div>
 
