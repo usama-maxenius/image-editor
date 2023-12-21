@@ -82,7 +82,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   heading: {
     color: "white",
     cursor: "pointer",
-    paddingRight:'30px'
+    paddingRight: '30px'
   },
   fontOptionContainer: {
     display: "flex",
@@ -199,14 +199,30 @@ const specialTags = [
   },
 ];
 
+interface FilterState {
+  overlay: number;
+  text: string;
+  fontSize: number;
+  color: string;
+  fontFamily: string;
+}
+
 const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const [appliedFilters, setAppliedFilters] = useState<fabric.IBaseFilter[]>([]);
   const [activeButton, setActiveButton] = useState("");
   const [show, setShow] = useState("colors");
   const canvasRef = useRef<fabric.Canvas | null>(ref || null);
-  const [toolsStep,setToolstep] = useState('bg')
+  const [toolsStep, setToolstep] = useState('bg')
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [overlayTextFiltersState, setOverlayTextFiltersState] = useState<FilterState>({
+    overlay: 0.6,
+    text: '',
+    fontSize: 16,
+    color: 'white',
+    fontFamily: 'Arial'
+  });
+
   const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
     { name: 'Grayscale', filter: new fabric.Image.filters.Grayscale() },
     { name: 'Sepia', filter: new fabric.Image.filters.Sepia() },
@@ -216,13 +232,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const classes = useStyles();
 
 
-console.log(canvasRef);
+  console.log(canvasRef);
 
-const handleButtonClick = (buttonType: string) => {
-  setActiveButton(buttonType);
-};
-
-
+  const handleButtonClick = (buttonType: string) =>
+    setActiveButton(buttonType)
 
   useEffect(() => {
     const loadCanvas = async () => {
@@ -243,14 +256,7 @@ const handleButtonClick = (buttonType: string) => {
         });
       });
 
-      // Add text
-      const textObject = new fabric.Textbox(text, { left: 50, top: 50, selectable: false });
-      canvasRef.current.add(textObject);
-
       updateBubbleImage(image)
-
-
-      // Other canvas configurations and event handlers can be added here
     };
 
     loadCanvas();
@@ -260,49 +266,49 @@ const handleButtonClick = (buttonType: string) => {
     };
   }, [text, image]);
 
-
   const updateBubbleImage = (imgUrl: string) => {
     // Check if a bubble with the custom type already exists
     const existingBubble = canvasRef.current?.getObjects().find(obj => obj['custom-type'] === 'bubble');
 
-      // Create a new bubble if it doesn't exist
-      fabric.Image.fromURL(
-        imgUrl,
-        (img) => {
-          img.set({
-            borderColor: "red", // Example additional style
-            selectable: true,
-            lockMovementX: false,
-            lockMovementY: false,
-          });
-  
-          // Use the coordinates dynamically
-          img
-            .scale(0.2)
-            .set({
-              angle: 0,
-              evented: true, // Set evented to true to enable events
-            })
-            .center()
-            .setCoords();
-  
-          const clipPath = new fabric.Circle({
-            radius: 350,
-            originX: "center",
-            originY: "center",
-          });
-  
-          img['custom-type'] = 'bubble';
-          img.clipPath = clipPath;
-          fabric.Object.prototype.objectCaching = false;
-         if(existingBubble) canvasRef.current?.remove(existingBubble)
-          canvasRef.current?.add(img);
-          canvasRef.current?.renderAll();
-        },{
-           crossOrigin:'anonymous'
-        }
-      );
-    
+    // Create a new bubble if it doesn't exist
+    fabric.Image.fromURL(
+      imgUrl,
+      (img) => {
+        img.set({
+          borderColor: "red", // Example additional style
+          selectable: true,
+          lockMovementX: false,
+          lockMovementY: false,
+        });
+
+        // Use the coordinates dynamically
+        img
+          .scale(0.2)
+          .set({
+            angle: 0,
+            hasControls: false,
+            evented: true, // Set evented to true to enable events
+          })
+          .center()
+          .setCoords();
+
+        const clipPath = new fabric.Circle({
+          radius: 350,
+          originX: "center",
+          originY: "center",
+        });
+
+        img['custom-type'] = 'bubble';
+        img.clipPath = clipPath;
+        fabric.Object.prototype.objectCaching = false;
+        if (existingBubble) canvasRef.current?.remove(existingBubble)
+        canvasRef.current?.add(img);
+        canvasRef.current?.renderAll();
+      }, {
+      crossOrigin: 'anonymous'
+    }
+    );
+
   };
 
   const applyImageFilters = () => {
@@ -321,64 +327,30 @@ const handleButtonClick = (buttonType: string) => {
 
   };
 
-  const handleFilterChange = (filterName?: string, filters?:string) => {
+  const handleFilterChange = (props: { filter: fabric.IBaseFilter, type: string }) => {
+
+    const { filter, type } = props
     const canvas = canvasRef.current;
 
     if (!canvas) {
       return;
     }
+    const imageObject: fabric.Object | undefined = canvasRef.current?.getObjects().find(
+      (object) => object["custom-type"] === type
+    );
 
-    // Assuming selectedImage is defined somewhere in your code
-    // Load the selected background image with filters
-    const img = new Image();
-    img.src = selectedImage;
-    img.width = 500
-    img.crossOrigin = 'anonymous'
+    if (!imageObject) return
 
-    img.onload = () => {
-      // Assuming you have an image object in your canvas JSON
-      const imageObject = canvasRef.current?.getObjects().find(
-        (object) => object.type === "image" && object["custom-type"] === "background"
-      ); // Adjust this based on your JSON structure
+    const filterObj = availableFilters.find((f) => f.filter === filter);
+    imageObject.filters = [filter];
+    imageObject.applyFilters();
 
-      // Check if there is an image object
-      if (imageObject) {
-
-        if(filterName){
-          const filterObj = availableFilters.find((f) => f.name === filterName);
-          if (filterObj) {
-            imageObject.filters = [filterObj.filter];
-            imageObject.applyFilters();
-          }
-        } else{
-          imageObject.filters = [filters];
-          imageObject.applyFilters();
-        }
-
-        // Center the image in the canvas
-        const canvasWidth = canvas.width || 0;
-        const canvasHeight = canvas.height || 0;
-        const scale = Math.min(canvasWidth / img.width, canvasHeight / img.height);
-        const newWidth = img.width * scale;
-        const newHeight = img.height * scale;
-
-        // imageObject.set({
-        //   width: newWidth,
-        //   height: newHeight,
-        // });
-        imageObject.setElement(img);
-        imageObject.setCoords();
-        imageObject.width = canvas.width
-        imageObject.height = canvas.height
-        canvasRef.current?.renderAll();
-      }
-      
-    };
-   if(filterName) setSelectedFilter(filterName);
+    canvas.renderAll();
+    if (filterObj) setSelectedFilter(filterObj.name);
   };
 
   const handleImageChange = (imageUrl: string, filter?: string) => {
-        
+
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -430,8 +402,80 @@ const handleButtonClick = (buttonType: string) => {
     };
   }, []);
 
+  const updateOverlay = (overlayTextFilters: FilterState) => {
 
-  
+    const { color, fontFamily, fontSize, overlay: val, text: overlayText } = overlayTextFilters;
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    const existingObject = canvas.getObjects().find((object) => object["custom-type"] === "rect");
+
+    if (!existingObject) return;
+
+    if (val === 0) return;
+
+    var shadow = new fabric.Shadow({
+      color: `rgba(0, 0, 0, 0.8)`, // Increase opacity
+      blur: 20, // Increase blur value
+      offsetX: 0,
+      offsetY: -30,
+    });
+
+    // Create a new fabric.Rect with updated properties
+    const rect = new fabric.Rect({
+      ...existingObject,
+      fill: new fabric.Gradient({
+        type: 'linear',
+        coords: {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 200,
+        },
+        colorStops: [
+          { offset: 0, color: `rgba(0, 0, 0, ${val})` },
+          { offset: 0.2, color: `rgba(0, 0, 0, ${Math.min(val + 0.2, 1).toFixed(2)})` },
+          { offset: 0.5, color: `rgba(0, 0, 0, ${Math.min(val + 0.4, 1).toFixed(2)})` },
+          { offset: 1, color: `rgba(0, 0, 0, ${Math.min(val + 0.6, 1).toFixed(2)})` },
+        ],
+      }),
+      shadow,
+    });
+
+    // Add the rectangle to the canvas
+    // canvas.add(rect);
+    canvas.insertAt(rect, 1, false)
+    canvas.remove(existingObject);
+
+    const existingTextObject = canvas.getObjects().find((object) => object["custom-type"] === "title");
+
+    // Use the existing text or modify this based on your specific text property
+    const textString = overlayText || existingTextObject?.text;
+
+    // Create a new fabric.Text with updated properties
+    const text = new fabric.Textbox(textString, {
+      ...existingTextObject,
+      text: textString,
+      fill: color || existingTextObject?.fill,
+      fontSize: fontSize || 16,
+      selectable: true,
+      fontFamily: fontFamily || 'Arial', // Use 'Arial' as a default if fontFamily is not provided
+    });
+
+    // Add the text to the canvas
+
+    if (existingTextObject) {
+      canvas.remove(existingTextObject);
+    }
+
+    // Add the text to the canvas
+    canvas.add(text);
+
+    // canvas.on("object:moving", objectMoving);
+    // Render the canvas
+    canvas.renderAll();
+  };
 
 
   function saveImage() {
@@ -449,440 +493,507 @@ const handleButtonClick = (buttonType: string) => {
     link.click();
   }
 
+  const updateSwipeLeft = (color: string, type: string) => {
+
+    const blendColor = color ? `#${color}` : "#ffffff";
+    const blendColorFilter = new fabric.Image.filters.BlendColor({
+      color: blendColor,
+      mode: 'tint',
+      alpha: 1,
+
+    })
+    handleFilterChange({
+      filter: blendColorFilter,
+      type
+    })
+  };
+
+
+  const updateBorders = (color: string) => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    const existingObject = canvas.getObjects().find((object) => object["custom-type"] === "borders");
+
+    if (!existingObject) return;
+    const blendColor = color ? `#${color}` : "#ffffff";
+    const blendColorFilter = new fabric.Image.filters.BlendColor({
+      color: blendColor,
+      mode: 'tint',
+      alpha: 1,
+
+    })
+    handleFilterChange({
+      filter: blendColorFilter,
+      type: "borders"
+    })
+
+  }
 
   return (
-    <div style={{display:'flex', columnGap:'50px'}}>
+    <div style={{ display: 'flex', columnGap: '50px' }}>
 
       <div>
-      <canvas id="canvas" width={800} height={600}></canvas>
-        { toolsStep == 'bg' && <div>
+        <canvas id="canvas" width={800} height={600}></canvas>
+        {toolsStep == 'bg' && <div>
 
-        <Paper className={classes.root}>
-      <div className={classes.optionsContainer}>
-        <Button
-          className={`${classes.button} ${
-            activeButton === "Overlay" && classes.buttonActive
-          }`}
-          variant="text"
-          color="primary"
-          onClick={() => handleButtonClick("Overlay")}
-        >
-          Overlay
-        </Button>
-        <Button
-          className={`${classes.button} ${
-            activeButton === "Brightness" && classes.buttonActive
-          }`}
-          variant="text"
-          color="primary"
-          onClick={() => handleButtonClick("Brightness")}
-        >
-          Brightness
-        </Button>
-        <Button
-          className={`${classes.button} ${
-            activeButton === "Contrast" && classes.buttonActive
-          }`}
-          variant="text"
-          color="primary"
-          onClick={() => handleButtonClick("Contrast")}
-        >
-          Contrast
-        </Button>
-        <Button
-          className={`${classes.button} ${
-            activeButton === "Filters" && classes.buttonActive
-          }`}
-          variant="text"
-          color="primary"
-          onClick={() => handleButtonClick("Filters")}
-        >
-          Filter
-        </Button>
-      </div>
-      {activeButton === "Overlay" && (
-        <div className={classes.sliderContainer}>
-          <Slider
-            className={classes.slider}
-            aria-label="Overlay, Brightness, Contrast"
-            color="secondary"
-            defaultValue={0}
-            min={0}
-            max={1}
-            step={0.1}
-            valueLabelDisplay="auto"
-          />
-        </div>
-      )}
+          <Paper className={classes.root}>
+            <div className={classes.optionsContainer}>
+              <Button
+                className={`${classes.button} ${activeButton === "Overlay" && classes.buttonActive
+                  }`}
+                variant="text"
+                color="primary"
+                onClick={() => handleButtonClick("Overlay")}
+              >
+                Overlay
+              </Button>
+              <Button
+                className={`${classes.button} ${activeButton === "Brightness" && classes.buttonActive
+                  }`}
+                variant="text"
+                color="primary"
+                onClick={() => handleButtonClick("Brightness")}
+              >
+                Brightness
+              </Button>
+              <Button
+                className={`${classes.button} ${activeButton === "Contrast" && classes.buttonActive
+                  }`}
+                variant="text"
+                color="primary"
+                onClick={() => handleButtonClick("Contrast")}
+              >
+                Contrast
+              </Button>
+              <Button
+                className={`${classes.button} ${activeButton === "Filters" && classes.buttonActive
+                  }`}
+                variant="text"
+                color="primary"
+                onClick={() => handleButtonClick("Filters")}
+              >
+                Filter
+              </Button>
+            </div>
+            {activeButton === "Overlay" && (
+              <div className={classes.sliderContainer}>
+                <Slider
+                  className={classes.slider}
+                  aria-label="Overlay, Brightness, Contrast"
+                  color="secondary"
+                  defaultValue={overlayTextFiltersState.overlay}
+                  min={0}
+                  onChange={(e: any) => {
+                    const val = +e.target.value;
+                    if (val !== 0) {
+                      updateOverlay({ ...overlayTextFiltersState, overlay: val })
+                      setOverlayTextFiltersState((prev) => ({ ...prev, overlay: val }))
+                    }
+                  }}
+                  max={1}
+                  step={0.1}
+                  valueLabelDisplay="auto"
+                />
+              </div>
+            )}
 
-      {activeButton === "Contrast" && (
-        <div className={classes.sliderContainer}>
-          <Slider
-            className={classes.slider}
-            aria-label="Overlay, Brightness, Contrast"
-            color="secondary"
-            defaultValue={0}
-            min={-1}
-            max={1}
-            step={0.1}
-            valueLabelDisplay="auto"
-            //eslint-disable-next-line
-            onChange={(e)=>{
-              let value = e.target.value
-              var filter = new fabric.Image.filters.Contrast({
-                contrast: value
-              });
-              if(value !==0)  handleFilterChange(undefined,filter)
-            }}
-          />
-        </div>
-      )}
-      {activeButton === "Brightness" && (
-        <div className={classes.sliderContainer}>
-          <Slider
-            className={classes.slider}
-            aria-label="Overlay, Brightness, Contrast"
-            color="secondary"
-            defaultValue={0}
-            min={-1}
-            max={1}
-            step={0.1}
-            valueLabelDisplay="auto"
-            onChange={(e)=>{
-                let value = e.target.value
-              var filter = new fabric.Image.filters.Brightness({
-                brightness: value
-              });
-             if(value !==0) handleFilterChange(undefined,filter)
-            }}
-          />
-        </div>
-      )}
-      {activeButton === "Filters" && (
-        <div className={classes.sliderContainer}>
-          {availableFilters.map((filter) => (
-            <Button
-            key={filter.name} 
-            className={`${classes.button} ${
-              selectedFilter === "greyscale" &&
-              classes.buttonActive
-            }`}
-            variant="text"
-            color="primary"
-            onClick={()=>{handleFilterChange(filter.name)}}
-          >
-            {filter.name}
-          </Button>
+            {activeButton === "Contrast" && (
+              <div className={classes.sliderContainer}>
+                <Slider
+                  className={classes.slider}
+                  aria-label="Overlay, Brightness, Contrast"
+                  color="secondary"
+                  defaultValue={0}
+                  min={-1}
+                  max={1}
+                  step={0.1}
+                  valueLabelDisplay="auto"
+                  //eslint-disable-next-line
+                  onChange={(e) => {
+                    let value = +e.target.value
+                    var filter = new fabric.Image.filters.Contrast({
+                      contrast: value
+                    });
+                    if (value !== 0) handleFilterChange({
+                      filter,
+                      type: 'background'
+                    })
+                  }}
+                />
+              </div>
+            )}
+            {activeButton === "Brightness" && (
+              <div className={classes.sliderContainer}>
+                <Slider
+                  className={classes.slider}
+                  aria-label="Overlay, Brightness, Contrast"
+                  color="secondary"
+                  defaultValue={0}
+                  min={-1}
+                  max={1}
+                  step={0.1}
+                  valueLabelDisplay="auto"
+                  onChange={(e) => {
+                    let value = e.target.value
+                    var filter = new fabric.Image.filters.Brightness({
+                      brightness: value
+                    });
+                    if (value !== 0) handleFilterChange({
+                      filter,
+                      type: 'background'
+                    })
+                  }}
+                />
+              </div>
+            )}
+            {activeButton === "Filters" && (
+              <div className={classes.sliderContainer}>
+                {availableFilters.map((filter) => (
+                  <Button
+                    key={filter.name}
+                    className={`${classes.button} ${selectedFilter === "greyscale" &&
+                      classes.buttonActive
+                      }`}
+                    variant="text"
+                    color="primary"
+                    onClick={() => {
+                      handleFilterChange({
+                        filter: filter.filter,
+                        type: 'background'
+                      })
+                    }}
+                  >
+                    {filter.name}
+                  </Button>
 
-          ))}
-          
-</div>
-      )}
-    </Paper>
+                ))}
+
+              </div>
+            )}
+          </Paper>
 
         </div>}
 
         {
           toolsStep == 'title' && <div>
             <Paper className={classes.root}>
-      <Box className={classes.optionsContainer}>
-        <Typography className={classes.heading} onClick={() => setShow("font")}>
-          Font
-        </Typography>
-        <Typography
-          className={classes.heading}
-          onClick={() => setShow("colors")}
-        >
-          Colors
-        </Typography>
-        <Typography className={classes.heading} onClick={() => setShow("size")}>
-          Size
-        </Typography>
-      </Box>
-
-      {show === "colors" && (
-        <Box className={classes.optionsContainer}>
-          {colors.map((item) => (
-            <IconButton
-              key={item.id}
-            >
-              <div
-                className={classes.colorOption}
-                style={{ background: item.color }}
-              />
-            </IconButton>
-          ))}
-        </Box>
-      )}
-      {show === "size" && (
-        <div className={classes.sliderContainer}>
-        <Slider
-          className={classes.slider}
-          aria-label="size"
-          color="secondary"
-          defaultValue={0}
-          min={10}
-          max={48}
-          step={2}
-          valueLabelDisplay="auto"
-        />
-      </div>
-      )}
-      {show === "font" && (
-        <Box className={classes.optionsContainer}>
-         
-          <Box id="fontOptionContainer" className={classes.fontOptionContainer}>
-            {["Arial", "Times New Roman", "Courier New", "Georgia"].map(
-              (fontFamily) => (
-                <IconButton
-                  key={fontFamily}
-                
-                  className={`${classes.fontOption} ${classes.fontOptionHover}`}
+              <Box className={classes.optionsContainer}>
+                <Typography className={classes.heading}
+                  onClick={() => setShow("font")}
                 >
-                  <div className={classes.fontOptionDiv}>{fontFamily}</div>
-                </IconButton>
-              )
-            )}
-          </Box>
-          
-        </Box>
-      )}
-    </Paper>
+                  Font
+                </Typography>
+                <Typography
+                  className={classes.heading}
+                  onClick={() => setShow("colors")}
+                >
+                  Colors
+                </Typography>
+                <Typography className={classes.heading} onClick={() => setShow("size")}>
+                  Size
+                </Typography>
+              </Box>
+
+              {show === "colors" && (
+                <Box className={classes.optionsContainer}>
+                  {colors.map((item) => (
+                    <IconButton
+                      onClick={() => {
+                        updateOverlay({ ...overlayTextFiltersState, color: item.color })
+                        setOverlayTextFiltersState((prev) => ({ ...prev, color: item.color }))
+                      }}
+                      key={item.id}
+                    >
+                      <div
+                        className={classes.colorOption}
+                        style={{ background: item.color }}
+                      />
+                    </IconButton>
+                  ))}
+                </Box>
+              )}
+              {show === "size" && (
+                <div className={classes.sliderContainer}>
+                  <Slider
+                    className={classes.slider}
+                    aria-label="size"
+                    color="secondary"
+                    defaultValue={overlayTextFiltersState.fontSize}
+                    min={10}
+                    max={48}
+                    onChange={(e) => {
+                      const value = +e.target.value;
+                      updateOverlay({ ...overlayTextFiltersState, fontSize: value })
+                      setOverlayTextFiltersState((prev) => ({ ...prev, fontSize: value }))
+                    }}
+                    step={2}
+                    valueLabelDisplay="auto"
+                  />
+                </div>
+              )}
+              {show === "font" && (
+                <Box className={classes.optionsContainer}>
+
+                  <Box id="fontOptionContainer" className={classes.fontOptionContainer}>
+                    {["Arial", "Times New Roman", "Courier New", "Georgia"].map(
+                      (fontFamily) => (
+                        <IconButton
+                          key={fontFamily}
+                          onClick={() => {
+                            updateOverlay({ ...overlayTextFiltersState, fontFamily })
+                            setOverlayTextFiltersState((prev) => ({ ...prev, fontFamily }))
+                          }}
+                          className={`${classes.fontOption} ${classes.fontOptionHover}`}
+                        >
+                          <div className={classes.fontOptionDiv}>{fontFamily}</div>
+                        </IconButton>
+                      )
+                    )}
+                  </Box>
+
+                </Box>
+              )}
+            </Paper>
           </div>
         }
 
-      <div
-            style={{
-              display: "flex",
-              marginTop: "16px",
-              justifyContent: "space-between",
-            }}
+        <div
+          style={{
+            display: "flex",
+            marginTop: "16px",
+            justifyContent: "space-between",
+          }}
+        >
+          <button
+            style={{ backgroundColor: "transparent", border: "none" }}
+            onClick={() => { setToolstep('bg') }}
           >
-              <button
-                style={{ backgroundColor: "transparent", border: "none" }}
-                onClick={()=>{setToolstep('bg')}}
-              >
-                <LandscapeIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  BACKGROUND
-                </p>
-              </button>
+            <LandscapeIcon style={{ color: "white", fontSize: "30px" }} />
+            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+              BACKGROUND
+            </p>
+          </button>
 
-              <button
-                style={{ backgroundColor: "transparent", border: "none" }}
-                onClick={()=>{setToolstep('title')}}
+          <button
+            style={{ backgroundColor: "transparent", border: "none" }}
+            onClick={() => { setToolstep('title') }}
 
-              >
-                <TextFieldsIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  {" "}
-                  TITLE{" "}
-                </p>
-              </button>
+          >
+            <TextFieldsIcon style={{ color: "white", fontSize: "30px" }} />
+            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+              {" "}
+              TITLE{" "}
+            </p>
+          </button>
 
-              <button
-                  onClick={()=>{setToolstep('bubble')}}
-                style={{ backgroundColor: "transparent", border: "none" }}
-              >
-                <PersonIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  {" "}
-                  ADD BUBBLE
-                </p>
-              </button>
-            
-              <button
-                  onClick={()=>{setToolstep('element')}}
-               
-                style={{ backgroundColor: "transparent", border: "none" }}
-              >
-                <WavesIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  Elements
-                </p>
-              </button>
-            
-            
-              <button
-                  onClick={()=>{setToolstep('writePost')}}
-              
-                style={{ backgroundColor: "transparent", border: "none" }}
-              >
-                <EditNoteIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  write post
-                </p>
-              </button>
-          </div>
-          </div>
+          <button
+            onClick={() => { setToolstep('bubble') }}
+            style={{ backgroundColor: "transparent", border: "none" }}
+          >
+            <PersonIcon style={{ color: "white", fontSize: "30px" }} />
+            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+              {" "}
+              ADD BUBBLE
+            </p>
+          </button>
 
-<div>
-          <div style={{width:'130px',height:'480px',padding:'10px'}}>
-                
-               { toolsStep == 'bg' &&
-               <div>
-               <h4 style={{margin:'0px', padding:'0px'}}>From Article</h4>
-               <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',rowGap:'10px',margin:'10px 0px',height:'152px',overflow:'scroll'}}>
-                
-                    {images.map((item)=>{
-                       return <img src={item.url} alt="" width='60px' onClick={()=>{handleImageChange(item.url)}}/>
-                    })}
-               </div>
-               <h4 style={{margin:'0px', padding:'0px'}}>AI Images</h4>
-               <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',rowGap:'10px',margin:'10px 0px',height:'152px',overflow:'scroll'}}>
-                
-                    {images.map((item)=>{
-                       return <img src={item.url} alt="" width='60px' onClick={()=>{handleImageChange(item.url)}}/>
-                    })}
-               </div>
+          <button
+            onClick={() => { setToolstep('element') }}
 
-               <Box {...styles.uploadBox}>
-        <label style={styles.uploadLabel}>
-         
-           <h4>IMAGE UPLOAD</h4> 
-   
-          <form method="post" encType="multipart/form-data">
-            <input type="file" style={{ display: "none" }} />
-          </form>
-          <IconButton color="primary" component="span">
-            <CloudUploadIcon style={{ fontSize: "40px" }} />
-          </IconButton>
-        </label>
-      </Box>
-               
-               </div>
-               }
+            style={{ backgroundColor: "transparent", border: "none" }}
+          >
+            <WavesIcon style={{ color: "white", fontSize: "30px" }} />
+            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+              Elements
+            </p>
+          </button>
 
-               { toolsStep == 'title' && 
-               <div>
-                <h4 style={{margin:'0px', padding:'0px'}}>Titles</h4>
-                <div style={{marginTop:'20px'}}>
-                  {testText.map((item)=>{
-                    return <h5 style={{margin:'0px', marginBottom:'15px',cursor:'pointer',color:'#a19d9d'}}>{item}</h5>
+
+          <button
+            onClick={() => { setToolstep('writePost') }}
+
+            style={{ backgroundColor: "transparent", border: "none" }}
+          >
+            <EditNoteIcon style={{ color: "white", fontSize: "30px" }} />
+            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+              write post
+            </p>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div style={{ width: '130px', height: '480px', padding: '10px' }}>
+
+          {toolsStep == 'bg' &&
+            <div>
+              <h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
+
+                {images.map((item) => {
+                  return <img src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
+                })}
+              </div>
+              <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
+
+                {images.map((item) => {
+                  return <img src={item.url} alt="" width='60px' onClick={() => { handleImageChange(item.url) }} />
+                })}
+              </div>
+
+              <Box {...styles.uploadBox}>
+                <label style={styles.uploadLabel}>
+
+                  <h4>IMAGE UPLOAD</h4>
+
+                  <form method="post" encType="multipart/form-data">
+                    <input type="file" style={{ display: "none" }} />
+                  </form>
+                  <IconButton color="primary" component="span">
+                    <CloudUploadIcon style={{ fontSize: "40px" }} />
+                  </IconButton>
+                </label>
+              </Box>
+
+            </div>
+          }
+
+          {toolsStep == 'title' &&
+            <div>
+              <h4 style={{ margin: '0px', padding: '0px' }}>Titles</h4>
+              <div style={{ marginTop: '20px' }}>
+                {testText.map((text) => {
+                  return <h5 onClick={() => {
+                    updateOverlay({ ...overlayTextFiltersState, text })
+                    setOverlayTextFiltersState((prev) => ({ ...prev, text }))
+                  }} style={{ margin: '0px', marginBottom: '15px', cursor: 'pointer', color: '#a19d9d' }}>{text}</h5>
+                })}
+
+              </div>
+
+            </div>}
+
+          {toolsStep == 'bubble' &&
+            <div>
+              <h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
+
+                {images.map((item) => {
+                  return <img src={item.url} alt="" width='60px' onClick={() => { updateBubbleImage(item.url) }} />
+                })}
+              </div>
+              <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: '10px', margin: '10px 0px', height: '152px', overflow: 'scroll' }}>
+
+                {images.map((item) => {
+                  return <img src={item.url} alt="" width='60px' onClick={() => { updateBubbleImage(item.url) }} />
+                })}
+              </div>
+
+              <Box {...styles.uploadBox}>
+                <label style={styles.uploadLabel}>
+
+                  <h4>IMAGE UPLOAD</h4>
+
+                  <form method="post" encType="multipart/form-data">
+                    <input type="file" style={{ display: "none" }} />
+                  </form>
+                  <IconButton color="primary" component="span">
+                    <CloudUploadIcon style={{ fontSize: "40px" }} />
+                  </IconButton>
+                </label>
+              </Box>
+
+            </div>
+          }
+
+          {toolsStep == 'element' && <div>
+
+            <>
+              <Box>
+                <h4 >Choose Element</h4>
+                <Box
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"center"}
+                >
+                  {elements.map((item) => {
+                    return (
+                      <img
+                        key={item.id}
+                        src={item.path}
+                        alt=""
+                        width='90px'
+                        style={{ cursor: 'pointer' }}
+                      />
+                    );
                   })}
+                  <ColorPicker onChange={(e) => updateSwipeLeft(e.value, "swipe-left")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                </Box>
+              </Box>
+              <Box>
+                <h4 >Borders</h4>
+                <Box
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"center"}
+                >
+                  {borders.map((item) => {
+                    return (
+                      <img
+                        key={item.id}
+                        src={item.path}
+                        alt=""
+                        width='90px'
+                        style={{ cursor: 'pointer' }}
+                      />
+                    );
+                  })}
+                  <ColorPicker onChange={(e) => updateSwipeLeft(e.value, "borders")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
 
-                </div>
+                </Box>
+              </Box>
 
-                </div>}
-
-                { toolsStep == 'bubble' && 
-                <div>
-                <h4 style={{margin:'0px', padding:'0px'}}>From Article</h4>
-                <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',rowGap:'10px',margin:'10px 0px',height:'152px',overflow:'scroll'}}>
-                 
-                     {images.map((item)=>{
-                        return <img src={item.url} alt="" width='60px' onClick={()=>{updateBubbleImage(item.url)}}/>
-                     })}
-                </div>
-                <h4 style={{margin:'0px', padding:'0px'}}>AI Images</h4>
-                <div style={{display:'flex',justifyContent:'space-between',flexWrap:'wrap',rowGap:'10px',margin:'10px 0px',height:'152px',overflow:'scroll'}}>
-                 
-                     {images.map((item)=>{
-                        return <img src={item.url} alt="" width='60px' onClick={()=>{updateBubbleImage(item.url)}}/>
-                     })}
-                </div>
- 
-                <Box {...styles.uploadBox}>
-         <label style={styles.uploadLabel}>
-          
-            <h4>IMAGE UPLOAD</h4> 
-    
-           <form method="post" encType="multipart/form-data">
-             <input type="file" style={{ display: "none" }} />
-           </form>
-           <IconButton color="primary" component="span">
-             <CloudUploadIcon style={{ fontSize: "40px" }} />
-           </IconButton>
-         </label>
-       </Box>
-                
-                </div>
-                }
-
-                { toolsStep == 'element' && <div>
-
-                    <>
-          <Box>
-          <h4 >Choose Element</h4>
-            <Box
-              display={"flex"}
-              alignItems={"center"}
-              justifyContent={"center"}
-            >
-              {elements.map((item) => {
-                return (
-                  <img
-                    key={item.id}
-                    src={item.path}
-                    alt=""
-                    width='90px'
-                    style={{cursor:'pointer'}}
-                  />
-                );
-              })}
-               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
-            </Box>
-          </Box>
-          <Box>
-          <h4 >Borders</h4>
-            <Box
-              display={"flex"}
-              alignItems={"center"}
-              justifyContent={"center"}
-            >
-              {borders.map((item) => {
-                return (
-                  <img
-                    key={item.id}
-                    src={item.path}
-                    alt=""
-                    width='90px'
-                    style={{cursor:'pointer'}}
-                  />
-                );
-              })}
-               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
-               
-            </Box>
-          </Box>
-
-          <Box>
-            <h4>Special Tags</h4>
-            <Box
-              display={"flex"}
-              alignItems={"center"}
-              justifyContent={"center"}
-            >
-              {specialTags.map((item) => {
-                return (
-                  <img
-                    key={item.id}
-                    src={item.path}
-                    alt=""
-                    style={{cursor:'pointer'}}
-                    width='90px'
-                  />
-                );
-              })}
-               <ColorPicker value='008000'inputStyle={{width:'20px', marginLeft:'10px'}}/>
-            </Box>
-          </Box>
-        </>
+              <Box>
+                <h4>Special Tags</h4>
+                <Box
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"center"}
+                >
+                  {specialTags.map((item) => {
+                    return (
+                      <img
+                        key={item.id}
+                        src={item.path}
+                        alt=""
+                        style={{ cursor: 'pointer' }}
+                        width='90px'
+                      />
+                    );
+                  })}
+                  <ColorPicker value='008000' onChange={(e) => updateSwipeLeft(e.value, "special-tag")} inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                </Box>
+              </Box>
+            </>
 
 
-                </div>}
+          </div>}
 
-                { toolsStep == 'writePost' && 
-                <div>
-                    <h2>write post</h2>
-                </div>}
+          {toolsStep == 'writePost' &&
+            <div>
+              <h2>write post</h2>
+            </div>}
 
-     
-            </div> 
-            <div style={{marginTop:'15%'}}>
-      <button onClick={saveImage} style={{width: '100%',height: "42px",borderRadius:'25px',border:'none',backgroundColor:'#3b0e39',color: 'white'}}>
-        Export
-      </button></div>
+
+        </div>
+        <div style={{ marginTop: '15%' }}>
+          <button onClick={saveImage} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
+            Export
+          </button></div>
       </div>
 
     </div>

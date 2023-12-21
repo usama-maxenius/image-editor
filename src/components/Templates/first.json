@@ -10,7 +10,7 @@
       "lockMovementY": false
     },
     {
-      "id": 0,
+      "id": 45,
       "type": "image",
       "src": "/images/sample/special-tag.png",
       "custom-type": "special-tag",
@@ -74,6 +74,8 @@
       "type": "image",
       "src": "/images/sample/borders.png",
       "custom-type": "borders",
+      "left": 160,
+      "top": 340,
       "selectable": false,
       "lockMovementX": true,
       "lockMovementY": true
@@ -84,6 +86,8 @@
       "src": "/images/sample/swipe-left.png",
       "custom-type": "swipe-left",
       "selectable": false,
+      "left": 170,
+      "top": 450,
       "lockMovementX": true,
       "lockMovementY": true
     },
