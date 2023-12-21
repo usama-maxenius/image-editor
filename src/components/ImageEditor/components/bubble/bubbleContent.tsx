@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React from "react";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";

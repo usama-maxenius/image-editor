@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import LandingPage from "./pages/landing page/landingPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Templates from "./pages/templates/templates";

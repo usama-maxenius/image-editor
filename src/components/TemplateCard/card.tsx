@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {  Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 

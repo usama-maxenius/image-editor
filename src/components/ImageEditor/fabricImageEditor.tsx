@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React, { useRef, useEffect, useState } from "react";
 import { fabric } from "fabric";

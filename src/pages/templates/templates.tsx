@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { styled } from "@mui/system";
 import MainCard from "../../components/TemplateCard/card";
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Button, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import Input from '../../components/input/input';

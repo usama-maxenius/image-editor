@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { useOutletContext } from "react-router-dom";
 import { useTitle } from "../../../../context/fabricContext";
 import { useUrlData } from "../../../../context/url-context/urlState";

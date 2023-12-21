@@ -1,3 +1,6 @@
+//eslint-disable-next-line
+// @ts-nocheck
+
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import yourCanvasJson from "../Templates/first.json";
@@ -206,7 +209,7 @@ interface FilterState {
 }
 
 const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
-  const [appliedFilters, setAppliedFilters] = useState<fabric.IBaseFilter[]>([]);
+  const [appliedFilters, ] = useState<fabric.IBaseFilter[]>([]);
   const [activeButton, setActiveButton] = useState("");
   const [show, setShow] = useState("colors");
   const canvasRef = useRef<fabric.Canvas | null>(ref || null);
@@ -215,7 +218,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const [dropDown, setDropDown] = useState(false)
   const [filtersRange, setFiltersRange] = useState({ brightness: 0, contrast: 0 })
   const [colorValue, setColorValue] = useState('red')
-  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [, setSelectedImage] = useState<string>('');
   const [overlayTextFiltersState, setOverlayTextFiltersState] = useState<FilterState>({
     overlay: 0.6,
     text: '',

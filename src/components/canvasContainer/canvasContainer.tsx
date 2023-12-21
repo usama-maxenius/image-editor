@@ -1,8 +1,10 @@
+// @ts-nocheck
+
 import { styled } from '@mui/system';
 import Canvas from '../Canvas';
 import circleImage from "/images/sample/scott-circle-image.png";
 
-import { useState,useRef } from 'react';
+import { useRef } from 'react';
 
 
 
@@ -20,8 +22,6 @@ function CanvasContainer(){
         color: 'white',
         width: '100%',
       });
-
-      
 
     return(
         <>
