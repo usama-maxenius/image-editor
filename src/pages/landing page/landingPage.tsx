@@ -1,7 +1,7 @@
 import { Button, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import Input from '../../components/input/input';
-import { useNavigate } from 'react-router-dom';
+
 import CountdownTimer from '../../components/counter/counter';
 import { useState } from 'react';
 import { useUrlData } from '../../context/url-context/urlState';
@@ -17,13 +17,15 @@ const StyledContainer = styled('div')({
   width: '100%',
 });
 
-function LandingPage() {
+function LandingPage({updateStep}) {
   const [givenUrl, setGivenUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUrlData, urlData } = useUrlData();
-  const navigate = useNavigate();
 
+
+  
   const getData = async () => {
+    updateStep(2)
     if (!loading) {
       try {
         setLoading(true);
@@ -42,7 +44,7 @@ function LandingPage() {
         const data = await response.json();
         setUrlData(data);
         setLoading(false);
-        navigate('/templates');
+        updateStep(2)
       } catch (error) {
         console.error('Error fetching data:', error);
         setLoading(false);

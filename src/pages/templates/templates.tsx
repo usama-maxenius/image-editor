@@ -2,7 +2,7 @@ import { styled } from "@mui/system";
 import MainCard from "../../components/TemplateCard/card";
 
 
-function EgBanner() {
+function EgBanner({updateStep}) {
   const StyledContainer = styled("div")({
     display: "flex",
     flexDirection: "column",
@@ -16,7 +16,7 @@ function EgBanner() {
 
   return (
     <StyledContainer>
-      <MainCard />
+      <MainCard updateStep={updateStep}/>
     </StyledContainer>
   );
 }

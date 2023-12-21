@@ -13,15 +13,31 @@ import Canvas from "./components/Canvas";
 import firstTemplate from "./components/Templates/first.json"
 import image from "./components/ImageEditor/br9.png"
 import circleImage from "/images/sample/scott-circle-image.png"
+import { useState,useCallback } from "react";
+import CanvasContainer from "./components/canvasContainer/canvasContainer";
+
 
 function App() {
   const filePath="./components/Templates/first.json"
+  const [step, setStep ] = useState(4)
+  
+
+  const updateStep = useCallback((data) => {
+    setStep(data)
+  }, []);
+
+
   return (
     <>
       <ThemeProvider theme={theme}>
 
-<Canvas template={filePath} background="red" text="Hy"  image={circleImage} />
-      <Router>
+
+        {step == 1 ? <LandingPage updateStep={updateStep} /> : step == 2 ? <Templates updateStep={updateStep}/> : step == 4 ? <CanvasContainer /> : ''}
+        </ThemeProvider>
+
+
+{/* <Canvas template={filePath} background="red" text="Hy"  image={circleImage} /> */}
+      {/* <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/templates" element={<Templates />} />
@@ -33,8 +49,8 @@ function App() {
             <Route path="bubble" element={<Bubble />} />
           </Route>
         </Routes>
-      </Router>
-      </ThemeProvider>
+      </Router> */}
+      
     </>
   );
 }

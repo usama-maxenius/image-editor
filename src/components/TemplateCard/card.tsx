@@ -1,6 +1,6 @@
 import {  Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/system";
-import { useNavigate } from "react-router-dom";
+
 
 const StyledCard = styled(Card)(() => ({
   height: 400,
@@ -17,12 +17,11 @@ const StyledCardContent = styled(CardContent)({
   flexDirection: "column",
   alignItems: "center",
 });
-function MainCard() {
-  const navigate = useNavigate();
+function MainCard({updateStep}) {
 
   return (
-    <StyledCard onClick={() => navigate("/image-editor")}>
-      <StyledCardContent>
+    <StyledCard >
+      <StyledCardContent onClick={()=>{updateStep(3)}}>
         <Typography variant="h4" gutterBottom>
           Welcome to My App
         </Typography>
