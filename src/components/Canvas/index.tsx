@@ -8,8 +8,8 @@ import WavesIcon from "@mui/icons-material/Waves";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { makeStyles } from "@mui/styles";
 import { Theme } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
@@ -203,10 +203,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const [appliedFilters, setAppliedFilters] = useState<fabric.IBaseFilter[]>([]);
   const [activeButton, setActiveButton] = useState("");
   const [show, setShow] = useState("colors");
+  const [dropDown,setDropDown] = useState(false)
   const canvasRef = useRef<fabric.Canvas | null>(ref || null);
+  const [colorValue,setColorValue] = useState('red')
   const [toolsStep,setToolstep] = useState('bg')
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [filtersRange, setFiltersRange] = useState({brightness:0, contrast:0})
   const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
     { name: 'Grayscale', filter: new fabric.Image.filters.Grayscale() },
     { name: 'Sepia', filter: new fabric.Image.filters.Sepia() },
@@ -322,6 +325,8 @@ const handleButtonClick = (buttonType: string) => {
   };
 
   const handleFilterChange = (filterName?: string, filters?:string) => {
+
+    
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -455,7 +460,7 @@ const handleButtonClick = (buttonType: string) => {
 
       <div>
       <canvas id="canvas" width={800} height={600}></canvas>
-        { toolsStep == 'bg' && <div>
+        { toolsStep == 'bg' && dropDown && <div>
 
         <Paper className={classes.root}>
       <div className={classes.optionsContainer}>
@@ -465,7 +470,7 @@ const handleButtonClick = (buttonType: string) => {
           }`}
           variant="text"
           color="primary"
-          onClick={() => handleButtonClick("Overlay")}
+          onClick={() => {handleButtonClick("Overlay")}}
         >
           Overlay
         </Button>
@@ -475,7 +480,7 @@ const handleButtonClick = (buttonType: string) => {
           }`}
           variant="text"
           color="primary"
-          onClick={() => handleButtonClick("Brightness")}
+          onClick={() => {handleButtonClick("Brightness")}}
         >
           Brightness
         </Button>
@@ -485,7 +490,7 @@ const handleButtonClick = (buttonType: string) => {
           }`}
           variant="text"
           color="primary"
-          onClick={() => handleButtonClick("Contrast")}
+          onClick={() => {handleButtonClick("Contrast")}}
         >
           Contrast
         </Button>
@@ -525,10 +530,12 @@ const handleButtonClick = (buttonType: string) => {
             min={-1}
             max={1}
             step={0.1}
+            value={filtersRange.contrast}
             valueLabelDisplay="auto"
             //eslint-disable-next-line
             onChange={(e)=>{
               let value = e.target.value
+              setFiltersRange({...filtersRange,contrast:value})
               var filter = new fabric.Image.filters.Contrast({
                 contrast: value
               });
@@ -547,9 +554,11 @@ const handleButtonClick = (buttonType: string) => {
             min={-1}
             max={1}
             step={0.1}
+            value={filtersRange.brightness}
             valueLabelDisplay="auto"
             onChange={(e)=>{
                 let value = e.target.value
+                setFiltersRange({...filtersRange,brightness:value})
               var filter = new fabric.Image.filters.Brightness({
                 brightness: value
               });
@@ -561,6 +570,8 @@ const handleButtonClick = (buttonType: string) => {
       {activeButton === "Filters" && (
         <div className={classes.sliderContainer}>
           {availableFilters.map((filter) => (
+            <>
+            <div>
             <Button
             key={filter.name} 
             className={`${classes.button} ${
@@ -572,18 +583,24 @@ const handleButtonClick = (buttonType: string) => {
             onClick={()=>{handleFilterChange(filter.name)}}
           >
             {filter.name}
-          </Button>
-
+          </Button></div>
+         
+  
+        </>
           ))}
           
 </div>
+
       )}
+      
+
     </Paper>
 
         </div>}
+        
 
         {
-          toolsStep == 'title' && <div>
+          toolsStep == 'title' && dropDown && <div>
             <Paper className={classes.root}>
       <Box className={classes.optionsContainer}>
         <Typography className={classes.heading} onClick={() => setShow("font")}>
@@ -602,16 +619,7 @@ const handleButtonClick = (buttonType: string) => {
 
       {show === "colors" && (
         <Box className={classes.optionsContainer}>
-          {colors.map((item) => (
-            <IconButton
-              key={item.id}
-            >
-              <div
-                className={classes.colorOption}
-                style={{ background: item.color }}
-              />
-            </IconButton>
-          ))}
+          <ColorPicker format="hex" value={colorValue} inputStyle={{width:'25px'}} onChange={(e)=>{setColorValue(e.target.value)}}/> <input type="text" value={colorValue} onChange={(e)=>{setColorValue(e.target.value)}}/>
         </Box>
       )}
       {show === "size" && (
@@ -650,7 +658,7 @@ const handleButtonClick = (buttonType: string) => {
     </Paper>
           </div>
         }
-
+<Paper style={{display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{dropDown? setDropDown(false) : setDropDown(true)}}>{dropDown ? <ArrowDropUpIcon />: <ArrowDropDownIcon />}</Paper>
       <div
             style={{
               display: "flex",
