@@ -8,14 +8,13 @@ import WavesIcon from "@mui/icons-material/Waves";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { makeStyles } from "@mui/styles";
 import { Theme } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
-import { ColorPicker } from "primereact/colorpicker";
+import { ColorPicker, ColorPickerChangeEvent, ColorPickerHSBType, ColorPickerRGBType } from "primereact/colorpicker";
+import { Nullable } from 'primereact/ts-helpers';
 
 
 
@@ -230,9 +229,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
     // Add more filters as needed
   ];
   const classes = useStyles();
-
-
-  console.log(canvasRef);
 
   const handleButtonClick = (buttonType: string) =>
     setActiveButton(buttonType)
@@ -493,7 +489,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
     link.click();
   }
 
-  const updateSwipeLeft = (color: string, type: string) => {
+  const updateSwipeLeft = (color: Nullable<string | ColorPickerRGBType | ColorPickerHSBType>, type: string) => {
 
     const blendColor = color ? `#${color}` : "#ffffff";
     const blendColorFilter = new fabric.Image.filters.BlendColor({
@@ -507,29 +503,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
       type
     })
   };
-
-
-  const updateBorders = (color: string) => {
-    const canvas = canvasRef.current;
-
-    if (!canvas) return;
-
-    const existingObject = canvas.getObjects().find((object) => object["custom-type"] === "borders");
-
-    if (!existingObject) return;
-    const blendColor = color ? `#${color}` : "#ffffff";
-    const blendColorFilter = new fabric.Image.filters.BlendColor({
-      color: blendColor,
-      mode: 'tint',
-      alpha: 1,
-
-    })
-    handleFilterChange({
-      filter: blendColorFilter,
-      type: "borders"
-    })
-
-  }
 
   return (
     <div style={{ display: 'flex', columnGap: '50px' }}>
@@ -635,8 +608,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
                   max={1}
                   step={0.1}
                   valueLabelDisplay="auto"
-                  onChange={(e) => {
-                    let value = e.target.value
+                  onChange={(e: Event) => {
+                    let value = +e.target.value
                     var filter = new fabric.Image.filters.Brightness({
                       brightness: value
                     });
@@ -931,7 +904,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
                       />
                     );
                   })}
-                  <ColorPicker onChange={(e) => updateSwipeLeft(e.value, "swipe-left")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                  <ColorPicker onChange={(e: ColorPickerChangeEvent) => updateSwipeLeft(e.value, "swipe-left")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
                 </Box>
               </Box>
               <Box>
