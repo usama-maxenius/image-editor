@@ -158,11 +158,11 @@ const styles = {
 };
 
 const images = [
-  { name: 'Nature', url: 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg' },
+  { name: 'Nature', url: '/images/sample/scott-bg-imag.jpg' },
   { name: 'City', url: 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg' },
   { name: 'City', url: 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg' },
-  { name: 'Nature', url: 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg' },
-  { name: 'City', url: 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg' },
+  { name: 'Nature', url: '/images/sample/scott-circle-image.png' },
+  { name: 'City', url: '/images/sample/scott-bg-imag.jpg' },
 
   // { name: 'Mountains', url: 'https://example.com/mountains.jpg' },
   // Add more images as needed
@@ -205,7 +205,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ text, image, ref }) => {
   const [show, setShow] = useState("colors");
   const [dropDown,setDropDown] = useState(false)
   const canvasRef = useRef<fabric.Canvas | null>(ref || null);
-  const [colorValue,setColorValue] = useState('red')
+  const [colorValue,setColorValue] = useState('853485')
+  const [strokeColor,setStrokeColor] = useState('853485')
+
   const [toolsStep,setToolstep] = useState('bg')
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string>('');
@@ -658,6 +660,44 @@ const handleButtonClick = (buttonType: string) => {
     </Paper>
           </div>
         }
+
+        { toolsStep == 'bubble' && dropDown && 
+        <div>
+            <Paper className={classes.root}>
+      <Box className={classes.optionsContainer}>
+      <Typography className={classes.heading} onClick={() => setShow("strokeSize")}>
+          Stroke Size
+        </Typography>
+        <Typography
+          className={classes.heading}
+          onClick={() => setShow("strokeColors")}
+        >
+          Stroke Color
+        </Typography>
+      </Box>
+      {show === "strokeColors" && (
+        <Box className={classes.optionsContainer}>
+          <ColorPicker format="hex" value={strokeColor} inputStyle={{width:'25px'}} onChange={(e)=>{setStrokeColor(e.target.value)}}/> <input type="text" value={strokeColor} onChange={(e)=>{setStrokeColor(e.target.value)}}/>
+        </Box>
+      )}
+      {show === "strokeSize" && (
+        <div className={classes.sliderContainer}>
+          <Slider
+          className={classes.slider}
+          aria-label="size"
+          color="secondary"
+          defaultValue={0}
+          min={10}
+          max={30}
+          step={2}
+          valueLabelDisplay="auto"
+        />
+        </div>
+      )}
+      </Paper>
+        </div>
+        }
+
 <Paper style={{display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{dropDown? setDropDown(false) : setDropDown(true)}}>{dropDown ? <ArrowDropUpIcon />: <ArrowDropDownIcon />}</Paper>
       <div
             style={{
@@ -670,10 +710,7 @@ const handleButtonClick = (buttonType: string) => {
                 style={{ backgroundColor: "transparent", border: "none" }}
                 onClick={()=>{setToolstep('bg')}}
               >
-                <LandscapeIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  BACKGROUND
-                </p>
+               <img src="/images/sample/backgroundicon.png" alt="" width={'80px'}/>
               </button>
 
               <button
@@ -681,22 +718,14 @@ const handleButtonClick = (buttonType: string) => {
                 onClick={()=>{setToolstep('title')}}
 
               >
-                <TextFieldsIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  {" "}
-                  TITLE{" "}
-                </p>
+               <img src="/images/sample/editTexticon.png" alt="" width={'80px'}/>
               </button>
 
               <button
                   onClick={()=>{setToolstep('bubble')}}
                 style={{ backgroundColor: "transparent", border: "none" }}
               >
-                <PersonIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  {" "}
-                  ADD BUBBLE
-                </p>
+                <img src="/images/sample/addBubbleicon.png" alt="" width={'80px'}/>
               </button>
             
               <button
@@ -704,10 +733,9 @@ const handleButtonClick = (buttonType: string) => {
                
                 style={{ backgroundColor: "transparent", border: "none" }}
               >
-                <WavesIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  Elements
-                </p>
+                <img src="/images/sample/addElementsicon.png" alt="" width={'80px'}/>
+                
+              
               </button>
             
             
@@ -716,10 +744,7 @@ const handleButtonClick = (buttonType: string) => {
               
                 style={{ backgroundColor: "transparent", border: "none" }}
               >
-                <EditNoteIcon style={{ color: "white", fontSize: "30px" }} />
-                <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-                  write post
-                </p>
+              <img src="/images/sample/writePosticon.png" alt="" width={'80px'}/>
               </button>
           </div>
           </div>
@@ -752,9 +777,7 @@ const handleButtonClick = (buttonType: string) => {
           <form method="post" encType="multipart/form-data">
             <input type="file" style={{ display: "none" }} />
           </form>
-          <IconButton color="primary" component="span">
-            <CloudUploadIcon style={{ fontSize: "40px" }} />
-          </IconButton>
+          <img src="/images/sample/uploadIcon.png" alt="" width='30px'/>
         </label>
       </Box>
                
@@ -798,9 +821,7 @@ const handleButtonClick = (buttonType: string) => {
            <form method="post" encType="multipart/form-data">
              <input type="file" style={{ display: "none" }} />
            </form>
-           <IconButton color="primary" component="span">
-             <CloudUploadIcon style={{ fontSize: "40px" }} />
-           </IconButton>
+           <img src="/images/sample/uploadIcon.png" alt="" width='30px'/>
          </label>
        </Box>
                 
@@ -887,9 +908,9 @@ const handleButtonClick = (buttonType: string) => {
 
      
             </div> 
-            <div style={{marginTop:'15%'}}>
+            <div style={{marginTop:'37%'}}>
       <button onClick={saveImage} style={{width: '100%',height: "42px",borderRadius:'25px',border:'none',backgroundColor:'#3b0e39',color: 'white'}}>
-        Export
+        <img src="/images/sample/downloadIcon.png" alt="" width={'20px'} style={{verticalAlign:'middle'}}/> &nbsp; <span style={{verticalAlign:'middle'}}>Export</span> 
       </button></div>
       </div>
 
