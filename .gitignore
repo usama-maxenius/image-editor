@@ -25,3 +25,5 @@ package-lock.json
 *.sw?
 src/.DS_Store
 node_modules
+public/.DS_Store
+public/images/.DS_Store

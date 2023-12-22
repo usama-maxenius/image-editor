@@ -19,15 +19,13 @@ const StyledContainer = styled('div')({
   width: '100%',
 });
 
-function LandingPage({updateStep}) {
+function LandingPage({ updateStep }) {
   const [givenUrl, setGivenUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUrlData, urlData } = useUrlData();
 
-
-  
   const getData = async () => {
-    updateStep(2)
+    updateStep((prev) => prev + 1)
     if (!loading) {
       try {
         setLoading(true);

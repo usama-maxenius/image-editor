@@ -7,8 +7,6 @@ import React from "react";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-
-
 const styles = {
   imageBox: {
     display: "flex",
@@ -35,15 +33,12 @@ const styles = {
 
 function BackgroundContent() {
 const { urlData } = useUrlData();
-console.log(urlData);
 urlData.image_urls = [
     "https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg",
     "https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg",
   ];
 
   const [tools] = useOutletContext() as any[];
-
-
   const { setBackground } = useTitle();
 
   const handleBackgroundChange = (newBackground: string) => {
@@ -107,7 +102,6 @@ urlData.image_urls = [
 
                 if (files?.length && files?.length > 0) {
                   const fileName = files[0].name;
-
                   handleBackgroundChange(`/images/sample/${fileName}`);
                 }
               }}
