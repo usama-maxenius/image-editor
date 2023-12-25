@@ -1,5 +1,5 @@
- // @ts-nocheck
- 
+// @ts-nocheck
+
 import { fabric } from 'fabric';
 
 export const BaseURL = "http://127.0.0.1:5000";
@@ -39,30 +39,12 @@ export const seedData = {
   bubbles: ["/images/sample/scott-circle-image.png", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg',
   ],
   texts: [
-    {
-      "length": 50,
-      "title": "Dog Attack Claims 6-Year-Old's Life, Injures Woman"
-    },
-    {
-      "length": 50,
-      "title": "Tragic Dog Attack Leaves Child Dead, Woman Injured"
-    },
-    {
-      "length": 56,
-      "title": "Fatal Dog Attack Claims 6-Year-Old's Life, Woman Injured"
-    },
-    {
-      "length": 50,
-      "title": "Dog Attack Claims 6-Year-Old's Life, Woman Injured"
-    },
-    {
-      "length": 52,
-      "title": "6-Year-Old Killed, Woman Injured in Fatal Dog Attack"
-    },
-    {
-      "length": 54,
-      "title": "Fatal Dog Attack Leaves 6-Year-Old Dead, Woman Injured"
-    }
+    "Dog Attack Claims 6-Year-Old's Life, Injures Woman",
+    "Tragic Dog Attack Leaves Child Dead, Woman Injured",
+    "Fatal Dog Attack Claims 6-Year-Old's Life, Woman Injured",
+    "Dog Attack Claims 6-Year-Old's Life, Woman Injured",
+    "6-Year-Old Killed, Woman Injured in Fatal Dog Attack",
+    "Fatal Dog Attack Leaves 6-Year-Old Dead, Woman Injured"
   ],
   borders: [
     {

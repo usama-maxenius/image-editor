@@ -229,6 +229,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   };
 
   const updateBackgroundImage = (imageUrl: string) => {
+    console.log("🚀 ~ file: index.tsx:232 ~ updateBackgroundImage ~ imageUrl:", imageUrl)
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -780,9 +781,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                 {texts.map((text) => {
                   return <h5 onClick={() => {
                     // updateOverlay({ ...overlayTextFiltersState, text })
-                    updateText({ ...overlayTextFiltersState, text: text.title })
-                    setOverlayTextFiltersState((prev) => ({ ...prev, text: text.title }))
-                  }} style={{ margin: '0px', marginBottom: '15px', cursor: 'pointer', color: '#a19d9d' }}>{text.title}</h5>
+                    updateText({ ...overlayTextFiltersState, text })
+                    setOverlayTextFiltersState((prev) => ({ ...prev, text }))
+                  }} style={{ margin: '0px', marginBottom: '15px', cursor: 'pointer', color: '#a19d9d' }}>{text}</h5>
                 })}
 
               </div>
