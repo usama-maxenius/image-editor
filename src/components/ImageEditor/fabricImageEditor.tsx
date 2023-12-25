@@ -94,7 +94,6 @@ const updatedObjects= useRef<fabric.Object[]>([])
     const loadJsonFile = async (json: any) => {
       try {
         canvas.loadFromJSON(yourJsonFile, () => {
-          console.log("🚀 ~ file: fabricImageEditor.tsx:95 ~ canvas.loadFromJSON ~ objects:", canvas.getObjects())
          if(canvas.getObjects()) updatedObjects.current=canvas.getObjects()
           hideLoading();
 
@@ -423,8 +422,6 @@ const updatedObjects= useRef<fabric.Object[]>([])
                     .center()
                     .setCoords();
                 } else {
-                  console.log(circleData);
-
                   // Default values if currentPosition is null
                   img.scale(0.2).set({
                     top: circleData.top,

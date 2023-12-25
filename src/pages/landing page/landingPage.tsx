@@ -7,6 +7,7 @@ import Input from '../../components/input/input';
 import CountdownTimer from '../../components/counter/counter';
 import { useState } from 'react';
 import { useUrlData } from '../../context/url-context/urlState';
+import { BaseURL } from '../../constants';
 
 const StyledContainer = styled('div')({
   display: 'flex',
@@ -19,17 +20,16 @@ const StyledContainer = styled('div')({
   width: '100%',
 });
 
-function LandingPage({ updateStep }) {
+function LandingPage({ setScrappedData, updateStep }) {
   const [givenUrl, setGivenUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUrlData, urlData } = useUrlData();
 
   const getData = async () => {
-    updateStep((prev) => prev + 1)
     if (!loading) {
       try {
         setLoading(true);
-        const response = await fetch('https://6fae-103-167-255-58.ngrok-free.app/scrapping_data', {
+        const response = await fetch(`${BaseURL}/scrapping_data`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -43,16 +43,15 @@ function LandingPage({ updateStep }) {
 
         const data = await response.json();
         setUrlData(data);
-        setLoading(false);
+        await setScrappedData(data);
         updateStep(2)
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setLoading(false);
       }
     }
   };
-
-  console.log(urlData);
 
   return (
     <StyledContainer>

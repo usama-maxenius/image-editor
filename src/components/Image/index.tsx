@@ -1,3 +1,5 @@
+ // @ts-nocheck
+ 
 import { ImageList, ImageListItem } from '@mui/material'
 
 interface Props {
@@ -6,14 +8,13 @@ interface Props {
 }
 const ImageViewer = ({ images, clickHandler }: Props) => {
   return (
-    <ImageList sx={{ width: 200, height: 160 }} cols={2} rowHeight={160}>
+    <ImageList sx={{  width:'100%',height: 160,  }} cols={2} rowHeight={160}>
       {images.map((img) => (
-        <ImageListItem key={img.name}>
+        <ImageListItem key={img}>
           <img
-            onClick={() => clickHandler(img.url)}
-            srcSet={`${img.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-            src={`${img.url}?w=164&h=164&fit=crop&auto=format`}
-            alt={img.name}
+            onClick={() => clickHandler(img)}
+            srcSet={`${img}`}
+            src={`${img}`}
             loading="lazy"
           />
         </ImageListItem>
