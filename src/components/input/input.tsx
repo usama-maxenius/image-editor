@@ -9,7 +9,7 @@ const StyledTextField = styled(TextField)({
 
   },
   width: '40%',
-  
+
 });
 
 function Input({ onChange }: any) {
@@ -17,7 +17,7 @@ function Input({ onChange }: any) {
     <StyledTextField
       variant="outlined"
       onChange={onChange}
-      fullWidth
+      defaultValue="https://www.fox13now.com/woman-fatally-shot-by-police-after-pointing-gun-at-3-year-old-s-head?dicbo=v2-cPPTTmB&?"
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

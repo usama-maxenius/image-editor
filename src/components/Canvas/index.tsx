@@ -1,17 +1,12 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
-import LandscapeIcon from "@mui/icons-material/Landscape";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import PersonIcon from "@mui/icons-material/Person";
-import WavesIcon from "@mui/icons-material/Waves";
-import EditNoteIcon from "@mui/icons-material/EditNote";
 import { Typography, Box, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
-import { ColorPicker, ColorPickerChangeEvent, ColorPickerHSBType, ColorPickerRGBType } from "primereact/colorpicker";
+import { ColorPickerHSBType, ColorPickerRGBType } from "primereact/colorpicker";
 import { Nullable } from 'primereact/ts-helpers';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -19,6 +14,7 @@ import { styles, useStyles } from './index.style';
 import ImageViewer from '../Image';
 import { IBaseFilter } from 'fabric/fabric-impl';
 import { canvasDimension } from '../../constants';
+import CustomColorPicker from '../colorPicker';
 
 interface CanvasProps {
   template: string
@@ -32,7 +28,6 @@ interface FilterState {
   fontFamily: string;
 }
 
-
 const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template }) => {
   const { borders, elements, backgroundImages, logos, texts, bubbles } = updatedSeedData
   const [activeButton, setActiveButton] = useState("Overlay");
@@ -42,8 +37,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [dropDown, setDropDown] = useState(true)
   const [filtersRange, setFiltersRange] = useState({ brightness: 0, contrast: 0 })
-  const [colorValue, setColorValue] = useState('red')
-  const [, setSelectedImage] = useState<string>('');
 
   const [initialData, setInitialData] = useState({
     backgroundImages,
@@ -98,7 +91,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
       // Clear the canvas
       canvasRef.current.clear();
-
       // @vite-ignore
       const templateJSON = await import(template.path);
 
@@ -106,6 +98,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       await new Promise((resolve) => {
         canvasRef.current?.loadFromJSON(templateJSON, () => {
           updateOverlayImage(template.overlayImage, 1)
+          // updateBackgroundImage(updatedSeedData.backgroundImages[0])
           resolve(null);
         });
       });
@@ -145,8 +138,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       canvas.renderAll()
     } else if (imgUrl) {
       fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
-
-
         // Set the maximum radius for the circular clip mask
         var maxRadius = 80;
         let scale = +Math.min(270 / img.width, 270 / img.height).toFixed(2)
@@ -188,7 +179,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   /**
  * Updates the background filters of the canvas.
- *
  * @param {IBaseFilter} filter - The filter to be applied to the background image.
  * @return {void} This function does not return anything.
  */
@@ -229,7 +219,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   };
 
   const updateBackgroundImage = (imageUrl: string) => {
-    console.log("🚀 ~ file: index.tsx:232 ~ updateBackgroundImage ~ imageUrl:", imageUrl)
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -237,23 +226,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     }
 
     fabric.Image.fromURL(imageUrl, function (img) {
+      const scaleX = canvas.width / img.width;
+      const scaleY = canvas.height / img.height;
+
+      // Use the smaller scaling factor to avoid stretching
+      const minScale = Math.min(scaleX, scaleY);
+
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
         // Optional properties
-        width: canvas.width,
-        scaleX: canvas.width / img.width,
-        scaleY: canvas.height / img.height,
-        selectable: false,
+        // scaleX: minScale,
+        // scaleY: minScale,
+        // scaleX:1,
+        // scaleX: canvas.width / img.width,
+        // scaleY: canvas.height / img.height,
+        // originX:'center',
+        // originY:'center',
+        // selectable: false,
         crossOrigin: 'anonymous',
       });
-
       canvas.renderAll();
-      setSelectedImage(imageUrl);
     }, {
       crossOrigin: 'anonymous'
     })
+    canvas.renderAll();
   };
 
   const updateOverlayImage = (image: string, opacity: number) => {
+    console.log("🚀 ~ file: index.tsx:255 ~ updateOverlayImage ~ opacity:", opacity)
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -264,24 +263,47 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     if (existingObject) canvas.remove(existingObject)
 
+    const canvasWidth: number | undefined = canvas.width
+    const canvasHeight: number | undefined = canvas.height
 
-    fabric.Image.fromURL(image, function (img) {
+    if (!canvasWidth || !canvasHeight) return
 
-      // canvas.setOverlayImage(img, canvas.renderAll.bind(canvas));
+    // if (existingObject) {
+    //   existingObject.set({
+    //     opacity: +opacity || 1,
+    //   });
+  
+    //   if (opacity === 0) {
+    //     canvas.remove(existingObject);
+    //   }
+  
+    //   canvas.renderAll();
+    //   return;
+    // }
+    
+      fabric.Image.fromURL(image, function (img) {
 
-      var oImg = img.set({
-        width: canvas.width, height: canvasDimension.height, left: 0, top: 0, selectable: false,
-        opacity: +opacity.toFixed(2) || 1,
-        // backgroundColor: 'gray'
-      })
-      oImg['custom-type'] = 'overlay'
+        img.scaleToWidth(canvasWidth);
+        img.scaleToHeight(canvasHeight);
 
-      canvas.insertAt(oImg, 1, false);
+        img.set({
+          opacity: +opacity || 1,
+          selectable: false,
+        });
+
+        // img.scaleToWidth(canvasWidth, true);
+        // img.scaleToHeight(canvasHeight, true);
+
+        img['custom-type'] = 'overlay'
+
+        if (opacity > 0) canvas.insertAt(img, 1, false);
+        if (existingObject || opacity === 0) canvas.remove(existingObject)
+        canvas?.renderAll();
+      }, {
+        crossOrigin: 'anonymous'
+      });
       canvas?.renderAll();
-    }, {
-      crossOrigin: 'anonymous'
-    });
-    canvas?.renderAll();
+
   }
 
   const updateText = (textFilters: FilterState) => {
@@ -331,9 +353,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     if (!canvas) return
 
+    // const newCanvas = new fabric.StaticCanvas(null, {
+    //   width: 1080,
+    //   height: 1350
+    // });
+
+    // // Add the background image to the new canvas
+    // const backgroundImage = canvas.backgroundImage;
+    // if (backgroundImage) {
+    //   newCanvas.setBackgroundImage(backgroundImage, newCanvas.renderAll.bind(newCanvas));
+    // }
+
+    // // Clone objects from the original canvas to the new canvas
+    // canvas.getObjects().forEach(obj => {
+    //   const clone = fabric.util.object.clone(obj);
+    //   newCanvas.add(clone);
+    // });
     const dataUrl = canvas.toDataURL({
       format: "png",
       quality: 1.0,
+      // multiplier: 1350 / canvas.height,
     });
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -383,7 +422,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   */
   const updateElementColor = (color: Nullable<string | ColorPickerRGBType | ColorPickerHSBType>, type: string) => {
 
-    const blendColor = color ? `#${color}` : "#ffffff";
+    const blendColor = color ?? "#ffffff";
     const blendColorFilter = new fabric.Image.filters.BlendColor({
       color: blendColor,
       mode: 'tint',
@@ -411,17 +450,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     if (!files || files.length === 0) return;
 
     setInitialData((prev) => ({
-      ...prev, [field]: [{
-        name: 'uploadedImage',
-        url: URL.createObjectURL(files[0])
-      }, ...prev[field]]
+      ...prev, [field]: [URL.createObjectURL(files[0]), ...prev[field]]
     }))
   }
 
   return (
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
       <div>
-        <canvas height={canvasDimension.height} id="canvas"></canvas>
+
+        <canvas width="1080" height="1350" style={{ width: '600px', height: '600px' }} id="canvas"></canvas>
+
         {toolsStep == 'bg' && dropDown && <div>
 
           <Paper className={classes.root}>
@@ -470,13 +508,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   aria-label="Overlay, Brightness, Contrast"
                   color="secondary"
                   value={filterValues.overlay.opacity}
-                  // min={0}
+                  min={0}
                   onChange={(e: any) => {
-                    const val = +e.target.value;
-                    if (val !== 0) {
-                      updateOverlayImage(filterValues.overlay.imgUrl, val)
-                      setFilterValues((prev) => ({ ...prev, overlay: { ...prev.overlay, opacity: val } }))
-                    }
+                    // if (val !== 0) {
+
+
+                    const val = +(+e.target.value).toFixed(2);
+                    updateOverlayImage(filterValues.overlay.imgUrl, val)
+                    setFilterValues((prev) => ({ ...prev, overlay: { ...prev.overlay, opacity: +e.target.value } }))
+
+                    // }
                   }}
                   max={1}
                   step={0.1}
@@ -576,13 +617,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
             {show === "colors" && (
               <Box className={classes.optionsContainer}>
-                <ColorPicker format="hex" value={overlayTextFiltersState.color} inputStyle={{ width: '25px' }}
-                  onChange={(e) => {
-                    const color = `#${e.target.value}`
-                    updateText({ ...overlayTextFiltersState, color })
-                    setOverlayTextFiltersState((prev) => ({ ...prev, color }))
-                  }}
-                /> <input type="text" value={colorValue} onChange={(e) => { setColorValue(e.target.value) }} />
+                <CustomColorPicker value={overlayTextFiltersState.color} changeHandler={(color: string) => {
+                  updateText({ ...overlayTextFiltersState, color })
+                  setOverlayTextFiltersState((prev) => ({ ...prev, color }))
+                }} />
               </Box>
             )}
             {show === "size" && (
@@ -645,13 +683,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
             {show === "colors" && (
               <Box className={classes.optionsContainer}>
-                <ColorPicker format="hex" value={filterValues.bubble.stroke} inputStyle={{ width: '25px' }}
-                  onChange={(e) => {
-                    const color = `#${e.target.value}`
+                <CustomColorPicker value={overlayTextFiltersState.color}
+                  changeHandler={(color: string) => {
                     updateBubbleImage(undefined, { stroke: color, strokeWidth: filterValues.bubble.strokeWidth })
                     setFilterValues((prev) => ({ ...prev, bubble: { ...prev.bubble, stroke: color } }))
-                  }}
-                /> <input type="text" value={filterValues.bubble.stroke} onChange={(e) => setFilterValues((prev) => ({ ...prev, bubble: { ...prev.bubble, stroke: e.target.value } }))} />
+                  }} />
               </Box>
             )}
             {show === "size" && (
@@ -691,10 +727,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             style={{ backgroundColor: "transparent", border: "none" }}
             onClick={() => { setToolstep('bg') }}
           >
-            <LandscapeIcon style={{ color: "white", fontSize: "30px" }} />
-            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
+            <img src="/Tab-Icons/background.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
+            {/* <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
               BACKGROUND
-            </p>
+            </p> */}
           </button>
 
           <button
@@ -702,22 +738,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             onClick={() => { setToolstep('title') }}
 
           >
-            <TextFieldsIcon style={{ color: "white", fontSize: "30px" }} />
-            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-              {" "}
-              TITLE{" "}
-            </p>
+            <img src="/Tab-Icons/Edit-Text.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
+
           </button>
 
           <button
             onClick={() => { setToolstep('bubble') }}
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <PersonIcon style={{ color: "white", fontSize: "30px" }} />
-            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-              {" "}
-              ADD BUBBLE
-            </p>
+            <img src="/Tab-Icons/Add-Bubble.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
           </button>
 
           <button
@@ -725,10 +754,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <WavesIcon style={{ color: "white", fontSize: "30px" }} />
-            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-              Elements
-            </p>
+            <img src="/Tab-Icons/Add-Elements.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
           </button>
 
           <button
@@ -736,16 +762,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <EditNoteIcon style={{ color: "white", fontSize: "30px" }} />
-            <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-              write post
-            </p>
+            <img src="/Tab-Icons/Write-Post.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
           </button>
         </div>
       </div>
 
       <div>
-        <div style={{ width: '250px', height: '480px', padding: '10px' }}>
+        <div style={{ width: '300px', height: '480px', padding: '10px' }}>
           {toolsStep == 'bg' &&
             <div>
               <h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
@@ -785,9 +808,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     setOverlayTextFiltersState((prev) => ({ ...prev, text }))
                   }} style={{ margin: '0px', marginBottom: '15px', cursor: 'pointer', color: '#a19d9d' }}>{text}</h5>
                 })}
-
               </div>
-
             </div>}
 
           {toolsStep == 'bubble' &&
@@ -837,7 +858,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                       />
                     );
                   })}
-                  <ColorPicker onChange={(e: ColorPickerChangeEvent) => updateElementColor(e.value, "swipe")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                  <CustomColorPicker value={overlayTextFiltersState.color}
+                    changeHandler={(color: string) =>
+                      updateElementColor(color, "swipe")} />
+
+                  {/* <ColorPicker onChange={(e: ColorPickerChangeEvent) => updateElementColor(e.value, "swipe")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} /> */}
                 </Box>
               </Box>
               <Box>
@@ -858,7 +883,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                       />
                     );
                   })}
-                  <ColorPicker onChange={(e) => updateElementColor(e.value, "borders")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                  <CustomColorPicker value={overlayTextFiltersState.color}
+                    changeHandler={(color: string) =>
+                      updateElementColor(color, "borders")} />
+
+                  {/* <ColorPicker onChange={(e) => updateElementColor(e.value, "borders")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} /> */}
 
                 </Box>
               </Box>
@@ -881,7 +910,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                       />
                     );
                   })}
-                  <ColorPicker value='008000' onChange={(e) => updateElementColor(e.value, "hashtag")} inputStyle={{ width: '20px', marginLeft: '10px' }} />
+                  <CustomColorPicker value={overlayTextFiltersState.color}
+                    changeHandler={(color: string) => {
+                      return updateElementColor(color, "hashtag")
+                    }
+                    } />
                 </Box>
               </Box>
             </>
@@ -899,6 +932,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         <div style={{ marginTop: '40%', position: 'relative' }}>
           <button onClick={saveImage} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
             Export
+          </button>
+        </div>
+        <div style={{ marginTop: '40%', position: 'relative' }}>
+          <button onClick={saveJSON} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
+            JSON
           </button>
         </div>
       </div>
