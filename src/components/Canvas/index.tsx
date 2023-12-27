@@ -1,4 +1,4 @@
-// @ts-nocheck
+// // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton } from "@mui/material";
@@ -210,7 +210,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     if (!imageObject) return
 
     const filterObj = availableFilters.find((f) => f.filter === filter);
-    imageObject.selectable = false,
+    // imageObject.selectable = false,
       imageObject.filters = [filter];
     imageObject.applyFilters();
 
@@ -226,29 +226,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     }
 
     fabric.Image.fromURL(imageUrl, function (img) {
-      const scaleX = canvas.width / img.width;
-      const scaleY = canvas.height / img.height;
-
-      // Use the smaller scaling factor to avoid stretching
-      const minScale = Math.min(scaleX, scaleY);
-
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        // Optional properties
-        // scaleX: minScale,
-        // scaleY: minScale,
-        // scaleX:1,
-        // scaleX: canvas.width / img.width,
-        // scaleY: canvas.height / img.height,
-        // originX:'center',
-        // originY:'center',
-        // selectable: false,
-        crossOrigin: 'anonymous',
+        scaleX: canvas.width / img.width,
+        scaleY: canvas.height / img.height
       });
+      img.scaleToWidth(canvas.width)
+      img.scaleToHeight(canvas.height)
+      img.center()
       canvas.renderAll();
     }, {
       crossOrigin: 'anonymous'
-    })
-    canvas.renderAll();
+    });
   };
 
   const updateOverlayImage = (image: string, opacity: number) => {
@@ -272,37 +260,37 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     //   existingObject.set({
     //     opacity: +opacity || 1,
     //   });
-  
+
     //   if (opacity === 0) {
     //     canvas.remove(existingObject);
     //   }
-  
+
     //   canvas.renderAll();
     //   return;
     // }
-    
-      fabric.Image.fromURL(image, function (img) {
 
-        img.scaleToWidth(canvasWidth);
-        img.scaleToHeight(canvasHeight);
+    fabric.Image.fromURL(image, function (img) {
 
-        img.set({
-          opacity: +opacity || 1,
-          selectable: false,
-        });
+      img.scaleToWidth(canvasWidth);
+      img.scaleToHeight(canvasHeight);
 
-        // img.scaleToWidth(canvasWidth, true);
-        // img.scaleToHeight(canvasHeight, true);
-
-        img['custom-type'] = 'overlay'
-
-        if (opacity > 0) canvas.insertAt(img, 1, false);
-        if (existingObject || opacity === 0) canvas.remove(existingObject)
-        canvas?.renderAll();
-      }, {
-        crossOrigin: 'anonymous'
+      img.set({
+        opacity: +opacity || 1,
+        selectable: false,
       });
+
+      // img.scaleToWidth(canvasWidth, true);
+      // img.scaleToHeight(canvasHeight, true);
+
+      img['custom-type'] = 'overlay'
+
+      if (opacity > 0) canvas.insertAt(img, 1, false);
+      if (existingObject || opacity === 0) canvas.remove(existingObject)
       canvas?.renderAll();
+    }, {
+      crossOrigin: 'anonymous'
+    });
+    canvas?.renderAll();
 
   }
 
@@ -371,6 +359,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     // });
     const dataUrl = canvas.toDataURL({
       format: "png",
+      enableRetinaScaling,
       quality: 1.0,
       // multiplier: 1350 / canvas.height,
     });
@@ -843,9 +832,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
               <Box>
                 <h4 >Choose Element</h4>
                 <Box
-                  display={"flex"}
-                  alignItems={"center"}
-                  justifyContent={"center"}
+                sx={{
+                  display:'flex',
+                  justifyContent:'center',
+                  alignItems:'center',
+                  position:'relative'
+                }}
                 >
                   {elements.map((item) => {
                     return (

@@ -34,7 +34,7 @@ export const seedData = {
       path: "third.json",
     },
   ],
-  backgroundImages: ["/images/sample/scott-bg-imag.jpg", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg', 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg'
+  backgroundImages: ["/images/sample/scott-bg-imag.jpg", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg', 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg',"/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg","/images/sample/scott-circle-image.png"
 ],
   bubbles: ["/images/sample/scott-circle-image.png", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg',
   ],

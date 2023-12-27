@@ -15,6 +15,8 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 
   const popover: CSSProperties = {
     position: 'absolute',
+    right: 'auto', // Add this line
+    width: '200px', // Adjust the width as needed
     zIndex: '2',
   };
 
@@ -39,7 +41,9 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
 
 
   return (
-    <Box>
+    <Box sx={{
+      position:'relative'
+    }}>
       <button onClick={handleClick} style={{ width: '20px', height: '20px', background: currentColor, outline: 'none' }}></button>
       {displayColorPicker ? (
         <div style={popover}>
