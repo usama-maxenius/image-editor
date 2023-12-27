@@ -1,6 +1,7 @@
-import { CSSProperties, useState } from 'react';
+import { useState } from 'react';
 import { ChromePicker } from 'react-color';
 import { Box } from '@mui/material';
+import { Popover } from 'react-tiny-popover'
 
 interface Props {
   value: string
@@ -13,21 +14,6 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
   // State to manage the color value
   const [currentColor, setCurrentColor] = useState(value || '#ffffff');
 
-  const popover: CSSProperties = {
-    position: 'absolute',
-    right: 'auto', // Add this line
-    width: '200px', // Adjust the width as needed
-    zIndex: '2',
-  };
-
-  const cover: CSSProperties = {
-    position: 'fixed',
-    top: '0px',
-    right: '0px',
-    bottom: '0px',
-    left: '0px',
-  };
-
   const handleClick = () =>
     setDisplayColorPicker(!displayColorPicker);
 
@@ -36,21 +22,21 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
     changeHandler?.(color.hex)
   };
 
-  const handleClose = () =>
-    setDisplayColorPicker(false);
-
-
   return (
     <Box sx={{
-      position:'relative'
+      position: 'relative',
+      paddingLeft:'0.2rem',
+      paddingBottom:'0.5rem'
     }}>
-      <button onClick={handleClick} style={{ width: '20px', height: '20px', background: currentColor, outline: 'none' }}></button>
-      {displayColorPicker ? (
-        <div style={popover}>
-          <div style={cover} onClick={handleClose} />
-          <ChromePicker color={currentColor} onChange={handleChange} />
-        </div>
-      ) : null}
+      <Popover
+        isOpen={displayColorPicker}
+        onClickOutside={() => setDisplayColorPicker(false)}
+        positions={['top', 'bottom', 'left', 'right']} // preferred positions by priority
+        content={<ChromePicker color={currentColor} onChange={handleChange} />}
+      >
+        <button onClick={handleClick} style={{all:'unset', width: '30px', height: '20px', background: currentColor, outline: 'none' }}></button>
+      </Popover>
+
     </Box>
   );
 };

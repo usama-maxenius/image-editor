@@ -5,8 +5,8 @@ import { fabric } from 'fabric';
 export const BaseURL = "http://35.179.92.202";
 
 export const canvasDimension = {
-  width: 1080,
-  height: 1350
+  width: 540,
+  height: 675
 }
 export const seedData = {
   templates: [
@@ -21,21 +21,24 @@ export const seedData = {
     {
       url: "/Placeholder_Images/Placeholder-1.jpg",
       overlayImage: '/images/sample/br11.png',
-      path: "default.json",
+      path: "default",
+      opacity: 1,
     },
     {
       url: "/Placeholder_Images/Placeholder-2.jpg",
       overlayImage: '/images/overlay/op2.png',
-      path: "second.json",
+      path: "second",
+      opacity: 0,
     },
     {
       url: "/Placeholder_Images/Placeholder-3.jpg",
       overlayImage: '/images/overlay/op3.png',
-      path: "third.json",
+      path: "third",
+      opacity: 0,
     },
   ],
-  backgroundImages: ["/images/sample/scott-bg-imag.jpg", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg', 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg',"/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg","/images/sample/scott-circle-image.png"
-],
+  backgroundImages: ["/images/sample/scott-bg-imag.jpg", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg', 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg', "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg", "/images/sample/scott-circle-image.png"
+  ],
   bubbles: ["/images/sample/scott-circle-image.png", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg',
   ],
   texts: [
@@ -66,40 +69,40 @@ export const seedData = {
   ],
 };
 
-export const loadTemplates = async () => {
-  try {
-    const loadedTemplates = await Promise.all(
-      seedData?.templates?.map(async (template) => {
-        const filePath = `./templates/${template.path}`;
+// export const loadTemplates = async () => {
+//   try {
+//     const loadedTemplates = await Promise.all(
+//       seedData?.templates?.map(async (template) => {
+//         const filePath = `./templates/${template.path}`;
 
-        try {
-          const templateModule = await import(filePath);
-          const templateJSON = templateModule.default; // Assuming the JSON is the default export
+//         try {
+//           const templateModule = await import(filePath);
+//           const templateJSON = templateModule.default; // Assuming the JSON is the default export
 
-          const canvas = new fabric.Canvas('canvas', {
-            width: 500,
-            height: 500
-          });
+//           const canvas = new fabric.Canvas('canvas', {
+//             width: 500,
+//             height: 500
+//           });
 
-          return new Promise((resolve) => {
-            canvas.loadFromJSON(templateJSON, () => {
-              const img = canvas.toDataURL({ format: 'webp', quality: 0.5 });
-              canvas.dispose();
+//           return new Promise((resolve) => {
+//             canvas.loadFromJSON(templateJSON, () => {
+//               const img = canvas.toDataURL({ format: 'webp', quality: 0.5 });
+//               canvas.dispose();
 
-              resolve({
-                url: img,
-                path: template.path,
-              });
-            });
-          });
-        } catch (jsonError) {
-          throw new Error(`Failed to parse JSON: ${jsonError.message}`);
-        }
-      })
-    );
-    return loadedTemplates;
-  } catch (error) {
-    console.error(error.message);
-    // Handle the error, e.g., display an error message to the user.
-  }
-};
+//               resolve({
+//                 url: img,
+//                 path: template.path,
+//               });
+//             });
+//           });
+//         } catch (jsonError) {
+//           throw new Error(`Failed to parse JSON: ${jsonError.message}`);
+//         }
+//       })
+//     );
+//     return loadedTemplates;
+//   } catch (error) {
+//     console.error(error.message);
+//     // Handle the error, e.g., display an error message to the user.
+//   }
+// };

@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton } from "@mui/material";
@@ -17,7 +17,12 @@ import { canvasDimension } from '../../constants';
 import CustomColorPicker from '../colorPicker';
 
 interface CanvasProps {
-  template: string
+  template: {
+    path: string
+    overlayImage: string
+    opacity: number
+  } | {}
+  updatedSeedData: Record<string, any>
 }
 
 interface FilterState {
@@ -30,6 +35,7 @@ interface FilterState {
 
 const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template }) => {
   const { borders, elements, backgroundImages, logos, texts, bubbles } = updatedSeedData
+  // console.log("🚀 ~ file: index.tsx:33 ~ constCanvas:React.FC<CanvasProps>=React.memo ~ updatedSeedData:", updatedSeedData)
   const [activeButton, setActiveButton] = useState("Overlay");
   const [show, setShow] = useState("colors");
   const canvasRef = useRef<fabric.Canvas | null>(null);
@@ -60,7 +66,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     },
     overlay: {
       imgUrl: template.overlayImage,
-      opacity: 1
+      opacity: template.opacity
     },
     bubble: {
       image: '',
@@ -75,6 +81,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     { name: 'Invert', filter: new fabric.Image.filters.Invert() },
     // Add more filters as needed
   ];
+
   const classes = useStyles();
 
   const handleButtonClick = (buttonType: string) =>
@@ -91,13 +98,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
       // Clear the canvas
       canvasRef.current.clear();
+      function importLocale(locale: string) {
+        /* @vite-ignore */
+        return import(`../../constants/templates/${locale}.json`);
+      }
+
       // @vite-ignore
-      const templateJSON = await import(template.path);
+      const templateJSON = await importLocale(template.path)
 
       // Load canvas JSON template
       await new Promise((resolve) => {
         canvasRef.current?.loadFromJSON(templateJSON, () => {
-          updateOverlayImage(template.overlayImage, 1)
+          // updateOverlayImage(template.overlayImage, 1)
           updateText({
             overlay: 0.6,
             text: updatedSeedData.texts[0],
@@ -106,6 +118,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             fontFamily: 'Arial'
           })
           // updateBackgroundImage(updatedSeedData.backgroundImages[0])
+          // createCollage();
           resolve(null);
         });
       });
@@ -231,23 +244,32 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     if (!canvas) {
       return;
     }
+    const isBackgroundExist: string | fabric.Image | undefined = canvas.backgroundImage
 
-    fabric.Image.fromURL(imageUrl, function (img) {
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        scaleX: canvas.width / img.width,
-        scaleY: canvas.height / img.height
+    if (isBackgroundExist) {
+      fabric.Image.fromURL(imageUrl, function (img) {
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width / img.width,
+          scaleY: canvas.height / img.height
+        });
+        img.scaleToWidth(canvas.width)
+        img.scaleToHeight(canvas.height)
+        img.center()
+        canvas.renderAll();
+      }, {
+        crossOrigin: 'anonymous'
       });
-      img.scaleToWidth(canvas.width)
-      img.scaleToHeight(canvas.height)
-      img.center()
-      canvas.renderAll();
-    }, {
-      crossOrigin: 'anonymous'
-    });
+    } else {
+      let currentImageIndex = backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
+
+      if (currentImageIndex !== -1) {
+        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0, ['custom-type']: 'bg-1' }, 'bg-1')
+        if ((currentImageIndex) % 2 === 1) loadImage(imageUrl, 3, { top: canvas.height / 2, ['custom-type']: 'bg-2' }, 'bg-2')
+      }
+    }
   };
 
   const updateOverlayImage = (image: string, opacity: number) => {
-    console.log("🚀 ~ file: index.tsx:255 ~ updateOverlayImage ~ opacity:", opacity)
     const canvas = canvasRef.current;
 
     if (!canvas) {
@@ -256,49 +278,102 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     }
     const existingObject = canvas.getObjects().find((object) => object["custom-type"] === "overlay");
 
-    if (existingObject) canvas.remove(existingObject)
-
     const canvasWidth: number | undefined = canvas.width
     const canvasHeight: number | undefined = canvas.height
 
     if (!canvasWidth || !canvasHeight) return
 
-    // if (existingObject) {
-    //   existingObject.set({
-    //     opacity: +opacity || 1,
-    //   });
 
-    //   if (opacity === 0) {
-    //     canvas.remove(existingObject);
-    //   }
-
-    //   canvas.renderAll();
-    //   return;
-    // }
-
-    fabric.Image.fromURL(image, function (img) {
-
-      img.scaleToWidth(canvasWidth);
-      img.scaleToHeight(canvasHeight);
-
-      img.set({
-        opacity: +opacity || 1,
-        selectable: false,
+    if (existingObject) {
+      existingObject.animate({ opacity: opacity }, {
+        duration: 200, // Adjust the duration as needed
+        onChange: canvas.renderAll.bind(canvas),
       });
 
-      // img.scaleToWidth(canvasWidth, true);
-      // img.scaleToHeight(canvasHeight, true);
+      if (opacity === 0) {
+        // Remove the object after the animation completes
+        setTimeout(() => {
+          canvas.remove(existingObject);
+        }, 200); // Adjust the duration to match the animation duration
+      }
 
-      img['custom-type'] = 'overlay'
+      return;
+    } else {
+      fabric.Image.fromURL(image, function (img) {
+        img.scaleToWidth(canvas.width || 0);
+        img.scaleToHeight(canvas.height || 0);
 
-      if (opacity > 0) canvas.insertAt(img, 1, false);
-      if (existingObject || opacity === 0) canvas.remove(existingObject)
-      canvas?.renderAll();
+        img.set({
+          opacity: +opacity || 1,
+          selectable: false,
+        });
+
+        img['custom-type'] = 'overlay';
+
+        canvas.insertAt(img, 3, false);
+        canvas.renderAll();
+      }, {
+        crossOrigin: 'anonymous',
+      });
+    }
+  }
+
+  interface ImageOptions extends fabric.IImageOptions {
+    ["custom-type"]: string | undefined
+  }
+
+  const loadImage = (url: string, index: number | undefined, options: ImageOptions, type: string | undefined = undefined) => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return
+    const findExistingImageObject = canvas.getObjects().find((obj) => obj['custom-type'] === type)
+
+    // if(findExistingImageObject){
+
+    // }
+    fabric.Image.fromURL(url, function (img) {
+      // Calculate the aspect ratio of the image
+      const aspectRatio = img.width / img.height;
+
+      // Scale the image to full width and proportional height
+      img.scaleToWidth(canvas.width || 0);
+      // img.scaleToHeight(canvas.height / 2 || 0);
+      img.scaleToHeight((canvas.height || 0) / aspectRatio);
+
+      img.set({
+        ...options,
+        selectable: false,
+      });
+      img.centeredScaling = true
+      if (index) canvas.insertAt(img, index, false);
+      if (!index) canvas.add(img);
+      if (findExistingImageObject) canvas.remove(findExistingImageObject)
+      canvas.renderAll();
     }, {
-      crossOrigin: 'anonymous'
+      crossOrigin: 'anonymous',
     });
-    canvas?.renderAll();
+  };
 
+  const createCollage = (imgUrl: string) => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return
+
+    // const img1 = '/images/sample/scott-bg-imag.jpg';
+    const img1 = '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
+    const img2 = '/images/sample/scott-circle-image.png';
+
+    loadImage(img1, 1, { top: 0, ['custom-type']: 'bg-1' }, 'bg-1')
+    var rect = new fabric.Rect({
+      left: -1,
+      top: (canvas.height / 2) - 2,
+      selectable: false,
+      width: canvas.width,
+      stroke: 'red', // Set the border color
+      strokeWidth: 3 // Set the border width
+    });
+    canvas.insertAt(rect, 2, false)
+    loadImage(img2, 3, { top: canvas.height / 2, ['custom-type']: 'bg-2' }, 'bg-2');
   }
 
   const updateText = (textFilters: FilterState) => {
@@ -339,36 +414,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }
 
   /**
- * Saves the image from a canvas element as a PNG file.
- *
- * @return {void} This function does not return a value.
- */
+  * Saves the image from a canvas element as a PNG file.
+  *
+  * @return {void} This function does not return a value.
+  */
   function saveImage(): void {
     const canvas = canvasRef.current
 
     if (!canvas) return
-
-    // const newCanvas = new fabric.StaticCanvas(null, {
-    //   width: 1080,
-    //   height: 1350
-    // });
-
-    // // Add the background image to the new canvas
-    // const backgroundImage = canvas.backgroundImage;
-    // if (backgroundImage) {
-    //   newCanvas.setBackgroundImage(backgroundImage, newCanvas.renderAll.bind(newCanvas));
-    // }
-
-    // // Clone objects from the original canvas to the new canvas
-    // canvas.getObjects().forEach(obj => {
-    //   const clone = fabric.util.object.clone(obj);
-    //   newCanvas.add(clone);
-    // });
     const dataUrl = canvas.toDataURL({
       format: "png",
-      enableRetinaScaling,
+      multiplier: 2,
       quality: 1.0,
-      // multiplier: 1350 / canvas.height,
     });
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -377,17 +434,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }
 
   /**
- * Saves the JSON representation of the canvas.
- *
- * @return {void} - Does not return anything.
- */
+  * Saves the JSON representation of the canvas.
+  *
+  * @return {void} - Does not return anything.
+  */
   const saveJSON = () => {
     const canvas = canvasRef.current
     if (!canvas) {
       console.error('Canvas is undefined.');
       return;
     }
-    var json = JSON.stringify(canvas.toObject(['custom-type']));
+    var json = JSON.stringify(canvas.toObject(['custom-type', 'selectable']));
     // Create a Blob containing the JSON data
     var blob = new Blob([json], { type: 'application/json' });
 
@@ -454,8 +511,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
       <div>
 
-        <canvas width="1080" height="1350" style={{ width: '600px', height: '600px' }} id="canvas"></canvas>
-
+        <canvas width="1080" height="1350" id="canvas"></canvas>
+        {/* Footer Panel  Start*/}
         {toolsStep == 'bg' && dropDown && <div>
 
           <Paper className={classes.root}>
@@ -507,8 +564,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   min={0}
                   onChange={(e: any) => {
                     // if (val !== 0) {
-
-
                     const val = +(+e.target.value).toFixed(2);
                     updateOverlayImage(filterValues.overlay.imgUrl, val)
                     setFilterValues((prev) => ({ ...prev, overlay: { ...prev.overlay, opacity: +e.target.value } }))
@@ -516,7 +571,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     // }
                   }}
                   max={1}
-                  step={0.1}
+                  step={0.02}
                   valueLabelDisplay="auto"
                 />
               </div>
@@ -710,7 +765,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         </div>
         }
 
-        <Paper style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { dropDown ? setDropDown(false) : setDropDown(true) }}>{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}</Paper>
+
+        <Paper sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 0, width: '97%' }} onClick={() => { dropDown ? setDropDown(false) : setDropDown(true) }}>
+
+          {dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+
+        </Paper>
 
         <div
           style={{
@@ -724,9 +784,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             onClick={() => { setToolstep('bg') }}
           >
             <img src="/Tab-Icons/background.png" width='100' height="100" style={{ color: "white", fontSize: "30px" }} />
-            {/* <p style={{ color: "white", margin: "0px", fontWeight: "600" }}>
-              BACKGROUND
-            </p> */}
           </button>
 
           <button
@@ -763,6 +820,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         </div>
       </div>
 
+      {/* Footer Panel  End*/}
+
+      {/* Sidebar Tools Panel */}
       <div>
         <div style={{ width: '300px', height: '480px', padding: '10px' }}>
           {toolsStep == 'bg' &&
@@ -853,23 +913,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         src={item.path}
                         alt=""
                         width='90px'
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
                       />
                     );
                   })}
                   <CustomColorPicker value={overlayTextFiltersState.color}
                     changeHandler={(color: string) =>
                       updateElementColor(color, "swipe")} />
-
-                  {/* <ColorPicker onChange={(e: ColorPickerChangeEvent) => updateElementColor(e.value, "swipe")} value='008000' inputStyle={{ width: '20px', marginLeft: '10px' }} /> */}
                 </Box>
               </Box>
               <Box>
                 <h4>Borders</h4>
                 <Box
-                  display={"flex"}
-                  alignItems={"center"}
-                  justifyContent={"center"}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
                 >
                   {borders.map((item) => {
                     return (
@@ -878,7 +938,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         src={item.path}
                         alt=""
                         width='90px'
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
                       />
                     );
                   })}
@@ -894,9 +954,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
               <Box>
                 <h4>Social Tags</h4>
                 <Box
-                  display={"flex"}
-                  alignItems={"center"}
-                  justifyContent={"center"}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
                 >
                   {logos?.map((item) => {
                     return (
@@ -904,7 +966,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         key={item.id}
                         src={item.path}
                         alt=""
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
                         width='90px'
                       />
                     );
@@ -923,7 +985,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
           {toolsStep == 'writePost' &&
             <div>
-              <h2>write post</h2>
+              <h2>Write post</h2>
             </div>}
 
 

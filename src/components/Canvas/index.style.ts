@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles";
 
 export const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    width: "100%",
+    width: "97%",
     height: "100%",
     backgroundImage: "linear-gradient(to right, #4B1248, #F0C27B)",
     display: "flex",
