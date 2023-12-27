@@ -98,7 +98,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       await new Promise((resolve) => {
         canvasRef.current?.loadFromJSON(templateJSON, () => {
           updateOverlayImage(template.overlayImage, 1)
-          updateText(overlayTextFiltersState)
+          updateText({
+            overlay: 0.6,
+            text: updatedSeedData.texts[0],
+            fontSize: 16,
+            color: '#fff',
+            fontFamily: 'Arial'
+          })
           // updateBackgroundImage(updatedSeedData.backgroundImages[0])
           resolve(null);
         });
@@ -107,7 +113,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     loadCanvas();
 
-  }, [template, overlayTextFiltersState.text]);
+  }, [template, updatedSeedData]);
 
   const updateBubbleImage = (imgUrl: string | undefined, filter?: { strokeWidth: number, stroke: string }) => {
     const strokeWidth = filter?.strokeWidth || 10;
