@@ -1,4 +1,4 @@
-// // @ts-nocheck
+ // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton } from "@mui/material";

@@ -26,7 +26,7 @@ function LandingPage({ setScrappedData, updateStep }) {
   const { setUrlData, urlData } = useUrlData();
 
   const getData = async () => {
-    updateStep(2)
+    // updateStep(2)
     if (!loading) {
       try {
         setLoading(true);

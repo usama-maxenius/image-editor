@@ -34,14 +34,14 @@ function App() {
     loadTemplates().then((lisTemplates) => setTemplates(lisTemplates))
   }, [])
 
-  // useEffect(() => {
-  //   setUpdatedSeedData({
-  //     ...seedData,
-  //     backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.backgroundImages,
-  //     bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.bubbles,
-  //     texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : seedData.texts
-  //   })
-  // }, [scrappedData])
+  useEffect(() => {
+    setUpdatedSeedData({
+      ...seedData,
+      backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.backgroundImages,
+      bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.bubbles,
+      texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : seedData.texts
+    })
+  }, [scrappedData])
 
   return (
     <>

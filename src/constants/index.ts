@@ -2,7 +2,7 @@
 
 import { fabric } from 'fabric';
 
-export const BaseURL = "http://127.0.0.1:5000";
+export const BaseURL = "http://35.179.92.202";
 
 export const canvasDimension = {
   width: 1080,
