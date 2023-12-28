@@ -1,4 +1,4 @@
- // @ts-nocheck
+// // @ts-nocheck
 import LandingPage from "./pages/landing page/landingPage";
 import Templates from "./pages/templates/templates";
 import { ThemeProvider } from "@mui/material/styles";
@@ -6,7 +6,8 @@ import theme from "./components/theme/theme";
 import Canvas from "./components/Canvas";
 import { useEffect, useState } from "react";
 import { styled } from "@mui/styles";
-import { seedData } from "./constants";
+import { templateData } from "./constants";
+import { APIResponse, Template, TemplateData } from "./types";
 
 const StyledContainer = styled('div')({
   display: 'flex',
@@ -21,21 +22,19 @@ const StyledContainer = styled('div')({
 
 function App() {
   const [step, setStep] = useState(1)
-  const [defaultTemplate, setDefaultTemplate] = useState({
-  })
-  const [scrappedData, setScrappedData] = useState({
-    image_urls: [],
-    generated_titles: []
-  })
-  const [updatedSeedData, setUpdatedSeedData] = useState(seedData)
+  const [selectedTemplate, setSelectedTemplate] = useState<Template>(templateData.templates[0])
+
+  const [scrappedData, setScrappedData] = useState<APIResponse>()
+  const [updatedSeedData, setUpdatedSeedData] = useState<TemplateData>(templateData)
 
   useEffect(() => {
-    setUpdatedSeedData({
-      ...seedData,
-      backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.backgroundImages,
-      bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : seedData.bubbles,
-      texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : seedData.texts
-    })
+    if (!scrappedData) return
+    setUpdatedSeedData((prev) => ({
+      ...prev,
+      backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : prev.backgroundImages,
+      bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : prev.bubbles,
+      texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : prev.texts
+    }))
   }, [scrappedData])
 
   return (
@@ -45,9 +44,9 @@ function App() {
           step == 2 ?
             <Templates
               updateStep={setStep}
-              setDefaultTemplate={setDefaultTemplate} /> :
+              setDefaultTemplate={setSelectedTemplate} /> :
             step == 3 ? <StyledContainer>
-              <Canvas updatedSeedData={updatedSeedData} template={defaultTemplate} />
+              <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
             </StyledContainer> : ''}
       </ThemeProvider>
     </>

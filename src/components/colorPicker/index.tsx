@@ -30,6 +30,7 @@ const CustomColorPicker = ({ value, changeHandler }: Props) => {
     }}>
       <Popover
         isOpen={displayColorPicker}
+        align='center'
         onClickOutside={() => setDisplayColorPicker(false)}
         positions={['top', 'bottom', 'left', 'right']} // preferred positions by priority
         content={<ChromePicker color={currentColor} onChange={handleChange} />}

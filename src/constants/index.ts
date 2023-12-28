@@ -1,6 +1,5 @@
-// @ts-nocheck
-
-import { fabric } from 'fabric';
+// // @ts-nocheck
+import { TemplateData } from '../types';
 
 export const BaseURL = "http://35.179.92.202";
 
@@ -8,33 +7,31 @@ export const canvasDimension = {
   width: 540,
   height: 675
 }
-export const seedData = {
+export const templateData: TemplateData = {
   templates: [
     {
-      path: "default.json",
-    },
-    {
-      path: "second.json",
-    }
-  ],
-  placeholders: [
-    {
-      url: "/Placeholder_Images/Placeholder-1.jpg",
+      placeholderImage: "/Placeholder_Images/Placeholder-1.jpg",
       overlayImage: '/images/sample/br11.png',
-      path: "default",
+      filePath: "default",
       opacity: 1,
+      backgroundImage: true,
+      diptych: undefined
     },
     {
-      url: "/Placeholder_Images/Placeholder-2.jpg",
+      placeholderImage: "/Placeholder_Images/Placeholder-2.jpg",
       overlayImage: '/images/overlay/op2.png',
-      path: "second",
+      filePath: "second",
       opacity: 0,
+      backgroundImage: false,
+      diptych: 'vertical'
     },
     {
-      url: "/Placeholder_Images/Placeholder-3.jpg",
+      placeholderImage: "/Placeholder_Images/Placeholder-3.jpg",
       overlayImage: '/images/overlay/op3.png',
-      path: "third",
+      filePath: "third",
       opacity: 0,
+      backgroundImage: false,
+      diptych: 'horizontal'
     },
   ],
   backgroundImages: ["/images/sample/scott-bg-imag.jpg", 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg', 'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg', "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg", "/images/sample/scott-circle-image.png"
@@ -49,24 +46,9 @@ export const seedData = {
     "6-Year-Old Killed, Woman Injured in Fatal Dog Attack",
     "Fatal Dog Attack Leaves 6-Year-Old Dead, Woman Injured"
   ],
-  borders: [
-    {
-      id: "1",
-      path: "/images/sample/borders.png",
-    },
-  ],
-  logos: [
-    {
-      id: "1",
-      path: "/images/sample/special-tag.png",
-    },
-  ],
-  elements: [
-    {
-      id: "1",
-      path: "/images/sample/swipe-left.png",
-    },
-  ],
+  borders: ["/images/sample/borders.png"],
+  logos: ["/images/sample/special-tag.png"],
+  elements: ["/images/sample/swipe-left.png"],
 };
 
 // export const loadTemplates = async () => {

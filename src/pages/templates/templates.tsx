@@ -1,11 +1,12 @@
- // @ts-nocheck
+// // @ts-nocheck
 import { styled } from "@mui/system";
-import { seedData } from "../../constants";
+import { templateData } from "../../constants";
 import { Dispatch, SetStateAction } from "react";
+import { Template } from "../../types";
 
 interface Props {
   updateStep: Dispatch<SetStateAction<number>>;
-  setDefaultTemplate: Dispatch<SetStateAction<string>>;
+  setDefaultTemplate: Dispatch<SetStateAction<Template>>;
 }
 function EgBanner({ updateStep, setDefaultTemplate }: Props) {
   const StyledContainer = styled("div")({
@@ -22,12 +23,12 @@ function EgBanner({ updateStep, setDefaultTemplate }: Props) {
 
   return (
     <StyledContainer>
-      {seedData.placeholders?.map((placeholder) => {
+      {templateData.templates?.map((template) => {
         return (
-          <img key={placeholder.url} onClick={() => {
+          <img key={template.placeholderImage} onClick={() => {
             updateStep((prev) => prev + 1)
-            setDefaultTemplate(placeholder)
-          }} style={{ width: 300, height: 400, objectFit: 'contain' }} src={placeholder.url} />
+            setDefaultTemplate(template)
+          }} style={{ width: 300, height: 400, objectFit: 'contain' }} src={template.placeholderImage} />
         )
       })}
     </StyledContainer>
