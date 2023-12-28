@@ -86,9 +86,9 @@
 			"version": "5.3.0",
 			"originX": "left",
 			"originY": "top", 
-			"left": -2,
+			"left": -10,
 			"top": 335.5,
-			"width": 540,
+			"width": 600,
 			"height": 0,
 			"fill": "rgb(0,0,0)",
 			"stroke": "red",
@@ -115,6 +115,7 @@
 			"skewY": 0,
 			"rx": 0,
 			"ry": 0,
+			"custom-type": "photo-border",
 			"selectable": false
 	},
 		{

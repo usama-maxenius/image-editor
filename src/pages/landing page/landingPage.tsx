@@ -72,3 +72,4 @@ function LandingPage({ setScrappedData, updateStep }) {
 }
 
 export default LandingPage;
+

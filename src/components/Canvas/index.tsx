@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -161,7 +161,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   //   if (!canvasToolbox.activeObject) return
   //   console.log("🚀 ~ file: index.tsx:172 ~ useEffect ~ canvasToolbox.activeObject:", canvasToolbox.activeObject)
   //   const customType = canvasToolbox.activeObject['custom-type'];
-    
+
   //   if (customType) {
   //     customType=
   //   } else {
@@ -781,7 +781,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   aria-label="Volume"
                   value={filterValues.collage.strokeWidth} onChange={(e: any) => {
                     const value = +e.target.value;
-                    createOrUpdateRect({ strokeWidth: value, left: (canvasRef.current?.getWidth() / 2) - (value / 2) })
+                    if (template.diptych === 'horizontal') {
+                      createOrUpdateRect({ strokeWidth: value, left: (canvasRef.current?.getWidth() / 2) - (value / 2) })
+                    } else {
+                      createOrUpdateRect({ strokeWidth: value, top: (canvasRef.current?.getHeight() / 2) - (value / 2) })
+                    }
                     setFilterValues((prev) => ({ ...prev, collage: { ...prev.collage, strokeWidth: value } }))
                   }} />
               </Stack>
