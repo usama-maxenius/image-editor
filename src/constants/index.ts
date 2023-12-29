@@ -1,7 +1,7 @@
 // // @ts-nocheck
 import { TemplateData } from '../types';
 
-export const BaseURL = "http://35.179.92.202";
+export const BaseURL = "https://image-editor.maxenius.com";
 
 export const canvasDimension = {
   width: 540,
