@@ -1,13 +1,10 @@
-// @ts-nocheck
-
 import { Button, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import Input from '../../components/input/input';
-
 import CountdownTimer from '../../components/counter/counter';
-import { useState } from 'react';
-import { useUrlData } from '../../context/url-context/urlState';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { BaseURL } from '../../constants';
+import { APIResponse } from '../../types';
 
 const StyledContainer = styled('div')({
   display: 'flex',
@@ -20,10 +17,14 @@ const StyledContainer = styled('div')({
   width: '100%',
 });
 
-function LandingPage({ setScrappedData, updateStep }) {
+interface Props {
+  setScrappedData: Dispatch<SetStateAction<APIResponse | undefined>> 
+  updateStep: Dispatch<SetStateAction<number>>
+}
+function LandingPage({ setScrappedData, updateStep }: Props) {
+
   const [givenUrl, setGivenUrl] = useState('https://www.fox13now.com/woman-fatally-shot-by-police-after-pointing-gun-at-3-year-old-s-head?dicbo=v2-cPPTTmB&?');
   const [loading, setLoading] = useState(false);
-  const { setUrlData, urlData } = useUrlData();
 
   const getData = async () => {
     // updateStep(2)
@@ -43,7 +44,6 @@ function LandingPage({ setScrappedData, updateStep }) {
         }
 
         const data = await response.json();
-        setUrlData(data);
         await setScrappedData(data);
         updateStep(2)
         setLoading(false);
@@ -59,7 +59,7 @@ function LandingPage({ setScrappedData, updateStep }) {
       <Typography variant="h4" gutterBottom>
         Welcome to My App
       </Typography>
-      <Input  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGivenUrl(e.target.value)} />
+      <Input onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGivenUrl(e.target.value)} />
       <Button
         variant="contained"
         sx={{ mt: '30px', bgcolor: 'white', color: 'black', '&:hover': { bgcolor: 'white', color: 'black' } }}

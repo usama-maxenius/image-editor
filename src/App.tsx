@@ -6,7 +6,7 @@ import theme from "./components/theme/theme";
 import Canvas from "./components/Canvas";
 import { useEffect, useState } from "react";
 import { styled } from "@mui/styles";
-import { templateData } from "./constants";
+import { BaseURL, templateData } from "./constants";
 import { APIResponse, Template, TemplateData } from "./types";
 
 const StyledContainer = styled('div')({
@@ -31,8 +31,8 @@ function App() {
     if (!scrappedData) return
     setUpdatedSeedData((prev) => ({
       ...prev,
-      backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : prev.backgroundImages,
-      bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => scrapeImg) : prev.bubbles,
+      backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => BaseURL + scrapeImg) : prev.backgroundImages,
+      bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => BaseURL + scrapeImg) : prev.bubbles,
       texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : prev.texts
     }))
   }, [scrappedData])
