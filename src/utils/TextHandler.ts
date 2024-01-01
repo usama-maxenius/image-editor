@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { fabric } from 'fabric';
 import { ITextboxOptions } from 'fabric/fabric-impl';
 
@@ -20,8 +22,8 @@ export function createTextBox(canvas: fabric.Canvas | null, options: FabricTextB
     top: 50,
     fontSize: 16,
     fontWeight: "bold",
-    fontFamily: "Arial",
-    textAlign:'center',
+    fontFamily: "Pacifico",
+    textAlign: 'center',
     fontStyle: 'normal',
     fill: '#000000',
     lineHeight: 1.16,
@@ -31,9 +33,8 @@ export function createTextBox(canvas: fabric.Canvas | null, options: FabricTextB
 
   const textOptions = { ...defaultOptions, ...options };
 
-  const newText:any = new fabric.Textbox(options.text || 'Your text here', { ...textOptions });
+  const newText = new fabric.Textbox(options.text || 'Your text here', { ...textOptions });
   if (options.customType) newText.customType = options.customType
-
   canvas.add(newText);
   canvas.setActiveObject(newText);
   canvas.requestRenderAll();
@@ -50,7 +51,6 @@ export function createTextBox(canvas: fabric.Canvas | null, options: FabricTextB
  */
 export function updateTextBox(canvas: fabric.Canvas | null, textbox: fabric.Textbox, options: ITextboxOptions): void {
   if (!canvas) return
-  console.log('first')
   textbox.set({
     ...options
   });

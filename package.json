@@ -21,9 +21,11 @@
     "primereact": "^10.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
     "react-konva": "^18.2.10",
     "react-router-dom": "^6.20.0",
-    "react-tiny-popover": "^8.0.4"
+    "react-tiny-popover": "^8.0.4",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@mui/icons-material": "^5.14.19",
@@ -33,6 +35,7 @@
     "@types/react": "^18.2.37",
     "@types/react-color": "^3.0.10",
     "@types/react-dom": "^18.2.15",
+    "@types/webfontloader": "^1.6.38",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "@vitejs/plugin-react-swc": "^3.5.0",

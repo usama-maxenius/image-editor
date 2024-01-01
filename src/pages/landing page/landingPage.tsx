@@ -5,6 +5,7 @@ import CountdownTimer from '../../components/counter/counter';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { BaseURL } from '../../constants';
 import { APIResponse } from '../../types';
+import toast from 'react-hot-toast';
 
 const StyledContainer = styled('div')({
   display: 'flex',
@@ -18,7 +19,7 @@ const StyledContainer = styled('div')({
 });
 
 interface Props {
-  setScrappedData: Dispatch<SetStateAction<APIResponse | undefined>> 
+  setScrappedData: Dispatch<SetStateAction<APIResponse | undefined>>
   updateStep: Dispatch<SetStateAction<number>>
 }
 function LandingPage({ setScrappedData, updateStep }: Props) {
@@ -39,16 +40,18 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
           body: JSON.stringify({ url: givenUrl }),
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          setLoading(false);
+          return toast.error('Sorry! This URL is currently unavailable, we are working to fix this as soon as possible')
         }
 
-        const data = await response.json();
         await setScrappedData(data);
         updateStep(2)
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        if (error instanceof Error) toast.error(error.message)
         setLoading(false);
       }
     }
