@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -95,9 +95,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   })
 
   const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
-    { name: 'Grayscale', filter: new fabric.Image.filters.Grayscale() },
-    { name: 'Sepia', filter: new fabric.Image.filters.Sepia() },
-    { name: 'Invert', filter: new fabric.Image.filters.Invert() },
+    { name: 'grayscale', filter: new fabric.Image.filters.Grayscale({ grayscale: 1 }) },
+    { name: 'sepia', filter: new fabric.Image.filters.Sepia({ sepia: 1 }) },
+    { name: 'invert', filter: new fabric.Image.filters.Invert({ invert: 1 }) },
     // Add more filters as needed
   ];
 
@@ -231,32 +231,31 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
  * @param {IBaseFilter} filter - The filter to be applied to the background image.
  * @return {void} This function does not return anything.
  */
-  const updateBackgroundFilters = (filter: IBaseFilter): void => {
+  const updateBackgroundFilters = (filter: fabric.IBaseFilter, type: string): void => {
     const canvas = canvasRef?.current;
     if (!canvas) return
 
-    // const backgroundImage: fabric.Image | undefined = canvas.backgroundImage as fabric.Image;
-    // if (backgroundImage) {
-    //   backgroundImage.filters.push(filter);
-    //   backgroundImage.applyFilters();
-    //   canvas.renderAll();
-    // } else {
-    return ['bg-1', "bg-2"].forEach((customType) => {
-      const existingGroup: fabric.Image | undefined = getExistingObject(customType) as fabric.Image
+    const bgImages = ['bg-1']
 
-      if (existingGroup) {
+    if (!template.backgroundImage) bgImages.push('bg-2')
 
-        // Check if the filter already exists in the group
-        const filterIndex = existingGroup.filters?.findIndex((existingFilter: IBaseFilter) => existingFilter.type === filter.type
-        );
+    for (const customType of bgImages) {
+      const existingObject: fabric.Image | undefined = getExistingObject(customType) as fabric.Image
+      if (existingObject) {
+        const hasBrightnessOrContrast = filter.hasOwnProperty('brightness') || filter.hasOwnProperty('contrast');
 
-        if (filterIndex !== -1) existingGroup.filters?.splice(filterIndex, 1);
-        else existingGroup.filters?.push(filter);
+        const index: number | undefined = existingObject.filters?.findIndex((fil) => fil[type as any])
 
-        existingGroup.applyFilters();
+        if (index !== -1) {
+          existingObject.filters?.splice(index as number, 1, filter)
+          if (!hasBrightnessOrContrast) existingObject.filters?.splice(index as number, 1)
+        } else {
+          existingObject.filters?.push(filter);
+        }
+        existingObject.applyFilters();
         canvas.renderAll();
       }
-    })
+    }
   }
 
   const updateBackgroundImage = (imageUrl: string) => {
@@ -306,6 +305,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         activeObject.scaleToHeight(canvas.getHeight())
         activeObject.center();
         canvas.renderAll();
+      }, {
+        crossOrigin: 'anonymous'
       })
     } else {
       let currentImageIndex = backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
@@ -314,7 +315,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       if (!template.diptych) return
 
       if (template.diptych === 'vertical') {
-        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0 , customType: 'bg-1' })
+        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0, customType: 'bg-1' })
         if ((currentImageIndex) % 2 === 1) loadImage(imageUrl, 2, { top: canvas.getHeight() / 2, customType: 'bg-2' })
       } else {
         if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { left: 0, customType: 'bg-1' })
@@ -377,26 +378,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const loadImage = (url: string, index: number | undefined, options: ImageOptions) => {
     const canvas = canvasRef.current;
-  
+
     if (!canvas) return;
-  
+
     const findExistingImageObject = getExistingObject(options.customType);
-  
+
     fabric.Image.fromURL(url, function (img) {
       // Calculate the aspect ratio of the image
       const aspectRatio = img.width / img.height;
-  
+
       let scaledWidth = canvas.width || 0;
       let scaledHeight = canvas.height || 0;
-  
+
       const maxHeight = 700;
-  
+
       // Ensure the image height does not exceed the maximum height
       const scaleFactor = maxHeight / img.height;
       if (scaleFactor < 1) {
         img.scale(scaleFactor);
       }
-  
+
       if (template.diptych === 'vertical') {
         // Set width equal to canvas width
         scaledWidth = canvas.width + 100 || 0;
@@ -406,26 +407,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         scaledWidth = (canvas.getWidth() / 2) || 0;
         scaledHeight = canvas.getHeight() || 0;
       }
-  
+
       img.set({
         ...options,
       });
-  
+
       img.scaleToWidth(scaledWidth);
       img.scaleToHeight(scaledHeight);
       img.center()
       if (index) canvas.insertAt(img, index, false);
       if (!index) canvas.add(img);
-  
+
       if (findExistingImageObject) canvas.remove(findExistingImageObject);
-  
+
       canvas.renderAll();
     }, {
       crossOrigin: 'anonymous',
     });
   };
-  
-  
+
+
   const updateRectangle = (options: IRectOptions) => {
     const canvas = canvasRef.current;
 
@@ -465,7 +466,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   */
   const uploadImage = (event: React.ChangeEvent<HTMLInputElement>, field: keyof typeof initialData): void => {
     const files = event.target.files
-    console.log("🚀 ~ file: index.tsx:420 ~ uploadImage ~ files:", files)
     if (!files || files.length === 0) return;
 
     setInitialData((prev) => ({
@@ -591,7 +591,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     var filter = new fabric.Image.filters.Contrast({
                       contrast: value
                     });
-                    if (value !== 0) updateBackgroundFilters(filter)
+                    updateBackgroundFilters(filter, 'contrast')
                   }}
                 />
               </div>
@@ -614,7 +614,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     var filter = new fabric.Image.filters.Brightness({
                       brightness: value
                     });
-                    if (value !== 0) updateBackgroundFilters(filter)
+
+                    updateBackgroundFilters(filter, 'brightness')
                   }}
                 />
               </div>
@@ -629,7 +630,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                       }`}
                     variant="text"
                     color="primary"
-                    onClick={() => updateBackgroundFilters(filter.filter)}
+                    onClick={() => updateBackgroundFilters(filter.filter, filter.name)}
                   >
                     {filter.name}
                   </Button>
