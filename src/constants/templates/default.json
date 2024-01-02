@@ -37,7 +37,7 @@
 			"cropY": 0,
 			"customType": "bg-1",
 			"selectable": true,
-			"src": "http://localhost:3000/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg",
+			"src": "/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg",
 			"crossOrigin": "anonymous",
 			"filters": []
 		},
