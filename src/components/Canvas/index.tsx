@@ -314,7 +314,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       if (!template.diptych) return
 
       if (template.diptych === 'vertical') {
-        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0, customType: 'bg-1' })
+        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0 , customType: 'bg-1' })
         if ((currentImageIndex) % 2 === 1) loadImage(imageUrl, 2, { top: canvas.getHeight() / 2, customType: 'bg-2' })
       } else {
         if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { left: 0, customType: 'bg-1' })
@@ -377,40 +377,55 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const loadImage = (url: string, index: number | undefined, options: ImageOptions) => {
     const canvas = canvasRef.current;
-
-    if (!canvas) return
-    const findExistingImageObject = getExistingObject(options.customType)
-
+  
+    if (!canvas) return;
+  
+    const findExistingImageObject = getExistingObject(options.customType);
+  
     fabric.Image.fromURL(url, function (img) {
       // Calculate the aspect ratio of the image
       const aspectRatio = img.width / img.height;
-
+  
       let scaledWidth = canvas.width || 0;
       let scaledHeight = canvas.height || 0;
-
-      if (template.diptych === 'vertical') {
-        scaledHeight = canvas.height || 0;
-        scaledWidth = scaledHeight * aspectRatio;
-      } else if (template.diptych === 'horizontal') {
-        scaledWidth = (canvas.getWidth() / 2) || 0;
+  
+      const maxHeight = 700;
+  
+      // Ensure the image height does not exceed the maximum height
+      const scaleFactor = maxHeight / img.height;
+      if (scaleFactor < 1) {
+        img.scale(scaleFactor);
       }
-
+  
+      if (template.diptych === 'vertical') {
+        // Set width equal to canvas width
+        scaledWidth = canvas.width + 100 || 0;
+        scaledHeight = scaledWidth / aspectRatio;
+      } else if (template.diptych === 'horizontal') {
+        // Calculate height based on aspect ratio
+        scaledWidth = (canvas.getWidth() / 2) || 0;
+        scaledHeight = canvas.getHeight() || 0;
+      }
+  
       img.set({
         ...options,
       });
-
+  
       img.scaleToWidth(scaledWidth);
       img.scaleToHeight(scaledHeight);
       img.center()
       if (index) canvas.insertAt(img, index, false);
       if (!index) canvas.add(img);
-      if (findExistingImageObject) canvas.remove(findExistingImageObject)
+  
+      if (findExistingImageObject) canvas.remove(findExistingImageObject);
+  
       canvas.renderAll();
     }, {
       crossOrigin: 'anonymous',
     });
   };
-
+  
+  
   const updateRectangle = (options: IRectOptions) => {
     const canvas = canvasRef.current;
 

@@ -26,7 +26,7 @@
     },
     {
       "type": "image",
-      "src": "http://localhost:5173/images/sample/br9.png",
+      "src": "http://image-editor-phi-orcin.vercel.app/images/sample/br9.png",
       "width": 50,  
       "height": 50,
       "left": 120,

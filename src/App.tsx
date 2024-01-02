@@ -28,14 +28,16 @@ function App() {
   const [updatedSeedData, setUpdatedSeedData] = useState<TemplateData>(templateData)
 
   useEffect(() => {
-    if (!scrappedData) return
+    if (!scrappedData) return;
+  
     setUpdatedSeedData((prev) => ({
       ...prev,
       backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => BaseURL + scrapeImg) : prev.backgroundImages,
       bubbles: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => BaseURL + scrapeImg) : prev.bubbles,
-      texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title) : prev.texts
-    }))
-  }, [scrappedData])
+      texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title.toUpperCase()) : prev.texts
+    }));
+  }, [scrappedData]);
+  
 
   return (
     <>

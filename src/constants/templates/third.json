@@ -37,7 +37,7 @@
 			"cropY": 0,
 			"customType": "bg-1",
 			"selectable": true,
-			"src": "http://localhost:3000/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg",
+			"src": "http://image-editor-phi-orcin.vercel.app/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg",
 			"crossOrigin": "anonymous",
 			"filters": []
 		},
@@ -154,7 +154,7 @@
 			"cropY": 0,
 			"customType": "overlay",
 			"selectable": false,
-			"src": "http://localhost:3000/images/sample/br11.png",
+			"src": "http://image-editor-phi-orcin.vercel.app/images/sample/br11.png",
 			"crossOrigin": "anonymous",
 			"filters": []
 		},
@@ -432,7 +432,7 @@
 					"cropX": 0,
 					"cropY": 0,
 					"selectable": true,
-					"src": "http://localhost:3000/images/sample/scott-circle-image.png",
+					"src": "http://image-editor-phi-orcin.vercel.app/images/sample/scott-circle-image.png",
 					"crossOrigin": "anonymous",
 					"filters": []
 				},
