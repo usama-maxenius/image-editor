@@ -1,0 +1,1 @@
+export const fonts = ["Fira Sans", "Pacifico", "VT323", "Quicksand", "Inconsolata", 'Roboto',]
