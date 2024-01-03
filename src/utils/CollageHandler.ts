@@ -1,41 +1,186 @@
-// export const createCollage = (images: string[]) => {
-//   const canvas = canvasRef.current;
+ // @ts-nocheck
 
-//   if (!canvas) return
+import { fabric } from 'fabric';
+import { createRect } from './RectHandler';
 
-//   // const img1 = '/images/sample/scott-bg-imag.jpg';
-//   const img1 = images[0] || '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
-//   const img2 = images[1] || '/images/sample/scott-circle-image.png';
+export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) => {
 
-//   if (template.diptych === "vertical") {
-//     loadImage(img1, 1, { top: 0, customType: 'bg-1' })
-//     loadImage(img2, 2, { top: canvas.getHeight() / 2, customType: 'bg-2' });
-//     updateRectangle({ width: canvas.getWidth(), top: (canvas.getHeight() / 2 - 5) })
-//   } else {
-//     loadImage(img1, 1, { left: 0, customType: 'bg-1' })
-//     loadImage(img2, 2, { left: canvas.getWidth() / 2, customType: 'bg-2' });
-//     updateRectangle({ left: (canvas.getHeight() / 2) - 5 })
-//   }
-// }
+  const width = canvas.getWidth()
+  const height = canvas.getHeight()
+  const top = (height / 2);
 
-// const createCollage = (images: string[], diptych: Diptych) => {
-//   const canvas = canvasRef.current;
+  var clipPath = new fabric.Rect({ width, height: height / 2, top: 0, left: 0, absolutePositioned: true, evented: false });
+  var clipPath2 = new fabric.Rect({ width, height: height / 2, top, left: 0, absolutePositioned: true, evented: false });
 
-//   if (!canvas) return
+  fabric.Image.fromURL(images[0], function (img) {
+    img.clipPath = clipPath;
+    img.set({
+      centeredScaling: true,
+      perPixelTargetFind: true,
+    })
+    img.scaleToWidth(width)
+    if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+    img.customType = 'bg-1'
+    canvas.insertAt(img, 0, false);
+  }, {
+    crossOrigin: 'anonymous'
+  });
 
-//   // const img1 = '/images/sample/scott-bg-imag.jpg';
-//   const img1 = images[0] || '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
-//   const img2 = images[1] || '/images/sample/scott-circle-image.png';
+  fabric.Image.fromURL(images[1], function (img) {
+    img.set({
+      centeredScaling: true,
+      perPixelTargetFind: true,
+      top,
+      clipPath: clipPath2
+    })
+    img.scaleToWidth(width)
+    img.customType = 'bg-2'
+    if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+    canvas.insertAt(img, 1, false);
+  }, {
+    crossOrigin: 'anonymous'
+  });
+  setTimeout(() => {
+    createRect(canvas, { top, left: -10, width: width + 10, visible: true, customType: 'photo-border' }, 3)
+  }, 200);
+};
 
-//   loadImage(img1, 1, { top: 0, customType: 'bg-1' }, 'bg-1')
-//   var rect = new fabric.Rect({
-//     left: -1,
-//     top: (canvas.height / 2),
-//     selectable: false,
-//     width: canvas.width,
-//     stroke: 'red',
-//     strokeWidth: 3
-//   });
-//   loadImage(img2, 2, { top: canvas.height / 2, customType: 'bg-2' }, 'bg-2');
-//   canvas.insertAt(rect, 3, false)
-// }
+export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[]) => {
+
+  const width = canvas.getWidth()
+  const height = canvas.getHeight()
+  const left = (width / 2);
+
+  var clipPath = new fabric.Rect({ width: width / 2, height, left: 0, absolutePositioned: true, evented: false });
+  var clipPath2 = new fabric.Rect({ width: width / 2, height, left, absolutePositioned: true, evented: false });
+
+  fabric.Image.fromURL(images[0], function (img) {
+    img.clipPath = clipPath;
+    img.set({
+      centeredScaling: true,
+      perPixelTargetFind: true,
+      originX: 'center',
+    })
+    img.scaleToHeight(height)
+    img.customType = 'bg-1'
+    canvas.insertAt(img, 0, false);
+  }, {
+    crossOrigin: 'anonymous'
+  });
+
+  fabric.Image.fromURL(images[1], function (img) {
+    img.set({
+      centeredScaling: true,
+      perPixelTargetFind: true,
+      originX: 'center',
+      left,
+      clipPath: clipPath2
+    })
+    img.scaleToHeight(height)
+    img.customType = 'bg-2'
+    // img.scaleToHeight(height / 2)
+    canvas.insertAt(img, 1, false);
+  }, {
+    crossOrigin: 'anonymous'
+  });
+  setTimeout(() => {
+    createRect(canvas, { left, height: height + 10, top: -10, width: 0, visible: true, customType: 'photo-border' })
+  }, 200);
+};
+
+export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImage: string, activeObject: fabric.Object) => {
+  if (!canvas) return
+  const width = canvas.getWidth();
+  const height = canvas.getHeight();
+
+  if (activeObject && activeObject.isType('image')) {
+    console.log({ activeObject })
+    if (activeObject.customType === 'bg-1') {
+      fabric.Image.fromURL(newImage, function (img) {
+        img.clipPath = activeObject.clipPath;
+
+        img.set({
+          centeredScaling: true,
+          perPixelTargetFind: true,
+        })
+        img.filters = activeObject.filters || []
+        img.applyFilters();
+        img.scaleToWidth(width)
+        if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+
+        img.customType = activeObject.customType
+        canvas.remove(activeObject)
+        canvas.insertAt(img, 0, false);
+      }, {
+        crossOrigin: 'anonymous'
+      });
+    } else {
+      fabric.Image.fromURL(newImage, function (img) {
+        img.clipPath = activeObject.clipPath;
+        img.set({
+          centeredScaling: true,
+          top: activeObject.top,
+          perPixelTargetFind: true,
+        })
+        img.filters = activeObject.filters || []
+        img.applyFilters();
+        img.scaleToWidth(width)
+        img.customType = activeObject.customType
+        if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+        canvas.remove(activeObject)
+        canvas.insertAt(img, 1, false);
+
+      }, {
+        crossOrigin: 'anonymous'
+      });
+    }
+  }
+};
+
+export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newImage: string, activeObject: fabric.Object) => {
+
+  if (!canvas) return
+  const height = canvas.getHeight();
+
+  if (activeObject && activeObject.isType('image')) {
+    if (activeObject.customType === 'bg-1') {
+      fabric.Image.fromURL(newImage, function (img) {
+        img.clipPath = activeObject.clipPath;
+        img.set({
+          perPixelTargetFind: true,
+          centeredScaling: true,
+          originX: 'center',
+        })
+
+        img.scaleToHeight(height)
+        img.customType = activeObject.customType
+        img.filters = activeObject.filters || []
+        img.applyFilters();
+        canvas.remove(activeObject)
+        canvas.insertAt(img, 0, false);
+      }, {
+        crossOrigin: 'anonymous'
+      });
+    } else {
+      fabric.Image.fromURL(newImage, function (img) {
+        img.set({
+          evented: true,
+          centeredScaling: true,
+          perPixelTargetFind: true,
+          left: activeObject.left,
+          clipPath: activeObject.clipPath,
+          originX: 'center',
+        })
+
+        img.scaleToHeight(height)
+        img.customType = activeObject.customType
+        img.filters = activeObject.filters || []
+        img.applyFilters();
+        canvas.remove(activeObject)
+        canvas.insertAt(img, 1, false);
+      }, {
+        crossOrigin: 'anonymous'
+      });
+    }
+  }
+};

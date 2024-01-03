@@ -1,4 +1,4 @@
-// // @ts-nocheck
+ // @ts-nocheck
 import LandingPage from "./pages/landing page/landingPage";
 import Templates from "./pages/templates/templates";
 import { ThemeProvider } from "@mui/material/styles";

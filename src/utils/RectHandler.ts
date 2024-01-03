@@ -15,7 +15,7 @@ interface IRectOptions {
  * @param {number | undefined} index - The index at which to insert the rectangle (optional).
  * @return {fabric.Rect | undefined} The created rectangle.
  */
-export const createRect = (canvas: fabric.Canvas, options: IRectOptions, index?: number | undefined): fabric.Rect | false => {
+export const createRect = (canvas: fabric.Canvas, options: fabric.IRectOptions, index?: number | undefined): fabric.Rect | false => {
   if (!canvas) return false;
 
   const defaultOptions: IRectOptions = {
@@ -28,12 +28,8 @@ export const createRect = (canvas: fabric.Canvas, options: IRectOptions, index?:
 
   const rect = new fabric.Rect(defaultOptions);
 
-  if (index) {
-    canvas.insertAt(rect, index, false);
-  } else {
-    canvas.add(rect);
-  }
-
+  if (index) canvas.insertAt(rect, index, false);
+  else canvas.add(rect);
   canvas.renderAll(); // Render the canvas after adding the new rectangle
 
   return rect;

@@ -28,7 +28,10 @@ export const saveJSON = (canvas: fabric.Canvas | null): void => {
     console.error('Canvas is undefined.');
     return;
   }
-  var json = JSON.stringify(canvas.toObject(['customType', 'selectable']));
+
+  const additionalFieldsToExport = ['customType', 'selectable', 'evented', 'perPixelTargetFind']
+
+  var json = JSON.stringify(canvas.toJSON(additionalFieldsToExport));
   // Create a Blob containing the JSON data
   var blob = new Blob([json], { type: 'application/json' });
 
@@ -42,11 +45,11 @@ export const saveJSON = (canvas: fabric.Canvas | null): void => {
   // Append the link to the document body
   document.body.appendChild(link);
 
-  // Click the link to trigger the download
-  link.click();
+  // // Click the link to trigger the download
+  // link.click();
 
-  // Remove the link from the document
-  document.body.removeChild(link);
+  // // Remove the link from the document
+  // document.body.removeChild(link);
 
   console.log(json);
 }

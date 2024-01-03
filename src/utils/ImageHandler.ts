@@ -1,3 +1,4 @@
+ // @ts-nocheck
 import { fabric } from 'fabric';
 
 export const createImage = (canvas: fabric.Canvas | null, imageUrl: string, options: fabric.IImageOptions): Promise<fabric.Image | undefined> => {
@@ -27,7 +28,25 @@ export const createImage = (canvas: fabric.Canvas | null, imageUrl: string, opti
 };
 
 
+export const updateImageSource = (canvas: fabric.Canvas, imageUrl: string, activeObject: fabric.Object) => {
 
+  activeObject.setSrc(imageUrl, () => {
+    const { width, height } = canvas;
+
+    if (!(width && height)) return
+
+    let scaleToWidth = width;
+    let scaleToHeight = height;
+
+    activeObject.scaleToWidth(scaleToWidth)
+    activeObject.scaleToHeight(scaleToHeight)
+
+    activeObject.center();
+    canvas.renderAll();
+  },{
+    crossOrigin: 'anonymous'
+  });
+}
 export const updateImageProperties = (canvas: fabric.Canvas | null, imageObject: fabric.Image, options: fabric.IImageOptions) => {
   if (!canvas) return
 
@@ -40,26 +59,3 @@ export const updateImageProperties = (canvas: fabric.Canvas | null, imageObject:
     return canvas.renderAll();
   }
 };
-
-
-// const updateImageFilters = (props: { filter: fabric.IBaseFilter, type: string }) => {
-
-//   const { filter, type } = props
-//   const canvas = canvasRef.current;
-
-//   if (!canvas) {
-//     return;
-//   }
-//   const imageObject: fabric.Object | undefined | any = getExistingObject(type)
-
-//   if (!imageObject) return
-
-//   const filterObj = availableFilters.find((f) => f.filter === filter);
-//   // imageObject.selectable = false,
-//   imageObject.filters = [filter];
-//   imageObject.visible = true,
-//     imageObject.applyFilters();
-
-//   canvas.renderAll();
-//   if (filterObj) setSelectedFilter(filterObj.name);
-// };
