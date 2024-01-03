@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -10,7 +10,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { styles, useStyles } from './index.style';
 import ImageViewer from '../Image';
-import { IBaseFilter, IRectOptions } from 'fabric/fabric-impl';
+import { IRectOptions } from 'fabric/fabric-impl';
 import { canvasDimension } from '../../constants';
 import CustomColorPicker from '../colorPicker';
 import { Template } from '../../types';
@@ -19,13 +19,11 @@ import { createTextBox, updateTextBox } from '../../utils/TextHandler';
 import { updateRect } from '../../utils/RectHandler';
 import { saveImage, saveJSON } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { createImage, updateImageProperties } from '../../utils/ImageHandler';
+import { createImage, updateImageProperties, updateImageSource } from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import FontsTab from '../Tabs/EditText/FontsTab';
+import { updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
 
-interface FabricCanvas extends fabric.Canvas {
-  customType: string
-}
 interface CanvasProps {
   template: Template
   updatedSeedData: Record<string, any>
@@ -45,10 +43,10 @@ const filter = 'brightness(0) saturate(100%) invert(80%) sepia(14%) saturate(157
 
 const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template }) => {
   const { borders, elements, backgroundImages, logos, texts, bubbles } = updatedSeedData
-  const { updateCanvasContext, getExistingObject } = useCanvasContext()
+  const { canvas, updateCanvasContext, getExistingObject } = useCanvasContext()
   const [activeButton, setActiveButton] = useState("Overlay");
   const [show, setShow] = useState("font");
-  const canvasRef = useRef<FabricCanvas | null>(null);
+  const canvasEl = useRef<HTMLCanvasElement>(null);
   const [toolsStep, setToolstep] = useState('bg')
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [dropDown, setDropDown] = useState(true)
@@ -103,54 +101,69 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const classes = useStyles();
 
+  useEffect(() => {
+    const options = {
+      width: canvasDimension.width,
+      height: canvasDimension.height
+    };
+
+    const canvas = new fabric.Canvas(canvasEl.current, options);
+    // make the fabric.Canvas instance available to your app
+    updateCanvasContext(canvas);
+    return () => {
+      updateCanvasContext(null);
+      canvas.dispose();
+    }
+  }, []);
+
   const handleButtonClick = (buttonType: string) =>
     setActiveButton(buttonType)
 
   const loadCanvas = useCallback(async () => {
-    if (!canvasRef.current) {
-      const canvas = new fabric.Canvas('canvas', {
-        width: canvasDimension.width,
-        height: canvasDimension.height
-      });
-      canvasRef.current = canvas as FabricCanvas
-      updateCanvasContext(canvas)
-    }
-
-    // Clear the canvas
-    canvasRef.current.clear();
     function importLocale(locale: string) {
-      /* @vite-ignore */
       return import(`../../constants/templates/${locale}.json`);
     }
-    // @vite-ignore
+
     const templateJSON = await importLocale(template.filePath)
+
+    const img1 = '/images/sample/scott-bg-image.jpeg';
+    const img2 = '/images/sample/scott-circle-image.png';
 
     // Load canvas JSON template
     await new Promise((resolve) => {
-      canvasRef.current?.loadFromJSON(templateJSON, () => {
+      canvas?.loadFromJSON(templateJSON, () => {
         resolve(null);
       });
     })
-  }, [template, updatedSeedData]);
+
+  }, [canvas, template]);
 
   useEffect(() => {
     loadCanvas();
+
     const handleCanvasUpdate = () => {
-      return setCanvasToolbox((prev) => ({ ...prev, isDeselectDisabled: canvasRef.current?._activeObject === null, activeObject: canvasRef.current?._activeObject }));
-    }
-    // Attach canvas update listener
-    canvasRef.current?.on('selection:created', handleCanvasUpdate);
-    canvasRef.current?.on('selection:updated', handleCanvasUpdate);
-    canvasRef.current?.on('selection:cleared', handleCanvasUpdate);
+      const activeObject = canvas?.getActiveObject();
+      const isSelectionCleared = canvas?._activeObject === null;
+      return setCanvasToolbox((prev) => ({
+        ...prev,
+        isDeselectDisabled: isSelectionCleared,
+        activeObject,
+      }));
+    };
+
+    // Attach canvas update listeners
+    canvas?.on('selection:created', handleCanvasUpdate);
+    canvas?.on('selection:updated', handleCanvasUpdate);
+    canvas?.on('selection:cleared', handleCanvasUpdate);
 
     // Cleanup the event listeners when the component unmounts
     return () => {
-      canvasRef.current?.off('selection:created', handleCanvasUpdate);
-      canvasRef.current?.off('selection:updated', handleCanvasUpdate);
-      canvasRef.current?.off('selection:cleared', handleCanvasUpdate);
+      canvas?.off('selection:created', handleCanvasUpdate);
+      canvas?.off('selection:updated', handleCanvasUpdate);
+      canvas?.off('selection:cleared', handleCanvasUpdate);
     };
-
   }, [loadCanvas]);
+
 
   const updateBubbleImage = (imgUrl: string | undefined, filter?: { strokeWidth: number, stroke: string }) => {
     const strokeWidth = filter?.strokeWidth || 10;
@@ -160,8 +173,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     // Extract existing bubble position
     const existingBubblePosition = existingGroup ? { left: existingGroup.left, top: existingGroup.top } : { left: 20, top: 30 };
-
-    const canvas = canvasRef.current
 
     if (!canvas) return
 
@@ -186,6 +197,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       existingGroup.visible = true;
       canvas.renderAll()
     } else if (imgUrl) {
+      // existingGroup._objects?.forEach((obj) => {
+      //   if (obj.type === 'image') {
+      //     // obj.setSrc(imgUrl, () => {
+      //     obj.set({
+      //       src: imgUrl,
+      //       visible: true
+      //     })
+      //     canvas.renderAll()
+      //     // })
+      //   }
+      // })
       fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
         // Set the maximum radius for the circular clip mask
         var maxRadius = 80;
@@ -232,7 +254,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
  * @return {void} This function does not return anything.
  */
   const updateBackgroundFilters = (filter: fabric.IBaseFilter, type: string): void => {
-    const canvas = canvasRef?.current;
     if (!canvas) return
 
     const bgImages = ['bg-1']
@@ -259,73 +280,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }
 
   const updateBackgroundImage = (imageUrl: string) => {
-    const canvas = canvasRef.current;
 
     if (!canvas) return;
 
-    // const activeObject = canvas.getActiveObject()
-    // if (activeObject && activeObject.type === 'image') {
-    //   activeObject.setSrc(imageUrl, () => {
-    //     const customType = activeObject.customType;
-    //     const { width, height } = canvas;
+    let activeObject: fabric.Object | undefined | null = canvas.getActiveObject() || getExistingObject('bg-1')
 
-    //     if (!(width && height)) return
-
-    //     let scaleToWidth = width;
-    //     let scaleToHeight = height;
-    //     if (template.diptych === 'vertical') scaleToHeight = height / 2
-    //     else if (template.diptych === 'horizontal') scaleToWidth = width / 2
-
-    //     const topOffset = template.diptych === 'vertical' && customType === 'bg-2' ? height / 2 : 0;
-    //     const leftOffset = template.diptych === 'horizontal' && customType === 'bg-2' ? width / 2 : 0;
-    //     console.log({ scaleToWidth, scaleToHeight })
-    //     activeObject.scaleToWidth(scaleToWidth)
-    //     activeObject.scaleToHeight(scaleToHeight)
-
-    //     activeObject.set({
-    //       top: topOffset,
-    //       left: leftOffset,
-    //     });
-
-    //     if (template.backgroundImage) activeObject.center();
-    //     canvas.renderAll();
-    //   });
-    // } else {
-    //   if (template.diptych === 'vertical') loadImage(imageUrl, 1, { top: 0, customType: 'bg-1' })
-    //   else if (template.diptych === 'horizontal') loadImage(imageUrl, 1, { left: 0, customType: 'bg-1' })
-    //   else loadImage(imageUrl, 1, { customType: 'bg-1' })
-    // }
-
-    if (template.backgroundImage) {
-      const activeObject = getExistingObject('bg-1')
-      if (!activeObject) return
-
-      activeObject.setSrc(imageUrl, () => {
-        activeObject.scaleToWidth(canvas.getWidth())
-        activeObject.scaleToHeight(canvas.getHeight())
-        activeObject.center();
-        canvas.renderAll();
-      }, {
-        crossOrigin: 'anonymous'
-      })
-    } else {
+    if (!template.backgroundImage && !canvas.getActiveObject()) {
       let currentImageIndex = backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
-
-      if (currentImageIndex === -1) return
-      if (!template.diptych) return
-
-      if (template.diptych === 'vertical') {
-        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { top: 0, customType: 'bg-1' })
-        if ((currentImageIndex) % 2 === 1) loadImage(imageUrl, 2, { top: canvas.getHeight() / 2, customType: 'bg-2' })
-      } else {
-        if ((currentImageIndex) % 2 === 0) loadImage(imageUrl, 1, { left: 0, customType: 'bg-1' })
-        if ((currentImageIndex) % 2 === 1) loadImage(imageUrl, 2, { left: canvas.getWidth() / 2, customType: 'bg-2' })
-      }
+      activeObject = getExistingObject(currentImageIndex % 2 === 0 ? 'bg-1' : 'bg-2');
     }
+
+    if (!activeObject) return console.log("Still Object not found")
+
+    if (template.backgroundImage || !template.diptych) updateImageSource(canvas, imageUrl, activeObject)
+    else if (template.diptych === 'vertical') updateVerticalCollageImage(canvas, imageUrl, activeObject)
+    else updateHorizontalCollageImage(canvas, imageUrl, activeObject)
   };
 
   const updateOverlayImage = (image: string, opacity: number) => {
-    const canvas = canvasRef.current;
 
     if (!canvas) {
       console.log("Canvas not loaded yet");
@@ -377,7 +349,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }
 
   const loadImage = (url: string, index: number | undefined, options: ImageOptions) => {
-    const canvas = canvasRef.current;
 
     if (!canvas) return;
 
@@ -428,8 +399,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
 
   const updateRectangle = (options: IRectOptions) => {
-    const canvas = canvasRef.current;
-
     if (!canvas) return
 
     const existingObject = getExistingObject('photo-border')
@@ -439,7 +408,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const updateText = (textFilters: FilterState) => {
     const { color, fontFamily, fontSize, text: overlayText } = textFilters
-    const canvas = canvasRef.current;
 
     if (!canvas) return;
 
@@ -474,13 +442,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }
 
   const deselectObj = () => {
-    canvasRef.current?.discardActiveObject();
-    canvasRef.current?.requestRenderAll();
+    canvas?.discardActiveObject();
+    canvas?.requestRenderAll();
   };
 
   const deleteActiveSelection = () => {
-    const canvas = canvasRef.current;
-
     if (!canvas) return
     canvas.remove(canvas._activeObject);
     canvas.requestRenderAll();
@@ -495,7 +461,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       <div>
         <DeselectIcon color={canvasToolbox.isDeselectDisabled ? "disabled" : 'inherit'} aria-disabled={canvasToolbox.isDeselectDisabled} onClick={deselectObj} />
         <DeleteIcon color={canvasToolbox.isDeselectDisabled ? "disabled" : 'inherit'} aria-disabled={canvasToolbox.isDeselectDisabled} onClick={deleteActiveSelection} />
-        <canvas width="1080" height="1350" id="canvas"></canvas>
+        <canvas width="1080" height="1350" ref={canvasEl}></canvas>
         {/* Footer Panel  Start*/}
         {toolsStep == 'bg' && dropDown && <div>
 
@@ -582,7 +548,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   min={-1}
                   value={filtersRange.contrast}
                   max={1}
-                  step={0.1}
+                  step={0.01}
                   valueLabelDisplay="auto"
                   //eslint-disable-next-line
                   onChange={(e: any) => {
@@ -605,7 +571,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   defaultValue={0}
                   min={-1}
                   max={1}
-                  step={0.1}
+                  step={0.01}
                   value={filtersRange.brightness}
                   valueLabelDisplay="auto"
                   onChange={(e: any) => {
@@ -655,9 +621,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   value={filterValues.collage.strokeWidth} onChange={(e: any) => {
                     const value = +e.target.value;
                     if (template.diptych === 'horizontal') {
-                      updateRectangle({ strokeWidth: value, left: (canvasRef.current?.getWidth() / 2) - (value / 2) })
+                      updateRectangle({ strokeWidth: value, left: (canvas?.getWidth() / 2) - (value / 2) })
                     } else {
-                      updateRectangle({ strokeWidth: value, top: (canvasRef.current?.getHeight() / 2) - (value / 2) })
+                      updateRectangle({ strokeWidth: value, top: (canvas?.getHeight() / 2) - (value / 2) })
                     }
                     setFilterValues((prev) => ({ ...prev, collage: { ...prev.collage, strokeWidth: value } }))
                   }} />
@@ -714,7 +680,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   onChange={(e: any) => {
                     const value = +e.target.value;
                     const existingObject = getExistingObject('title')
-                    updateTextBox(canvasRef.current, existingObject, { ...overlayTextFiltersState, fontWeight: value })
+                    updateTextBox(canvas, existingObject, { ...overlayTextFiltersState, fontWeight: value })
                     setOverlayTextFiltersState((prev) => ({ ...prev, fontWeight: value }))
                   }}
                   step={100}
@@ -888,7 +854,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   return <h5 onClick={() => {
                     const existingObject = getExistingObject('title') as fabric.Textbox | undefined
 
-                    if (!existingObject) return createTextBox(canvasRef.current, { text, customType: 'title', fill: "#fff", width: 303, height: 39, top: 504, left: 34, scaleX: 1.53, scaleY: 1.53, fontSize: 16 })
+                    if (!existingObject) return createTextBox(canvas, { text, customType: 'title', fill: "#fff", width: 303, height: 39, top: 504, left: 34, scaleX: 1.53, scaleY: 1.53, fontSize: 16 })
                     updateText({ ...overlayTextFiltersState, text })
                     setOverlayTextFiltersState((prev) => ({ ...prev, text }))
                   }} style={{ margin: '0px', marginBottom: '15px', cursor: 'pointer', color: '#a19d9d' }}>{text}</h5>
@@ -943,8 +909,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         onClick={() => {
                           const existingTextObject = getExistingObject('swipe') as fabric.Textbox | undefined;
 
-                          if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvasRef.current, existingTextObject, { visible: !existingTextObject.visible });
-                          else createTextBox(canvasRef.current, { fill: overlayTextFiltersState.color, customType: 'swipe' });
+                          if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvas, existingTextObject, { visible: !existingTextObject.visible });
+                          else createTextBox(canvas, { fill: overlayTextFiltersState.color, customType: 'swipe' });
                         }}
                         alt=""
                         width='90px'
@@ -954,7 +920,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   })}
                   <CustomColorPicker value={overlayTextFiltersState.color}
                     changeHandler={(color: string) => {
-                      const canvas = canvasRef.current;
                       const type = 'swipe';
 
                       let existingTextObject = getExistingObject(type) as fabric.Textbox | undefined;
@@ -982,14 +947,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         src={border}
                         onClick={() => {
                           const imageObject = getExistingObject('borders') as fabric.Image | undefined;
-
-                          const canvas = canvasRef.current
                           if (!canvas) return
 
                           if (imageObject && !imageObject.visible) {
                             imageObject.set({ visible: true });
-                            return canvasRef.current?.renderAll();
-                          } else createImage(canvasRef.current, border, {})
+                            return canvas?.renderAll();
+                          } else createImage(canvas, border, {})
                         }}
                         alt=""
                         width='90px'
@@ -999,7 +962,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   })}
                   <CustomColorPicker value={overlayTextFiltersState.color}
                     changeHandler={(color: string) => {
-                      const canvas = canvasRef.current;
                       const type = 'borders';
 
                       let existingObject = getExistingObject(type) as fabric.Image | undefined;
@@ -1035,8 +997,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         onClick={() => {
                           const existingTextObject = getExistingObject('hashtag') as fabric.Textbox | undefined;
 
-                          if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvasRef.current, existingTextObject, { visible: !existingTextObject.visible });
-                          else createTextBox(canvasRef.current, { fill: overlayTextFiltersState.color, customType: 'hashtag' });
+                          if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvas, existingTextObject, { visible: !existingTextObject.visible });
+                          else createTextBox(canvas, { fill: overlayTextFiltersState.color, customType: 'hashtag' });
                         }}
                         style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
                         width='90px'
@@ -1045,7 +1007,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   })}
                   <CustomColorPicker value={overlayTextFiltersState.color}
                     changeHandler={(color: string) => {
-                      const canvas = canvasRef.current;
                       const type = 'hashtag';
 
                       let existingTextObject = getExistingObject(type) as fabric.Textbox | undefined;
@@ -1067,12 +1028,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
         </div>
         <div style={{ marginTop: '40%', position: 'relative' }}>
-          <button onClick={() => saveImage(canvasRef.current)} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
+          <button onClick={() => saveImage(canvas)} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
             Export
           </button>
         </div>
         <div style={{ marginTop: '40%', position: 'relative' }}>
-          <button onClick={() => saveJSON(canvasRef.current)} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
+          <button onClick={() => saveJSON(canvas)} style={{ width: '100%', height: "42px", borderRadius: '25px', border: 'none', backgroundColor: '#3b0e39', color: 'white' }}>
             JSON
           </button>
         </div>
