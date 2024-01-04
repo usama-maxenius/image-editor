@@ -29,7 +29,7 @@ export function createTextBox(canvas: fabric.Canvas | null, options: FabricTextB
   if (options.customType) newText.customType = options.customType
   canvas.add(newText);
   canvas.setActiveObject(newText);
-  canvas.requestRenderAll();
+  canvas.renderAll();
   return newText;
 }
 
