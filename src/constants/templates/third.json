@@ -238,7 +238,7 @@
 			"skewY": 0,
 			"cropX": 0,
 			"cropY": 0,
-			"evented":false,
+			"evented": false,
 			"customType": "overlay",
 			"selectable": false,
 			"src": "/images/overlay/op3.png",
