@@ -444,7 +444,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const deselectObj = () => {
     canvas?.discardActiveObject();
-    canvas?.requestRenderAll();
+    canvas?.renderAll();
   };
 
   const deleteActiveSelection = () => {
@@ -1029,6 +1029,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                           const existingTextObject = getExistingObject('hashtag') as fabric.Textbox | undefined;
 
                           if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvas, { visible: !existingTextObject.visible }, 'hashtag');
+                          
                           else createTextBox(canvas, { fill: overlayTextFiltersState.color, customType: 'hashtag' });
                         }}
                         style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
