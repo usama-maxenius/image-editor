@@ -10,7 +10,7 @@ interface Props {
   handleChange: (event: React.SyntheticEvent, newValue: number) => void
 }
 const FontsTab = ({ value, handleChange }: Props) => {
-  const { canvas, getExistingObject } = useCanvasContext()
+  const { canvas } = useCanvasContext()
   const [loadedFonts, setLoadedFonts] = useState<string[]>([]);
 
   const loadWebFont = (font: string): Promise<void> => {
@@ -45,11 +45,7 @@ const FontsTab = ({ value, handleChange }: Props) => {
   }, []);
 
   const handleTabClick = (font: string) => {
-    const textbox = getExistingObject('title') as fabric.Textbox;
-
-    if (loadedFonts.includes(font) && textbox && textbox.isType('textbox')) {
-      updateTextBox(canvas, textbox, { fontFamily: font });
-    }
+    if (loadedFonts.includes(font)) updateTextBox(canvas, { fontFamily: font });
   };
 
   return (

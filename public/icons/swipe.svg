@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="327" height="74" viewBox="0 0 327 74">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 72px;
+        filter: url(#filter);
+        fill: #caf707;
+        text-anchor: middle;
+        font-family: "Fira Sans";
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+    </style>
+    <filter id="filter" x="13" y="16" width="244" height="36" filterUnits="userSpaceOnUse">
+      <feFlood result="flood" flood-color="#fff"/>
+      <feComposite result="composite" operator="in" in2="SourceGraphic"/>
+      <feBlend result="blend" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  <image id="Chevrons" x="264" y="17" width="51" height="35" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAjCAYAAAA5dzKxAAAEP0lEQVRYhaWZS2xVVRSGv3u5hbaINSBBOsCApDwSCXSgMgATRxBsBYw6cuDMBBXlFRPjiKkTiY6NCSr4iNRn4tBHePgCLLUYEhEQBCPQAEVo6W+WWUd3Ts69vWfdley0OT3n3/s7e61/791TkQTQDTwOrARuAP9eBCr+cyL5fRpwE/gM+NDvz0cVWAU8CXQC44lGxfXt5y2/9zZgENgLDBXoNRU1YCrQB7wMtCcg9SIbjIHfCbxWcF8vsB140Ac7mabd8xCwFHgJ+CUKY29tOjCz5LMLgc0+kF0Funf5G282OoB1Pus7geHSNJZmkpZLel+xOCnpWUntrmVtll87F1C8IWmPpKWJXlMtvcmAPpF0KzCA333wtyd6d0ja7n+LxHuSVkRh8LdhQNcDnV+U9IxDZHptDvRbEOgDSb2SqhEYaz2S9vl0l41LPkMdiV7NgU5JmghovivpXklTIjBm10skfRroeMLTalNO04C2SvojoDnuQIsjMPi0Wg19FOjc4tcCoC5J2ySdD+hdc6CeCEzW7pM0EAQ64SmX6s3ylLsQ0BuVtLsRUDMu0QpQkW3P9JSL2PbfjWy7Wdvr9RoaCwzABr3Z0yzT65S0Q9KZgJ7FXi+DEAxegANB2x5xoLxtb2nBtrN1qBqBsbZI0seSbgY6v1iQclU3haht70ltuyxM1fP180DHNtizBS6XzVDEtsdS2y4LkwH1+sIaCbPt5wps21zuz4Ce2fbbktZGYLK2TNIbwb3cUUmPFtj205KOB4G+q5beZv8fR4EjyaGtTCwAluTu/ws4CIwG9OwAuLwWBLHT5lqgPwjzPfBl7loP8BRwd0DvNPBFJL3aPUWOBNLB9lkHJW3MaS7w1T0SZiovSOouC2LO0yfpWBDkR38+07NN7VxJbwUX5MsOMjXiZv2SBoNFP+ggtURvjjvR1YDeqFv6fzuLMiAPSzocBBmWtCG3YM7zGRkJ6F3xGZmdjrEZiIrXSCS15C/gEUnTEs2FDhLZGtla9LxbOWVgrEae8AFF4pCkdTnNxV7s4wG9Mz4jnUXjbQRiRfVYCyAHvMZSTTuLvBnUO+UgbfXGXA+kw+0zAjLuM7I+pzm/Bfs956nVMJPqpZa90Z8DnZo5/OBmkelV3X53B3fbI6n9loXp871TxLWGvNhT++2W9I47UNm47jPSNRlIEUy/g0SK87inVvpvpnm+jkTs96qvI7ObAUlh2n0dGAp0Kq+t9blUWNSi/W4pst/JYGwdWdOCa32bq5FsRnYFUzWz3+llQDIYK9AXgyD7C1zL2mpJPwX0TvuMTPrfy6JW849Aw342mevfUvIfm0g+EFX8mRPAK8BAwZb8LPCVfyapJc+rzpHBrl0BXgdedf3SkX05mwE8ANwPjCVi1skU/92u22GuzQ9Q3wCHGvR4j595upLnTdc0speSfT2z89Fh4GvgUgQE4B9W4kE+xmchvwAAAABJRU5ErkJggg=="/>
+  <text id="SWIPE_LEFT" data-name="SWIPE LEFT" class="cls-1" transform="translate(134.956 51.038) scale(0.686)"><tspan x="0">SWIPE LEFT</tspan></text>
+</svg>
