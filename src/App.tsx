@@ -1,4 +1,3 @@
- // @ts-nocheck
 import LandingPage from "./pages/landing page/landingPage";
 import Templates from "./pages/templates/templates";
 import { ThemeProvider } from "@mui/material/styles";
@@ -23,13 +22,12 @@ const StyledContainer = styled('div')({
 function App() {
   const [step, setStep] = useState(1)
   const [selectedTemplate, setSelectedTemplate] = useState<Template>(templateData.templates[0])
-
   const [scrappedData, setScrappedData] = useState<APIResponse>()
   const [updatedSeedData, setUpdatedSeedData] = useState<TemplateData>(templateData)
 
   useEffect(() => {
     if (!scrappedData) return;
-  
+
     setUpdatedSeedData((prev) => ({
       ...prev,
       backgroundImages: scrappedData.image_urls.length > 0 ? scrappedData.image_urls?.map((scrapeImg) => BaseURL + scrapeImg) : prev.backgroundImages,
@@ -37,21 +35,18 @@ function App() {
       texts: scrappedData.generated_titles.length > 0 ? scrappedData.generated_titles?.map((scrapeTitles) => scrapeTitles.title.toUpperCase()) : prev.texts
     }));
   }, [scrappedData]);
-  
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        {step == 1 ? <LandingPage setScrappedData={setScrappedData} updateStep={setStep} /> :
-          step == 2 ?
-            <Templates
-              updateStep={setStep}
-              setDefaultTemplate={setSelectedTemplate} /> :
-            step == 3 ? <StyledContainer>
-              <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
-            </StyledContainer> : ''}
-      </ThemeProvider>
-    </>
+    <ThemeProvider theme={theme}>
+      {step == 1 ? <LandingPage setScrappedData={setScrappedData} updateStep={setStep} /> :
+        step == 2 ?
+          <Templates
+            updateStep={setStep}
+            setDefaultTemplate={setSelectedTemplate} /> :
+          step == 3 ? <StyledContainer>
+            <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+          </StyledContainer> : ''}
+    </ThemeProvider>
   );
 }
 

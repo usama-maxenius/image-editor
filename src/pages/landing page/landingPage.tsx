@@ -24,7 +24,7 @@ interface Props {
 }
 function LandingPage({ setScrappedData, updateStep }: Props) {
 
-  const [givenUrl, setGivenUrl] = useState('https://www.fox13now.com/woman-fatally-shot-by-police-after-pointing-gun-at-3-year-old-s-head?dicbo=v2-cPPTTmB&?');
+  const [givenUrl, setGivenUrl] = useState('https://www.fox13now.com/3500-year-old-axes-found-in-forest-by-man-with-metal-detector?dicbo=v2-az5lTg0&?');
   const [loading, setLoading] = useState(false);
 
   const getData = async () => {

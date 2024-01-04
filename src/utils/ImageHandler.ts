@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import { fabric } from 'fabric';
 
 export const createImage = (canvas: fabric.Canvas | null, imageUrl: string, options: fabric.IImageOptions): Promise<fabric.Image | undefined> => {
@@ -16,6 +16,8 @@ export const createImage = (canvas: fabric.Canvas | null, imageUrl: string, opti
       };
 
       img.set({ ...defaultOptions, ...options });
+
+      if (options.customType) img.customType = options.customType
       img.applyFilters();
       canvas.add(img);
       canvas.renderAll();
@@ -43,7 +45,7 @@ export const updateImageSource = (canvas: fabric.Canvas, imageUrl: string, activ
 
     activeObject.center();
     canvas.renderAll();
-  },{
+  }, {
     crossOrigin: 'anonymous'
   });
 }
@@ -55,6 +57,7 @@ export const updateImageProperties = (canvas: fabric.Canvas | null, imageObject:
     imageObject.set({
       ...options
     })
+    imageObject.filters = [imageObject.filters, options.filters]
     imageObject.applyFilters();
     return canvas.renderAll();
   }
