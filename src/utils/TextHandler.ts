@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 
 import { fabric } from 'fabric';
 import { ITextboxOptions } from 'fabric/fabric-impl';
@@ -135,5 +135,5 @@ export function updateTextBox(canvas: fabric.Canvas | null, options: ITextboxOpt
     ...options,
     visible: true
   });
-  canvas.renderAll();
+  canvas.requestRenderAll();
 }
