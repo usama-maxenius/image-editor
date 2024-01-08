@@ -52,11 +52,11 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
     canvas.renderAll()
   }
 
-  const rect = createRect(canvas, { top, left: -10, width: width + 10, lockMovementX: true, selectable: true, visible: true, customType: 'photo-border' }, 3) as fabric.Rect
+  const rect = createRect(canvas, { top, left: -10, width: width + 10, lockMovementX: true, selectable: true, visible: true, customType: 'photo-border' }, 2) as fabric.Rect
 
   rect.on('moving', (options) => {
     const rectHeight = rect.top;
-    
+
     clipPath.set({ height: rectHeight, top: 0 }).setCoords();
     clipPath2.set({ height: height - rectHeight!, top: rectHeight }).setCoords();
     canvas.requestRenderAll();
@@ -115,7 +115,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   }
 
   // setTimeout(() => {
-  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' }) as fabric.Rect;
+  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' },2) as fabric.Rect;
 
   rect.on('moving', () => {
     const rectLeft = rect.left!;
@@ -133,7 +133,6 @@ export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImag
   const height = canvas.getHeight();
 
   if (activeObject && activeObject.isType('image')) {
-    console.log({ activeObject })
     if (activeObject.customType === 'bg-1') {
 
       var imageElement = document.createElement('img');

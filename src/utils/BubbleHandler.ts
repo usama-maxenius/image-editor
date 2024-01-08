@@ -56,8 +56,10 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     }).setCoords();
 
     (strokeCircle as any).customType = 'bubbleStroke'
-    canvas.add(strokeCircle)
-    canvas.add(fabricImage)
+    canvas.insertAt(strokeCircle, 5, false)
+    canvas.insertAt(fabricImage, 6, false)
+    // canvas.add(strokeCircle)
+    // canvas.add(fabricImage)
 
     strokeCircle.on('moving', function () {
 
