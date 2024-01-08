@@ -4,7 +4,6 @@ import { getExistingObject } from '.';
 
 fabric.Object.prototype.noScaleCache = false;
 
-let strokeCircleRadius = 99
 export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, options?: fabric.ICircleOptions) => {
 
   var strokeCircle = new fabric.Circle({
@@ -86,8 +85,7 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     });
 
     strokeCircle.on('scaling', function () {
-      const newRadius = strokeCircle.getScaledWidth() / 2;
-      strokeCircleRadius = newRadius
+      // const newRadius = strokeCircle.getScaledWidth() / 2;
 
       clipPath.scaleToWidth(strokeCircle.getScaledWidth())
       clipPath.scaleToHeight(strokeCircle.getScaledHeight())
@@ -120,7 +118,7 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
       imageClipPath.radius = strokeCircle.radius! - strokeWidth / 2;
       imageClipPath.setCoords();
     }
-    
+
     strokeCircle.set({
       ...options,
       strokeUniform: true,
