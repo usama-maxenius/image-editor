@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -429,7 +429,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   //   const handleClickOutsideCanvas = (event: MouseEvent) => {
   //     const canvasElement = canvasEl.current;
   //     const boundingBox = canvasElement?.getBoundingClientRect();
-  
+
   //     // Check if the click event coordinates are outside the canvas bounding box
   //     if (
   //       boundingBox &&
@@ -453,15 +453,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   //       }, 0);
   //     }
   //   };
-  
+
   //   document.addEventListener('mouseup', handleClickOutsideCanvas);
-  
+
   //   return () => {
   //     // Cleanup: Remove the event listener when the component unmounts
   //     document.removeEventListener('mouseup', handleClickOutsideCanvas);
   //   };
   // }, [canvas]);
-  
+
   return (
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
       <div>

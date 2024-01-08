@@ -43,6 +43,7 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
   setTimeout(() => {
     createRect(canvas, { top, left: -10, width: width + 10, visible: true, customType: 'photo-border' }, 3)
   }, 200);
+  canvas.renderAll()
 };
 
 export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[]) => {
@@ -86,6 +87,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   setTimeout(() => {
     createRect(canvas, { left, height: height + 10, top: -10, width: 0, visible: true, customType: 'photo-border' })
   }, 200);
+  canvas.renderAll()
 };
 
 export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImage: string, activeObject: fabric.Object) => {
@@ -96,13 +98,20 @@ export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImag
   if (activeObject && activeObject.isType('image')) {
     console.log({ activeObject })
     if (activeObject.customType === 'bg-1') {
-      fabric.Image.fromURL(newImage, function (img) {
-        img.clipPath = activeObject.clipPath;
 
+      var imageElement = document.createElement('img');
+      imageElement.src = newImage;
+      imageElement.crossOrigin = 'anonymous'
+
+      // Add the image to the canvas when needed
+      imageElement.onload = function () {
+        var img = new fabric.Image(imageElement);
+        img.clipPath = activeObject.clipPath;
         img.set({
           centeredScaling: true,
           perPixelTargetFind: true,
         })
+
         img.filters = activeObject.filters || []
         img.applyFilters();
         img.scaleToWidth(width)
@@ -111,31 +120,37 @@ export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImag
         img.customType = activeObject.customType
         canvas.remove(activeObject)
         canvas.insertAt(img, 0, false);
-      }, {
-        crossOrigin: 'anonymous'
-      });
+        canvas.renderAll()
+      };
     } else {
-      fabric.Image.fromURL(newImage, function (img) {
+
+      var imageElement = document.createElement('img');
+      imageElement.src = newImage;
+      imageElement.crossOrigin = 'anonymous'
+
+      // Add the image to the canvas when needed
+      imageElement.onload = function () {
+        var img = new fabric.Image(imageElement);
         img.clipPath = activeObject.clipPath;
         img.set({
           centeredScaling: true,
           top: activeObject.top,
           perPixelTargetFind: true,
         })
+
         img.filters = activeObject.filters || []
         img.applyFilters();
         img.scaleToWidth(width)
-        img.customType = activeObject.customType
         if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+
+        img.customType = activeObject.customType
         canvas.remove(activeObject)
         canvas.insertAt(img, 1, false);
-
-      }, {
-        crossOrigin: 'anonymous'
-      });
+        canvas.renderAll()
+      }
     }
-  }
-};
+  };
+}
 
 export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newImage: string, activeObject: fabric.Object) => {
 
@@ -144,7 +159,13 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
 
   if (activeObject && activeObject.isType('image')) {
     if (activeObject.customType === 'bg-1') {
-      fabric.Image.fromURL(newImage, function (img) {
+      var imageElement = document.createElement('img');
+      imageElement.src = newImage;
+      imageElement.crossOrigin = 'anonymous'
+
+      // Add the image to the canvas when needed
+      imageElement.onload = function () {
+        var img = new fabric.Image(imageElement);
         img.clipPath = activeObject.clipPath;
         img.set({
           perPixelTargetFind: true,
@@ -156,13 +177,23 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
         img.customType = activeObject.customType
         img.filters = activeObject.filters || []
         img.applyFilters();
+        if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+
         canvas.remove(activeObject)
         canvas.insertAt(img, 0, false);
-      }, {
-        crossOrigin: 'anonymous'
-      });
+        canvas.renderAll()
+      }
+
     } else {
-      fabric.Image.fromURL(newImage, function (img) {
+
+      var imageElement = document.createElement('img');
+      imageElement.src = newImage;
+      imageElement.crossOrigin = 'anonymous'
+
+      // Add the image to the canvas when needed
+      imageElement.onload = function () {
+        var img = new fabric.Image(imageElement);
+        img.clipPath = activeObject.clipPath;
         img.set({
           evented: true,
           centeredScaling: true,
@@ -178,9 +209,10 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
         img.applyFilters();
         canvas.remove(activeObject)
         canvas.insertAt(img, 1, false);
-      }, {
-        crossOrigin: 'anonymous'
-      });
+        canvas.renderAll()
+      }
+
     }
   }
+  canvas.renderAll()
 };
