@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 
 import { fabric } from 'fabric';
 import { ITextboxOptions } from 'fabric/fabric-impl';
@@ -107,8 +107,11 @@ export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
         obj.filters.push(filter);
         obj.applyFilters();
       }
-      canvas.renderAll()
     })
+    const timeoutId = setTimeout(() => {
+      canvas.renderAll();
+    }, 200);
+    clearTimeout(timeoutId)
   } else console.log('Swipe Group not found')
 }
 
@@ -135,5 +138,9 @@ export function updateTextBox(canvas: fabric.Canvas | null, options: ITextboxOpt
     ...options,
     visible: true
   });
-  canvas.requestRenderAll();
+  const timeoutId = setTimeout(() => {
+    canvas.requestRenderAll();
+  }, 200);
+
+  clearTimeout(timeoutId)
 }

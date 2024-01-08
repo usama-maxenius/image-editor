@@ -1,6 +1,10 @@
 //  // @ts-nocheck
 import { fabric } from 'fabric'
+import { getExistingObject } from '.';
 
+fabric.Object.prototype.noScaleCache = false;
+
+let strokeCircleRadius = 99
 export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, options?: fabric.ICircleOptions) => {
 
   var strokeCircle = new fabric.Circle({
@@ -56,8 +60,8 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     }).setCoords();
 
     (strokeCircle as any).customType = 'bubbleStroke'
-    canvas.insertAt(strokeCircle, 5, false)
-    canvas.insertAt(fabricImage, 6, false)
+    canvas.insertAt(strokeCircle, 4, false)
+    canvas.insertAt(fabricImage, 5, false)
     // canvas.add(strokeCircle)
     // canvas.add(fabricImage)
 
@@ -82,6 +86,9 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     });
 
     strokeCircle.on('scaling', function () {
+      const newRadius = strokeCircle.getScaledWidth() / 2;
+      strokeCircleRadius = newRadius
+
       clipPath.scaleToWidth(strokeCircle.getScaledWidth())
       clipPath.scaleToHeight(strokeCircle.getScaledHeight())
       clipPath.set({
@@ -89,7 +96,7 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
         top: strokeCircle.top,
         scaleX: strokeCircle.scaleX,
         scaleY: strokeCircle.scaleY,
-        radius: strokeCircle.radius! - 5,
+        radius: strokeCircle.radius!,
       }).setCoords();
     });
 
@@ -102,10 +109,22 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
   options?: fabric.ICircleOptions
 ) => {
 
+  const imageClipPath = getExistingObject(canvas, 'bubble')?.clipPath as fabric.Circle
   // Update strokeCircle properties
   if (options) {
+    if (options.strokeWidth !== undefined) {
+      const strokeWidth = options.strokeWidth;
+      // const clipPath = strokeCircle.clipPath as fabric.Circle;
+
+      // Update the clipPath radius to maintain the desired stroke outside the circle
+      imageClipPath.radius = strokeCircle.radius! - strokeWidth / 2;
+      imageClipPath.setCoords();
+    }
+    
     strokeCircle.set({
       ...options,
+      strokeUniform: true,
+      // radius: strokeCircleRadius - (options.strokeWidth / 2)
     });
   }
 

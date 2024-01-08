@@ -52,7 +52,7 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
     canvas.renderAll()
   }
 
-  const rect = createRect(canvas, { top, left: -10, width: width + 10, lockMovementX: true, selectable: true, visible: true, customType: 'photo-border' }, 2) as fabric.Rect
+  const rect = createRect(canvas, { top, left: -10, width: width + 10, lockMovementX: true, selectable: true, visible: true, customType: 'photo-border' }, 1) as fabric.Rect
 
   rect.on('moving', (options) => {
     const rectHeight = rect.top;
@@ -115,7 +115,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   }
 
   // setTimeout(() => {
-  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' },2) as fabric.Rect;
+  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' },1) as fabric.Rect;
 
   rect.on('moving', () => {
     const rectLeft = rect.left!;
