@@ -21,7 +21,7 @@ export const createRect = (canvas: fabric.Canvas, options: fabric.IRectOptions, 
   const defaultOptions: IRectOptions = {
     left: canvas.getWidth() / 2,
     selectable: false,
-    stroke: 'red',
+    stroke: '#ffffff',
     strokeWidth: 3,
     ...options,
   };

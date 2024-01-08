@@ -22,9 +22,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { createImage, updateImageSource } from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import FontsTab from '../Tabs/EditText/FontsTab';
-import { updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
+import { createHorizontalCollage, createVerticalCollage, updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
 import { activeTabs } from '../../types/context';
 import FlipIcon from '@mui/icons-material/Flip';
+import { createBubbleElement, updateBubbleElement } from '../../utils/BubbleHandler';
 
 interface CanvasProps {
   template: Template
@@ -50,7 +51,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const [activeButton, setActiveButton] = useState("Overlay");
   const [show, setShow] = useState("font");
   const canvasEl = useRef<HTMLCanvasElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string>('');
+  const [selectedFilter,] = useState<string>('');
   const [dropDown, setDropDown] = useState(true)
   const [filtersRange, setFiltersRange] = useState({ brightness: 0, contrast: 0 })
   const [canvasToolbox, setCanvasToolbox] = useState({
@@ -92,7 +93,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     },
     collage: {
       strokeWidth: 3,
-      stroke: '#000'
+      stroke: '#ffffff'
     },
   })
 
@@ -108,12 +109,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   useEffect(() => {
     const options = {
       width: canvasDimension.width,
-      height: canvasDimension.height
+      height: canvasDimension.height,
+      renderOnAddRemove: false,
+      preserveObjectStacking: true
     };
-
     const canvas = new fabric.Canvas(canvasEl.current, options);
     // make the fabric.Canvas instance available to your app
     updateCanvasContext(canvas);
+
     return () => {
       updateCanvasContext(null);
       canvas.dispose();
@@ -130,10 +133,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     const templateJSON = await importLocale(template.filePath)
 
+    const img1 = '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
+    const img2 = '/images/sample/scott-circle-image.png';
 
     // Load canvas JSON template
+    // createBubble(canvas, img1, {})
+    // createBubbleElement(canvas!, imgUrl!)
     await new Promise((resolve) => {
       canvas?.loadFromJSON(templateJSON, () => {
+        if (template.diptych === 'horizontal') createHorizontalCollage(canvas, [img1, img2])
+        else if (template.diptych === 'vertical') createVerticalCollage(canvas, [img1, img2])
         resolve(null);
       });
     })
@@ -155,7 +164,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     const handleMouseDown = (options: IEvent<Event>) => {
       if (options.target) {
-        const thisTarget: any = options.target;
+        const thisTarget = options.target as fabric.Object;
         const mousePos = canvas?.getPointer(options.e) || { x: 0, y: 0 };
 
         if (thisTarget.isType('group')) {
@@ -180,6 +189,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             }
           });
         }
+
       }
     };
 
@@ -223,7 +233,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         }
       });
     };
-
     canvas?.on('mouse:down', handleMouseDown);
     // Attach canvas update listeners
     // canvas?.on('mouse:down', handleMouseClick);
@@ -241,84 +250,34 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }, [loadCanvas]);
 
   const updateBubbleImage = (imgUrl: string | undefined, filter?: { strokeWidth: number, stroke: string }) => {
-    const strokeWidth = filter?.strokeWidth || 10;
-    const stroke = filter?.stroke || "white";
 
-    const existingGroup = getExistingObject('bubble')
+    const existingBubble = getExistingObject('bubble')
+    const existingBubbleStroke = getExistingObject('bubbleStroke')
 
-    // Extract existing bubble position
-    const existingBubblePosition = existingGroup ? { left: existingGroup.left, top: existingGroup.top } : { left: 20, top: 30 };
+    if (!canvas) {
+      console.error('Canvas Not initialized')
+      return
+    }
 
-    if (!canvas) return
+    if (filter && !imgUrl && existingBubbleStroke) {
+      const newOptions: fabric.ICircleOptions = {
+        stroke: filter?.stroke || 'blue',
+        strokeWidth: filter?.strokeWidth || 15,
+        // Add any other options you want to update
+      };
 
-    if (!existingGroup) return
+      requestAnimationFrame(() => {
+        updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+      });
+    } else {
 
-    setFilterValues((prev) => ({ ...prev, bubble: { ...prev.bubble, image: imgUrl } }))
-
-    if (!imgUrl && filter) {
-      existingGroup._objects?.forEach((obj) => {
-        if (filter && obj.type === 'circle') {
-          const strokeIncreased = strokeWidth > obj.strokeWidth
-          const strokeChanged = strokeIncreased ? strokeWidth - obj.strokeWidth : obj.strokeWidth - strokeWidth;
-
-          obj.set({
-            stroke,
-            strokeWidth,
-            radius: strokeIncreased ? obj.radius + strokeChanged : obj.radius - strokeChanged
-          })
-          canvas.renderAll()
-        }
-      })
-      existingGroup.visible = true;
-      canvas.renderAll()
-    } else if (imgUrl) {
-      // existingGroup._objects?.forEach((obj) => {
-      //   if (obj.type === 'image') {
-      //     // obj.setSrc(imgUrl, () => {
-      //     obj.set({
-      //       src: imgUrl,
-      //       visible: true
-      //     })
-      //     canvas.renderAll()
-      //     // })
-      //   }
-      // })
-      fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
-        // Set the maximum radius for the circular clip mask
-        var maxRadius = 80;
-        let scale = +Math.min(270 / img.width, 270 / img.height).toFixed(2)
-
-        img.scale(scale).set({
-          angle: 0,
-          originX: 'center',
-          originY: 'center'
-        });
-        img.center()
-
-        // Create a circular clip mask
-        var clipMask = new fabric.Circle({
-          radius: maxRadius,
-          originX: 'center',
-          originY: 'center',
-          fill: 'transparent',
-          strokeWidth, // Set border width
-          stroke, // Set border color
-        });
-
-        // Group the image and the clip mask
-        var group = new fabric.Group([img, clipMask], {
-          ...existingBubblePosition,
-          clipPath: clipMask,
-        });
-        group.customType = 'bubble';
-        // Add the group to the canvas
-        if (existingGroup) canvas.remove(existingGroup);
-        canvas.add(group);
-
-        // Render the canvas
-        canvas.renderAll();
-      }, {
-        crossOrigin: 'anonymous'
+      let options = {
+        ...existingBubbleStroke
+      }
+      if (existingBubble) canvas?.remove(existingBubble)
+      if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
+      requestAnimationFrame(() => {
+        createBubbleElement(canvas!, imgUrl!, options)
       });
     }
   }
@@ -424,7 +383,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     const existingObject = getExistingObject('photo-border')
 
-    if (existingObject) updateRect(existingObject, { ...options, customType: 'photo-border' })
+    if (existingObject) updateRect(existingObject, { ...options, top: existingObject?.top, left: existingObject.left, customType: 'photo-border' })
+    setTimeout(() => {
+      canvas.requestRenderAll();
+    }, 0);
   }
 
   /**
@@ -445,6 +407,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const deselectObj = () => {
     canvas?.discardActiveObject();
     canvas?.renderAll();
+    setCanvasToolbox((prev) => ({ ...prev, activeObject: null, isDeselectDisabled: false }))
   };
 
   const deleteActiveSelection = () => {
@@ -464,6 +427,43 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       canvas?.renderAll()
     }
   }
+
+  // useEffect(() => {
+  //   const handleClickOutsideCanvas = (event: MouseEvent) => {
+  //     const canvasElement = canvasEl.current;
+  //     const boundingBox = canvasElement?.getBoundingClientRect();
+
+  //     // Check if the click event coordinates are outside the canvas bounding box
+  //     if (
+  //       boundingBox &&
+  //       (event.clientX < boundingBox.left ||
+  //         event.clientX > boundingBox.right ||
+  //         event.clientY < boundingBox.top ||
+  //         event.clientY > boundingBox.bottom)
+  //     ) {
+  //       setTimeout(() => {
+  //         // Check again after a short delay to allow Fabric.js to handle its events
+  //         if (canvas && canvas._activeObject) {
+  //           canvas.discardActiveObject();
+  //           canvas.renderAll();
+  //           setCanvasToolbox((prev) => ({
+  //             ...prev,
+  //             activeObject: null,
+  //             isDeselectDisabled: true,
+  //           }));
+  //           console.log('Clicked outside the canvas!');
+  //         }
+  //       }, 0);
+  //     }
+  //   };
+
+  //   document.addEventListener('mouseup', handleClickOutsideCanvas);
+
+  //   return () => {
+  //     // Cleanup: Remove the event listener when the component unmounts
+  //     document.removeEventListener('mouseup', handleClickOutsideCanvas);
+  //   };
+  // }, [canvas]);
 
   return (
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
@@ -769,6 +769,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   }} />
               </Box>
             )}
+
             {show === "size" && (
               <div className={classes.sliderContainer}>
                 <Slider
@@ -788,7 +789,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                 />
               </div>
             )}
-
           </Paper>
         </div>
         }
@@ -1029,7 +1029,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                           const existingTextObject = getExistingObject('hashtag') as fabric.Textbox | undefined;
 
                           if (existingTextObject && !existingTextObject?.visible) updateTextBox(canvas, { visible: !existingTextObject.visible }, 'hashtag');
-                          
+
                           else createTextBox(canvas, { fill: overlayTextFiltersState.color, customType: 'hashtag' });
                         }}
                         style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}

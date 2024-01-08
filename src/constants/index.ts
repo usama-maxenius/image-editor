@@ -1,4 +1,3 @@
-// // @ts-nocheck
 import { TemplateData } from '../types';
 
 export const BaseURL = "https://image-editor.maxenius.com";
@@ -7,6 +6,7 @@ export const canvasDimension = {
   width: 540,
   height: 675
 }
+
 export const templateData: TemplateData = {
   templates: [
     {
@@ -50,41 +50,3 @@ export const templateData: TemplateData = {
   logos: ["/images/sample/special-tag.png"],
   elements: ["/images/sample/swipe-left.png"],
 };
-
-// export const loadTemplates = async () => {
-//   try {
-//     const loadedTemplates = await Promise.all(
-//       seedData?.templates?.map(async (template) => {
-//         const filePath = `./templates/${template.path}`;
-
-//         try {
-//           const templateModule = await import(filePath);
-//           const templateJSON = templateModule.default; // Assuming the JSON is the default export
-
-//           const canvas = new fabric.Canvas('canvas', {
-//             width: 500,
-//             height: 500
-//           });
-
-//           return new Promise((resolve) => {
-//             canvas.loadFromJSON(templateJSON, () => {
-//               const img = canvas.toDataURL({ format: 'webp', quality: 0.5 });
-//               canvas.dispose();
-
-//               resolve({
-//                 url: img,
-//                 path: template.path,
-//               });
-//             });
-//           });
-//         } catch (jsonError) {
-//           throw new Error(`Failed to parse JSON: ${jsonError.message}`);
-//         }
-//       })
-//     );
-//     return loadedTemplates;
-//   } catch (error) {
-//     console.error(error.message);
-//     // Handle the error, e.g., display an error message to the user.
-//   }
-// };

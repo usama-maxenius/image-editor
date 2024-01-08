@@ -29,7 +29,7 @@ export const saveJSON = (canvas: fabric.Canvas | null): void => {
     return;
   }
 
-  const additionalFieldsToExport = ['customType', 'selectable', 'evented', 'perPixelTargetFind']
+  const additionalFieldsToExport = ['customType', 'selectable', 'evented', 'perPixelTargetFind','absolutePositioned']
 
   var json = JSON.stringify(canvas.toJSON(additionalFieldsToExport));
   // Create a Blob containing the JSON data
