@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -22,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { createImage, updateImageSource } from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import FontsTab from '../Tabs/EditText/FontsTab';
-import { updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
+import { createHorizontalCollage, createVerticalCollage, updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
 import { activeTabs } from '../../types/context';
 import FlipIcon from '@mui/icons-material/Flip';
 import { createBubbleElement, updateBubbleElement } from '../../utils/BubbleHandler';
@@ -93,7 +93,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     },
     collage: {
       strokeWidth: 3,
-      stroke: '#000'
+      stroke: '#ffffff'
     },
   })
 
@@ -113,10 +113,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       renderOnAddRemove: false,
       preserveObjectStacking: true
     };
-
     const canvas = new fabric.Canvas(canvasEl.current, options);
     // make the fabric.Canvas instance available to your app
     updateCanvasContext(canvas);
+
     return () => {
       updateCanvasContext(null);
       canvas.dispose();
@@ -141,6 +141,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     // createBubbleElement(canvas!, imgUrl!)
     await new Promise((resolve) => {
       canvas?.loadFromJSON(templateJSON, () => {
+        if (template.diptych === 'horizontal') createHorizontalCollage(canvas, [img1, img2])
+        else if (template.diptych === 'vertical') createVerticalCollage(canvas, [img1, img2])
         resolve(null);
       });
     })
@@ -187,6 +189,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             }
           });
         }
+
       }
     };
 
@@ -230,7 +233,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         }
       });
     };
-
     canvas?.on('mouse:down', handleMouseDown);
     // Attach canvas update listeners
     // canvas?.on('mouse:down', handleMouseClick);
@@ -381,10 +383,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
     const existingObject = getExistingObject('photo-border')
 
-    if (existingObject) updateRect(existingObject, { ...options, customType: 'photo-border' })
+    if (existingObject) updateRect(existingObject, { ...options, top: existingObject?.top, left: existingObject.left, customType: 'photo-border' })
+    setTimeout(() => {
+      canvas.requestRenderAll();
+    }, 0);
   }
-
-
 
   /**
   * Uploads an image and updates the initial data.

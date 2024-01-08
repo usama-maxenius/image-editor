@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 
 import { fabric } from 'fabric';
 import { createRect } from './RectHandler';
@@ -12,7 +12,13 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
   var clipPath = new fabric.Rect({ width, height: height / 2, top: 0, left: 0, absolutePositioned: true, evented: false });
   var clipPath2 = new fabric.Rect({ width, height: height / 2, top, left: 0, absolutePositioned: true, evented: false });
 
-  fabric.Image.fromURL(images[0], function (img) {
+  var imageElement = document.createElement('img');
+  imageElement.src = images[0];
+  imageElement.crossOrigin = 'anonymous'
+
+  // Add the image to the canvas when needed
+  imageElement.onload = function () {
+    var img = new fabric.Image(imageElement);
     img.clipPath = clipPath;
     img.set({
       centeredScaling: true,
@@ -22,27 +28,40 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
     if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
     img.customType = 'bg-1'
     canvas.insertAt(img, 0, false);
-  }, {
-    crossOrigin: 'anonymous'
-  });
+    canvas.renderAll()
+  }
 
-  fabric.Image.fromURL(images[1], function (img) {
-    img.set({
+
+  var imageElement2 = document.createElement('img');
+  imageElement2.src = images[1];
+  imageElement2.crossOrigin = 'anonymous'
+
+  // Add the image to the canvas when needed
+  imageElement2.onload = function () {
+    var img2 = new fabric.Image(imageElement2);
+    img2.set({
       centeredScaling: true,
       perPixelTargetFind: true,
       top,
       clipPath: clipPath2
     })
-    img.scaleToWidth(width)
-    img.customType = 'bg-2'
-    if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
-    canvas.insertAt(img, 1, false);
-  }, {
-    crossOrigin: 'anonymous'
+    img2.scaleToWidth(width)
+    if (img2.width && img2.width > 1080) img2.scaleToHeight(height / 2)
+    img2.customType = 'bg-2'
+    canvas.insertAt(img2, 1, false);
+    canvas.renderAll()
+  }
+
+  const rect = createRect(canvas, { top, left: -10, width: width + 10, lockMovementX: true, selectable: true, visible: true, customType: 'photo-border' }, 3) as fabric.Rect
+
+  rect.on('moving', (options) => {
+    const rectHeight = rect.top;
+    
+    clipPath.set({ height: rectHeight, top: 0 }).setCoords();
+    clipPath2.set({ height: height - rectHeight!, top: rectHeight }).setCoords();
+    canvas.requestRenderAll();
   });
-  setTimeout(() => {
-    createRect(canvas, { top, left: -10, width: width + 10, visible: true, customType: 'photo-border' }, 3)
-  }, 200);
+
   canvas.renderAll()
 };
 
@@ -55,7 +74,13 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   var clipPath = new fabric.Rect({ width: width / 2, height, left: 0, absolutePositioned: true, evented: false });
   var clipPath2 = new fabric.Rect({ width: width / 2, height, left, absolutePositioned: true, evented: false });
 
-  fabric.Image.fromURL(images[0], function (img) {
+  var imageElement = document.createElement('img');
+  imageElement.src = images[0];
+  imageElement.crossOrigin = 'anonymous'
+
+  // Add the image to the canvas when needed
+  imageElement.onload = function () {
+    var img = new fabric.Image(imageElement);
     img.clipPath = clipPath;
     img.set({
       centeredScaling: true,
@@ -65,29 +90,41 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
     img.scaleToHeight(height)
     img.customType = 'bg-1'
     canvas.insertAt(img, 0, false);
-  }, {
-    crossOrigin: 'anonymous'
-  });
+    canvas.renderAll()
+  }
 
-  fabric.Image.fromURL(images[1], function (img) {
-    img.set({
+  var imageElement2 = document.createElement('img');
+  imageElement2.src = images[1];
+  imageElement2.crossOrigin = 'anonymous'
+
+  // Add the image to the canvas when needed
+  imageElement2.onload = function () {
+    var img2 = new fabric.Image(imageElement2);
+    img2.clipPath = clipPath2;
+    img2.set({
       centeredScaling: true,
       perPixelTargetFind: true,
       originX: 'center',
       left,
       clipPath: clipPath2
     })
-    img.scaleToHeight(height)
-    img.customType = 'bg-2'
-    // img.scaleToHeight(height / 2)
-    canvas.insertAt(img, 1, false);
-  }, {
-    crossOrigin: 'anonymous'
+    img2.scaleToHeight(height)
+    img2.customType = 'bg-2'
+    canvas.insertAt(img2, 1, false);
+    canvas.renderAll()
+  }
+
+  // setTimeout(() => {
+  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' }) as fabric.Rect;
+
+  rect.on('moving', () => {
+    const rectLeft = rect.left!;
+    clipPath.set({ width: rectLeft, left: 0 }).setCoords();
+    clipPath2.set({ width: width - rectLeft, left: rectLeft }).setCoords();
+    canvas.requestRenderAll();
   });
-  setTimeout(() => {
-    createRect(canvas, { left, height: height + 10, top: -10, width: 0, visible: true, customType: 'photo-border' })
-  }, 200);
-  canvas.renderAll()
+
+  canvas.requestRenderAll();
 };
 
 export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImage: string, activeObject: fabric.Object) => {
