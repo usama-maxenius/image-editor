@@ -1,22 +1,38 @@
- // @ts-nocheck
+//  // @ts-nocheck
 import { fabric } from 'fabric'
 
 export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, options?: fabric.ICircleOptions) => {
 
-  var clipPath = new fabric.Circle({
-    radius: 95,
+  var strokeCircle = new fabric.Circle({
+    radius: 100,
     left: 350,
     top: 330,
+    originX: 'center',
+    originY: 'center',
+    fill: 'transparent',
+    strokeWidth: 10,
+    stroke: "#ffffff",
+    strokeUniform: false,
+    selectable: true,
+    ...options
+  });
+
+  var clipPath = new fabric.Circle({
+    radius: 99,
+    left: strokeCircle.left,
+    top: strokeCircle.top,
     originX: 'center',
     originY: 'center',
     fill: 'transparent',
     opacity: 1,
     visible: true,
     selectable: true,
+    strokeUniform: true,
     perPixelTargetFind: true,
     absolutePositioned: true,
   });
-  clipPath.customType = 'bubbleClipPath'
+
+  (clipPath as any).customType = 'bubbleClipPath'
   var imageElement = document.createElement('img');
   imageElement.src = imgUrl;
   imageElement.crossOrigin = 'anonymous'
@@ -24,42 +40,38 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
   // Add the image to the canvas when needed
   imageElement.onload = function () {
     var fabricImage = new fabric.Image(imageElement);
-    fabricImage.customType = 'bubble'
-    fabricImage.center()
+    (fabricImage as any).customType = 'bubble'
 
     fabricImage.clipPath = clipPath;
+
+    var circleCenter = strokeCircle.getCenterPoint();
+
     fabricImage.set({
       absolutePositioned: false,
       perPixelTargetFind: true,
-      originX: 'center',
-      originY: 'center',
-    })
+      scaleX: 0.3,
+      scaleY: 0.3,
+      left: circleCenter.x - fabricImage.width! * 0.3 / 2,
+      top: circleCenter.y - fabricImage.height! * 0.3 / 2,
+    }).setCoords();
 
-    var strokeCircle = new fabric.Circle({
-      radius: 100,
-      left: 350,
-      top: 330,
-      originX: 'center',
-      originY: 'center',
-      fill: 'transparent',
-      strokeWidth: 10,
-      stroke: "red",
-      absolutePositioned: true,
-      selectable: true,
-      ...options
-    });
-    strokeCircle.customType = 'bubbleStroke'
-    console.log(strokeCircle.width)
-    // fabricImage.scaleToWidth(strokeCircle.width)
+    (strokeCircle as any).customType = 'bubbleStroke'
     canvas.add(strokeCircle)
     canvas.add(fabricImage)
 
     strokeCircle.on('moving', function () {
 
+      var circleCenter = strokeCircle.getCenterPoint();
+      var imageCenter = fabricImage.getCenterPoint();
+
+      var offsetX = circleCenter.x - imageCenter.x;
+      var offsetY = circleCenter.y - imageCenter.y;
+
       fabricImage.set({
-        left: strokeCircle.left! - (strokeCircle.width! / 2),
-        top: strokeCircle.top! - (strokeCircle.height! / 2),
+        left: fabricImage.left! + offsetX,
+        top: fabricImage.top! + offsetY,
       }).setCoords();
+
 
       clipPath.set({
         left: strokeCircle.left,
@@ -83,7 +95,26 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
   };
 }
 
-export const createBubble = (canvas: fabric.Canvas, imgUrl: string, options: fabric.Circle) => {
+export const updateBubbleElement = (canvas: fabric.Canvas,
+  strokeCircle: fabric.Circle,
+  options?: fabric.ICircleOptions
+) => {
+
+  // Update strokeCircle properties
+  if (options) {
+    strokeCircle.set({
+      ...options,
+    });
+  }
+
+  strokeCircle.dirty = true
+  // Render all changes
+  canvas?.renderAll();
+  strokeCircle.dirty = false
+};
+
+
+export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
   fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
     // Set the maximum radius for the circular clip mask
     var maxRadius = 80;
@@ -114,7 +145,7 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string, options: fab
       // absolutePositioned: true,
     });
 
-    group.customType = 'bubble';
+    (group as any).customType = 'bubble';
     // Add the group to the canvas
     canvas.add(group);
 

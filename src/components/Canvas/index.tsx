@@ -25,7 +25,7 @@ import FontsTab from '../Tabs/EditText/FontsTab';
 import { updateHorizontalCollageImage, updateVerticalCollageImage } from '../../utils/CollageHandler';
 import { activeTabs } from '../../types/context';
 import FlipIcon from '@mui/icons-material/Flip';
-import { createBubbleElement } from '../../utils/BubbleHandler';
+import { createBubbleElement, updateBubbleElement } from '../../utils/BubbleHandler';
 
 interface CanvasProps {
   template: Template
@@ -51,7 +51,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const [activeButton, setActiveButton] = useState("Overlay");
   const [show, setShow] = useState("font");
   const canvasEl = useRef<HTMLCanvasElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string>('');
+  const [selectedFilter,] = useState<string>('');
   const [dropDown, setDropDown] = useState(true)
   const [filtersRange, setFiltersRange] = useState({ brightness: 0, contrast: 0 })
   const [canvasToolbox, setCanvasToolbox] = useState({
@@ -252,79 +252,32 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     const existingBubble = getExistingObject('bubble')
     const existingBubbleStroke = getExistingObject('bubbleStroke')
 
-    if (existingBubble) canvas?.remove(existingBubble)
-    if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
+    if (!canvas) {
+      console.error('Canvas Not initialized')
+      return
+    }
 
-    createBubbleElement(canvas!, imgUrl!)
-    // const strokeWidth = filter?.strokeWidth || 10;
-    // const stroke = filter?.stroke || "white";
+    if (filter && !imgUrl && existingBubbleStroke) {
+      const newOptions: fabric.ICircleOptions = {
+        stroke: filter?.stroke || 'blue',
+        strokeWidth: filter?.strokeWidth || 15,
+        // Add any other options you want to update
+      };
 
-    // const existingGroup = getExistingObject('bubble')
+      requestAnimationFrame(() => {
+        updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+      });
+    } else {
 
-    // // Extract existing bubble position
-    // const existingBubblePosition = existingGroup ? { left: existingGroup.left, top: existingGroup.top } : { left: 20, top: 30 };
-
-    // if (!canvas) return
-
-    // if (!existingGroup) return
-
-    // setFilterValues((prev) => ({ ...prev, bubble: { ...prev.bubble, image: imgUrl } }))
-
-    // if (!imgUrl && filter) {
-    //   existingGroup._objects?.forEach((obj) => {
-    //     if (filter && obj.type === 'circle') {
-    //       const strokeIncreased = strokeWidth > obj.strokeWidth
-    //       const strokeChanged = strokeIncreased ? strokeWidth - obj.strokeWidth : obj.strokeWidth - strokeWidth;
-
-    //       obj.set({
-    //         stroke,
-    //         strokeWidth,
-    //         radius: strokeIncreased ? obj.radius + strokeChanged : obj.radius - strokeChanged
-    //       })
-    //       canvas.renderAll()
-    //     }
-    //   })
-    //   existingGroup.visible = true;
-    //   canvas.renderAll()
-    // } else if (imgUrl) {
-    //   fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
-    //     // Set the maximum radius for the circular clip mask
-    //     var maxRadius = 80;
-    //     let scale = +Math.min(270 / img.width, 270 / img.height).toFixed(2)
-
-    //     img.scale(scale).set({
-    //       angle: 0,
-    //       originX: 'center',
-    //       originY: 'center'
-    //     });
-    //     img.center()
-
-    //     // Create a circular clip mask
-    //     var clipMask = new fabric.Circle({
-    //       radius: maxRadius,
-    //       originX: 'center',
-    //       originY: 'center',
-    //       fill: 'transparent',
-    //       strokeWidth, // Set border width
-    //       stroke, // Set border color
-    //     });
-
-    //     // Group the image and the clip mask
-    //     var group = new fabric.Group([img, clipMask], {
-    //       ...existingBubblePosition,
-    //       clipPath: clipMask,
-    //     });
-    //     group.customType = 'bubble';
-    //     // Add the group to the canvas
-    //     if (existingGroup) canvas.remove(existingGroup);
-    //     canvas.add(group);
-
-    //     // Render the canvas
-    //     canvas.renderAll();
-    //   }, {
-    //     crossOrigin: 'anonymous'
-    //   });
-    // }
+      let options = {
+        ...existingBubbleStroke
+      }
+      if (existingBubble) canvas?.remove(existingBubble)
+      if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
+      requestAnimationFrame(() => {
+        createBubbleElement(canvas!, imgUrl!, options)
+      });
+    }
   }
 
   /**
@@ -431,6 +384,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     if (existingObject) updateRect(existingObject, { ...options, customType: 'photo-border' })
   }
 
+
+
   /**
   * Uploads an image and updates the initial data.
   * @param {React.ChangeEvent<HTMLInputElement>} event - The event triggered by the input element.
@@ -470,6 +425,43 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     }
   }
 
+  // useEffect(() => {
+  //   const handleClickOutsideCanvas = (event: MouseEvent) => {
+  //     const canvasElement = canvasEl.current;
+  //     const boundingBox = canvasElement?.getBoundingClientRect();
+  
+  //     // Check if the click event coordinates are outside the canvas bounding box
+  //     if (
+  //       boundingBox &&
+  //       (event.clientX < boundingBox.left ||
+  //         event.clientX > boundingBox.right ||
+  //         event.clientY < boundingBox.top ||
+  //         event.clientY > boundingBox.bottom)
+  //     ) {
+  //       setTimeout(() => {
+  //         // Check again after a short delay to allow Fabric.js to handle its events
+  //         if (canvas && canvas._activeObject) {
+  //           canvas.discardActiveObject();
+  //           canvas.renderAll();
+  //           setCanvasToolbox((prev) => ({
+  //             ...prev,
+  //             activeObject: null,
+  //             isDeselectDisabled: true,
+  //           }));
+  //           console.log('Clicked outside the canvas!');
+  //         }
+  //       }, 0);
+  //     }
+  //   };
+  
+  //   document.addEventListener('mouseup', handleClickOutsideCanvas);
+  
+  //   return () => {
+  //     // Cleanup: Remove the event listener when the component unmounts
+  //     document.removeEventListener('mouseup', handleClickOutsideCanvas);
+  //   };
+  // }, [canvas]);
+  
   return (
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
       <div>
