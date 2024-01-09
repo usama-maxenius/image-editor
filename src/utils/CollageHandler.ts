@@ -86,6 +86,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
       centeredScaling: true,
       perPixelTargetFind: true,
       originX: 'center',
+      clipPath: clipPath
     })
     img.scaleToHeight(height)
     img.customType = 'bg-1'
@@ -115,7 +116,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   }
 
   // setTimeout(() => {
-  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' },1) as fabric.Rect;
+  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' }, 1) as fabric.Rect;
 
   rect.on('moving', () => {
     const rectLeft = rect.left!;
@@ -192,6 +193,7 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
 
   if (!canvas) return
   const height = canvas.getHeight();
+  const width = canvas.getWidth();
 
   if (activeObject && activeObject.isType('image')) {
     if (activeObject.customType === 'bg-1') {
@@ -209,11 +211,11 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
           originX: 'center',
         })
 
+        img.scaleToWidth(width)
         img.scaleToHeight(height)
         img.customType = activeObject.customType
         img.filters = activeObject.filters || []
         img.applyFilters();
-        if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
 
         canvas.remove(activeObject)
         canvas.insertAt(img, 0, false);

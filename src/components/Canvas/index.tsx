@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -407,7 +407,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const deselectObj = () => {
     canvas?.discardActiveObject();
     canvas?.renderAll();
-    setCanvasToolbox((prev) => ({ ...prev, activeObject: null, isDeselectDisabled: false }))
+
+    requestAnimationFrame(() => {
+      setCanvasToolbox((prev) => ({ ...prev, activeObject: null, isDeselectDisabled: true }));
+    });
   };
 
   const deleteActiveSelection = () => {
@@ -645,7 +648,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
         </div>}
 
-        {activeTab == 'title' && dropDown && <div>
+        {(activeTab == 'title' || activeTab === 'element') && dropDown && <div>
           <Paper className={classes.root}>
             <Box className={classes.optionsContainer}>
               <Typography className={classes.heading}
@@ -718,7 +721,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     updateTextBox(canvas, { fontSize: value })
                     setOverlayTextFiltersState((prev) => ({ ...prev, fontSize: value }))
                   }}
-                  step={2}
+                  step={1}
                   valueLabelDisplay="auto"
                 />
               </Box>
@@ -730,8 +733,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   aria-label="size"
                   color="secondary"
                   value={overlayTextFiltersState.charSpacing}
-                  min={1}
-                  max={10}
+                  min={-200}
+                  max={800}
                   onChange={(e: any) => {
                     const charSpacing = +e.target.value;
                     updateTextBox(canvas, { charSpacing })
@@ -1003,7 +1006,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
                       existingObject.filters?.push(blendColorFilter)
                       existingObject.applyFilters();
-                      canvas?.renderAll()
+                      requestAnimationFrame(() => {
+                        canvas?.renderAll()
+                      })
                     }}
                   />
                 </Box>
