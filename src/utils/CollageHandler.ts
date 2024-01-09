@@ -86,6 +86,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
       centeredScaling: true,
       perPixelTargetFind: true,
       originX: 'center',
+      clipPath: clipPath
     })
     img.scaleToHeight(height)
     img.customType = 'bg-1'
@@ -115,7 +116,7 @@ export const createHorizontalCollage = (canvas: fabric.Canvas, images: string[])
   }
 
   // setTimeout(() => {
-  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' },1) as fabric.Rect;
+  const rect = createRect(canvas, { left, height: height + 10, top: -10, selectable: true, lockMovementY: true, width: 0, visible: true, customType: 'photo-border' }, 1) as fabric.Rect;
 
   rect.on('moving', () => {
     const rectLeft = rect.left!;

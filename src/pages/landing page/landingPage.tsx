@@ -44,7 +44,8 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 
         if (!response.ok) {
           setLoading(false);
-          return toast.error('Sorry! This URL is currently unavailable, we are working to fix this as soon as possible')
+          return toast.error(data?.error)
+          // return toast.error('Sorry! This URL is currently unavailable, we are working to fix this as soon as possible')
         }
 
         await setScrappedData(data);

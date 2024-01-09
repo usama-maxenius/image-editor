@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -718,7 +718,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                     updateTextBox(canvas, { fontSize: value })
                     setOverlayTextFiltersState((prev) => ({ ...prev, fontSize: value }))
                   }}
-                  step={2}
+                  step={1}
                   valueLabelDisplay="auto"
                 />
               </Box>
@@ -731,7 +731,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   color="secondary"
                   value={overlayTextFiltersState.charSpacing}
                   min={1}
-                  max={10}
+                  max={150}
                   onChange={(e: any) => {
                     const charSpacing = +e.target.value;
                     updateTextBox(canvas, { charSpacing })
@@ -1003,7 +1003,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
                       existingObject.filters?.push(blendColorFilter)
                       existingObject.applyFilters();
-                      canvas?.renderAll()
+                      requestAnimationFrame(() => {
+                        canvas?.renderAll()
+                      })
                     }}
                   />
                 </Box>
