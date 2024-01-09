@@ -407,7 +407,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   const deselectObj = () => {
     canvas?.discardActiveObject();
     canvas?.renderAll();
-    setCanvasToolbox((prev) => ({ ...prev, activeObject: null, isDeselectDisabled: false }))
+
+    requestAnimationFrame(() => {
+      setCanvasToolbox((prev) => ({ ...prev, activeObject: null, isDeselectDisabled: true }));
+    });
   };
 
   const deleteActiveSelection = () => {
@@ -645,7 +648,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
         </div>}
 
-        {activeTab == 'title' && dropDown && <div>
+        {(activeTab == 'title' || activeTab === 'element') && dropDown && <div>
           <Paper className={classes.root}>
             <Box className={classes.optionsContainer}>
               <Typography className={classes.heading}
@@ -730,8 +733,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   aria-label="size"
                   color="secondary"
                   value={overlayTextFiltersState.charSpacing}
-                  min={1}
-                  max={150}
+                  min={-200}
+                  max={800}
                   onChange={(e: any) => {
                     const charSpacing = +e.target.value;
                     updateTextBox(canvas, { charSpacing })

@@ -193,6 +193,7 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
 
   if (!canvas) return
   const height = canvas.getHeight();
+  const width = canvas.getWidth();
 
   if (activeObject && activeObject.isType('image')) {
     if (activeObject.customType === 'bg-1') {
@@ -210,11 +211,11 @@ export const updateHorizontalCollageImage = (canvas: fabric.Canvas | null, newIm
           originX: 'center',
         })
 
+        img.scaleToWidth(width)
         img.scaleToHeight(height)
         img.customType = activeObject.customType
         img.filters = activeObject.filters || []
         img.applyFilters();
-        if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
 
         canvas.remove(activeObject)
         canvas.insertAt(img, 0, false);
