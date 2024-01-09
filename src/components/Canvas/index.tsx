@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -26,6 +26,7 @@ import { createHorizontalCollage, createVerticalCollage, updateHorizontalCollage
 import { activeTabs } from '../../types/context';
 import FlipIcon from '@mui/icons-material/Flip';
 import { createBubbleElement, updateBubbleElement } from '../../utils/BubbleHandler';
+import { debounce } from 'lodash';
 
 interface CanvasProps {
   template: Template
@@ -250,8 +251,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   }, [loadCanvas]);
 
   const updateBubbleImage = (imgUrl: string | undefined, filter?: { strokeWidth: number, stroke: string }) => {
-
-    const existingBubble = getExistingObject('bubble')
     const existingBubbleStroke = getExistingObject('bubbleStroke')
 
     if (!canvas) {
@@ -274,8 +273,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       let options = {
         ...existingBubbleStroke
       }
-      if (existingBubble) canvas?.remove(existingBubble)
-      if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
       requestAnimationFrame(() => {
         createBubbleElement(canvas!, imgUrl!, options)
       });
@@ -287,7 +284,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
  * @param {IBaseFilter} filter - The filter to be applied to the background image.
  * @return {void} This function does not return anything.
  */
-  const updateBackgroundFilters = (filter: fabric.IBaseFilter, type: string): void => {
+  const updateBackgroundFilters = debounce((filter: fabric.IBaseFilter, type: string): void => {
     if (!canvas) return
 
     const bgImages = ['bg-1']
@@ -311,9 +308,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         canvas.renderAll();
       }
     }
-  }
+  }, 200)
 
-  const updateBackgroundImage = (imageUrl: string) => {
+  const updateBackgroundImage = debounce((imageUrl: string) => {
 
     if (!canvas) return;
 
@@ -329,9 +326,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     if (template.backgroundImage || !template.diptych) updateImageSource(canvas, imageUrl, activeObject)
     else if (template.diptych === 'vertical') updateVerticalCollageImage(canvas, imageUrl, activeObject)
     else updateHorizontalCollageImage(canvas, imageUrl, activeObject)
-  };
+  }, 100);
 
-  const updateOverlayImage = (image: string, opacity: number) => {
+  const updateOverlayImage = debounce((image: string, opacity: number) => {
 
     if (!canvas) {
       console.log("Canvas not loaded yet");
@@ -354,7 +351,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         // Remove the object after the animation completes
         setTimeout(() => {
           canvas.remove(existingObject);
-        }, 200); // Adjust the duration to match the animation duration
+        }, 100); // Adjust the duration to match the animation duration
       }
 
       return;
@@ -371,12 +368,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         img.customType = 'overlay';
 
         canvas.insertAt(img, 3, false);
-        canvas.renderAll();
+        requestAnimationFrame(() => {
+          canvas.renderAll();
+        })
       }, {
         crossOrigin: 'anonymous',
       });
     }
-  }
+  }, 200)
 
   const updateRectangle = (options: IRectOptions) => {
     if (!canvas) return
@@ -384,9 +383,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     const existingObject = getExistingObject('photo-border')
 
     if (existingObject) updateRect(existingObject, { ...options, top: existingObject?.top, left: existingObject.left, customType: 'photo-border' })
-    setTimeout(() => {
-      canvas.requestRenderAll();
-    }, 0);
+    canvas.requestRenderAll();
   }
 
   /**
@@ -468,6 +465,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
   //   };
   // }, [canvas]);
 
+
+  const debouncedUpdateRectangle = debounce((strokeWidth) => {
+    if (!canvas) {
+      console.log('Canvas not found')
+      return
+    }
+
+    if (template.diptych === 'horizontal') {
+      updateRectangle({ strokeWidth, left: (canvas?.getWidth() / 2) - (strokeWidth / 2) });
+    } else {
+      updateRectangle({ strokeWidth, top: (canvas?.getHeight() / 2) - (strokeWidth / 2) });
+    }
+  }, 100);
+
   return (
     <div style={{ display: 'flex', columnGap: '50px', marginTop: 50, marginBottom: 50 }}>
       <div>
@@ -540,8 +551,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   onChange={(e: any) => {
                     // if (val !== 0) {
                     const val = +(+e.target.value).toFixed(2);
-                    updateOverlayImage(filterValues.overlay.imgUrl, val)
                     setFilterValues((prev) => ({ ...prev, overlay: { ...prev.overlay, opacity: +e.target.value } }))
+
+                    updateOverlayImage(filterValues.overlay.imgUrl, val)
 
                     // }
                   }}
@@ -632,15 +644,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   min={0}
                   max={20}
                   aria-label="Volume"
-                  value={filterValues.collage.strokeWidth} onChange={(e: any) => {
-                    const value = +e.target.value;
-                    if (template.diptych === 'horizontal') {
-                      updateRectangle({ strokeWidth: value, left: (canvas?.getWidth() / 2) - (value / 2) })
-                    } else {
-                      updateRectangle({ strokeWidth: value, top: (canvas?.getHeight() / 2) - (value / 2) })
-                    }
+                  // value={filterValues.collage.strokeWidth}
+                  onChange={(_e: any, value) => {
+                    // const value = +e.target.value;
                     setFilterValues((prev) => ({ ...prev, collage: { ...prev.collage, strokeWidth: value } }))
-                  }} />
+
+                    debouncedUpdateRectangle(value);
+                  }}
+
+                />
               </Stack>
             )}
 
