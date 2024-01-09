@@ -5,7 +5,7 @@ import { getExistingObject } from '.';
 fabric.Object.prototype.noScaleCache = false;
 
 export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, options?: fabric.ICircleOptions) => {
-
+  const existingBubbleStroke = getExistingObject(canvas, 'bubbleStroke') as fabric.Circle
   var strokeCircle = new fabric.Circle({
     radius: 100,
     left: 350,
@@ -17,9 +17,11 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     stroke: "#ffffff",
     strokeUniform: false,
     selectable: true,
+    ...(existingBubbleStroke && { ...existingBubbleStroke }),
     ...options
   });
 
+  const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle
   var clipPath = new fabric.Circle({
     radius: 99,
     left: strokeCircle.left,
@@ -33,6 +35,7 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     strokeUniform: true,
     perPixelTargetFind: true,
     absolutePositioned: true,
+    ...(existingBubble && { ...existingBubble.clipPath }),
   });
 
   (clipPath as any).customType = 'bubbleClipPath'
@@ -59,10 +62,10 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     }).setCoords();
 
     (strokeCircle as any).customType = 'bubbleStroke'
+    if (existingBubble) canvas?.remove(existingBubble)
+    if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
     canvas.insertAt(strokeCircle, 4, false)
     canvas.insertAt(fabricImage, 5, false)
-    // canvas.add(strokeCircle)
-    // canvas.add(fabricImage)
 
     strokeCircle.on('moving', function () {
 
@@ -121,7 +124,7 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
 
     strokeCircle.set({
       ...options,
-      strokeUniform: true,
+      strokeUniform: false,
       // radius: strokeCircleRadius - (options.strokeWidth / 2)
     });
   }

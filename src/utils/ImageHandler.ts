@@ -44,7 +44,9 @@ export const updateImageSource = (canvas: fabric.Canvas, imageUrl: string, activ
     activeObject.scaleToHeight(scaleToHeight)
 
     activeObject.center();
-    canvas.renderAll();
+    requestAnimationFrame(()=>{
+      canvas.renderAll();
+    })
   }, {
     crossOrigin: 'anonymous'
   });

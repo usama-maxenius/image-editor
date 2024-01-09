@@ -13,7 +13,7 @@ const StyledContainer = styled('div')({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '100vh',
+  minHeight: '100vh',
   backgroundColor: '#151433',
   color: 'white',
   width: '100%',
