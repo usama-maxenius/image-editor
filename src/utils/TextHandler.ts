@@ -93,10 +93,10 @@ export function createSwipeGroup(canvas: fabric.Canvas, options: FabricTextBox, 
 
 export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
   const swipeGroup = canvas.getObjects().find(obj => obj.customType === 'swipeGroup');
-  
+
   if (swipeGroup) {
     swipeGroup.visible = true;
-    
+
     swipeGroup?._objects?.forEach(obj => {
       if (obj.customType === 'swipeText') {
         obj.fill = color;
@@ -109,12 +109,10 @@ export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
         obj.filters.push(filter);
         obj.applyFilters();
       }
-    });
-
-    // Use requestAnimationFrame for smoother rendering
-    requestAnimationFrame(() => {
       canvas.renderAll();
     });
+
+
   } else {
     console.log('Swipe Group not found');
   }

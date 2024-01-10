@@ -24,7 +24,7 @@ interface Props {
 }
 function LandingPage({ setScrappedData, updateStep }: Props) {
 
-  const [givenUrl, setGivenUrl] = useState('https://www.fox13now.com/3500-year-old-axes-found-in-forest-by-man-with-metal-detector?dicbo=v2-az5lTg0&?');
+  const [givenUrl, setGivenUrl] = useState('https://www.bbc.com/news/world-us-canada-67920129');
   const [loading, setLoading] = useState(false);
 
   const getData = async () => {
