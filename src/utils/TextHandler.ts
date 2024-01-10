@@ -92,7 +92,7 @@ export function createSwipeGroup(canvas: fabric.Canvas, options: FabricTextBox, 
 }
 
 export const updateSwipeColor = (canvas: fabric.Canvas, color: string) => {
-  const swipeGroup = canvas.getObjects().find(obj => obj.customType === 'swipeGroup');
+  const swipeGroup = getExistingObject(canvas, 'swipeGroup');
 
   if (swipeGroup) {
     swipeGroup.visible = true;

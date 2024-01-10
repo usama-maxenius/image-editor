@@ -228,7 +228,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             canvas?.remove(obj);
           });
 
-          const grp = new fabric.Group(items, {});
+          const grp = new fabric.Group(items, {
+            customType: 'swipeGroup'
+          });
           canvas?.add(grp);
           exitEditing = false;
         }
