@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 
 import { fabric } from 'fabric';
 import { createRect } from './RectHandler';
@@ -21,7 +21,9 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
   imageElement.onload = function () {
     var img = new fabric.Image(imageElement);
     img.clipPath = clipPath;
-    scaleToFit(img, { width, height: height / 2 })
+    // scaleToFit(img, { width, height: height / 2 })
+    img.scaleToWidth(width)
+    if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
 
     img.set({
       centeredScaling: true,

@@ -1,6 +1,7 @@
 //  // @ts-nocheck
 import { fabric } from 'fabric'
 import { getExistingObject } from '.';
+import { scaleToFit } from './ImageHandler';
 
 fabric.Object.prototype.noScaleCache = false;
 
@@ -23,7 +24,7 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
 
   const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle
   var clipPath = new fabric.Circle({
-    radius: 99,
+    radius: strokeCircle.radius! - 1,
     left: strokeCircle.left,
     top: strokeCircle.top,
     originX: 'center',
@@ -54,16 +55,18 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     const circleRadius = strokeCircle.radius!
     const scaleFactor = Math.max(circleRadius * 2 / fabricImage.width!, circleRadius * 2 / fabricImage.height!);
 
+    const imgFitWidth = strokeCircle.width! + 50
+    const imgFitHeight = strokeCircle.height! + 50
+
+    scaleToFit(fabricImage, { width: imgFitWidth, height: imgFitHeight })
+
     fabricImage.set({
       absolutePositioned: false,
       perPixelTargetFind: true,
-      scaleX: scaleFactor,
-      scaleY: scaleFactor,
-      left: circleCenter.x - fabricImage.width! * scaleFactor / 2,
-      top: circleCenter.y - fabricImage.height! * scaleFactor / 2,
+      left: (circleCenter.x - fabricImage.width! * scaleFactor / 2) - 30,
+      top: (circleCenter.y - fabricImage.height! * scaleFactor / 2) - 30,
     }).setCoords();
 
-    // fabricImage.scaleToWidth(strokeCircle.getScaledWidth())
     (strokeCircle as any).customType = 'bubbleStroke'
     if (existingBubble) canvas?.remove(existingBubble)
     if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)
@@ -91,8 +94,6 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     });
 
     strokeCircle.on('scaling', function () {
-      // const newRadius = strokeCircle.getScaledWidth() / 2;
-
       clipPath.scaleToWidth(strokeCircle.getScaledWidth())
       clipPath.scaleToHeight(strokeCircle.getScaledHeight())
       clipPath.set({
@@ -118,7 +119,6 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
   if (options) {
     if (options.strokeWidth !== undefined) {
       const strokeWidth = options.strokeWidth;
-      // const clipPath = strokeCircle.clipPath as fabric.Circle;
 
       // Update the clipPath radius to maintain the desired stroke outside the circle
       imageClipPath.radius = strokeCircle.radius! - strokeWidth / 2;
@@ -128,7 +128,6 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
     strokeCircle.set({
       ...options,
       strokeUniform: false,
-      // radius: strokeCircleRadius - (options.strokeWidth / 2)
     });
   }
 
@@ -137,7 +136,6 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
   canvas?.renderAll();
   strokeCircle.dirty = false
 };
-
 
 export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
   fabric.Image.fromURL(imgUrl, function (img: fabric.Image) {
@@ -156,8 +154,6 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
     var clipMask = new fabric.Circle({
       radius: maxRadius,
       originX: 'center',
-      // left:300,
-      // top:300,
       originY: 'center',
       fill: 'transparent',
       absolutePositioned: true,
@@ -167,7 +163,6 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
     // Group the image and the clip mask
     var group = new fabric.Group([img, clipMask], {
       clipPath: clipMask,
-      // absolutePositioned: true,
     });
 
     (group as any).customType = 'bubble';

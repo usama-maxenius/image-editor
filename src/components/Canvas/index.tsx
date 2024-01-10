@@ -138,8 +138,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     const img2 = '/images/sample/scott-circle-image.png';
 
     // Load canvas JSON template
-    // createBubble(canvas, img1, {})
-    // createBubbleElement(canvas!, imgUrl!)
     await new Promise((resolve) => {
       canvas?.loadFromJSON(templateJSON, () => {
         if (template.diptych === 'horizontal') createHorizontalCollage(canvas, [img1, img2])
@@ -228,7 +226,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             canvas?.remove(obj);
           });
 
-          const grp = new fabric.Group(items, {});
+          const grp = new fabric.Group(items, {
+            customType: 'swipeGroup'
+          });
           canvas?.add(grp);
           exitEditing = false;
         }
@@ -270,8 +270,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       });
     } else {
 
-      let options = {
-        ...existingBubbleStroke
+      let options: fabric.ICircleOptions = {
+        ...existingBubbleStroke,
+        ...(!existingBubbleStroke && template.diptych === 'horizontal' && { top: 150 }),
+        ...(!existingBubbleStroke && template.diptych === 'horizontal' && { left: 150, radius: 80 }),
       }
       requestAnimationFrame(() => {
         createBubbleElement(canvas!, imgUrl!, options)
