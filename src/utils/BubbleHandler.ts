@@ -51,16 +51,19 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
     fabricImage.clipPath = clipPath;
 
     var circleCenter = strokeCircle.getCenterPoint();
+    const circleRadius = strokeCircle.radius!
+    const scaleFactor = Math.max(circleRadius * 2 / fabricImage.width!, circleRadius * 2 / fabricImage.height!);
 
     fabricImage.set({
       absolutePositioned: false,
       perPixelTargetFind: true,
-      scaleX: 0.3,
-      scaleY: 0.3,
-      left: circleCenter.x - fabricImage.width! * 0.3 / 2,
-      top: circleCenter.y - fabricImage.height! * 0.3 / 2,
+      scaleX: scaleFactor,
+      scaleY: scaleFactor,
+      left: circleCenter.x - fabricImage.width! * scaleFactor / 2,
+      top: circleCenter.y - fabricImage.height! * scaleFactor / 2,
     }).setCoords();
 
+    // fabricImage.scaleToWidth(strokeCircle.getScaledWidth())
     (strokeCircle as any).customType = 'bubbleStroke'
     if (existingBubble) canvas?.remove(existingBubble)
     if (existingBubbleStroke) canvas?.remove(existingBubbleStroke)

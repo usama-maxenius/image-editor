@@ -17,7 +17,7 @@ function Input({ onChange }: any) {
     <StyledTextField
       variant="outlined"
       onChange={onChange}
-      defaultValue="https://www.fox13now.com/woman-fatally-shot-by-police-after-pointing-gun-at-3-year-old-s-head?dicbo=v2-cPPTTmB&?"
+      defaultValue="https://www.bbc.com/news/world-us-canada-67920129"
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

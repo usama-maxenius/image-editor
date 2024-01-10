@@ -1,4 +1,4 @@
-// @ts-nocheck
+ // @ts-nocheck
 import { fabric } from 'fabric';
 
 export const createImage = (canvas: fabric.Canvas | null, imageUrl: string, options: fabric.IImageOptions): Promise<fabric.Image | undefined> => {
@@ -44,7 +44,7 @@ export const updateImageSource = (canvas: fabric.Canvas, imageUrl: string, activ
     activeObject.scaleToHeight(scaleToHeight)
 
     activeObject.center();
-    requestAnimationFrame(()=>{
+    requestAnimationFrame(() => {
       canvas.renderAll();
     })
   }, {
@@ -64,3 +64,14 @@ export const updateImageProperties = (canvas: fabric.Canvas | null, imageObject:
     return canvas.renderAll();
   }
 };
+
+
+
+export const scaleToFit = (img: fabric.Image, dimension: { width: number, height: number }) => {
+
+  const { width, height } = dimension;
+  const scaleFactor = Math.max((width / 2) / img.width!, height / img.height!);
+
+  img.scaleToWidth(img.width! * scaleFactor);
+  img.scaleToHeight(img.height! * scaleFactor);
+}
