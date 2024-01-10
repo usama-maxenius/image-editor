@@ -1,4 +1,4 @@
- // @ts-nocheck
+// @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -375,7 +375,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         crossOrigin: 'anonymous',
       });
     }
-  }, 200)
+  }, 100)
 
   const updateRectangle = (options: IRectOptions) => {
     if (!canvas) return
@@ -471,11 +471,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       console.log('Canvas not found')
       return
     }
+    const existingObject = getExistingObject('photo-border') as fabric.Rect
 
     if (template.diptych === 'horizontal') {
-      updateRectangle({ strokeWidth, left: (canvas?.getWidth() / 2) - (strokeWidth / 2) });
+      updateRectangle({ selectable: true, lockMovementX: existingObject.lockMovementX, lockMovementY: existingObject.lockMovementY, strokeWidth, left: (canvas?.getWidth() / 2) - (strokeWidth / 2) });
     } else {
-      updateRectangle({ strokeWidth, top: (canvas?.getHeight() / 2) - (strokeWidth / 2) });
+      updateRectangle({ selectable: true, lockMovementX: existingObject.lockMovementX, lockMovementY: existingObject.lockMovementY, strokeWidth, top: (canvas?.getHeight() / 2) - (strokeWidth / 2) });
     }
   }, 100);
 
