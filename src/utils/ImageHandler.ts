@@ -65,13 +65,20 @@ export const updateImageProperties = (canvas: fabric.Canvas | null, imageObject:
   }
 };
 
-
-
 export const scaleToFit = (img: fabric.Image, dimension: { width: number, height: number }) => {
 
   const { width, height } = dimension;
-  const scaleFactor = Math.max((width / 2) / img.width!, height / img.height!);
+  const widthScaleFactor = width / img.width!;
+  const heightScaleFactor = height / img.height!;
+
+  // Use the minimum scale factor to fit the image within both width and height
+  const scaleFactor = Math.max(widthScaleFactor, heightScaleFactor);
 
   img.scaleToWidth(img.width! * scaleFactor);
   img.scaleToHeight(img.height! * scaleFactor);
+
+  // const scaleFactor = Math.max((width / 2) / img.width!, height / img.height!);
+
+  // img.scaleToWidth(img.width! * scaleFactor);
+  // img.scaleToHeight(img.height! * scaleFactor);
 }

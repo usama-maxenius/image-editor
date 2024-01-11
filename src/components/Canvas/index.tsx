@@ -796,7 +796,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   color="secondary"
                   value={filterValues.bubble.strokeWidth}
                   min={1}
-                  max={20}
+                  max={40}
                   onChange={(e: any) => {
                     const value = +e.target.value;
                     updateBubbleImage(undefined, { stroke: filterValues.bubble.stroke, strokeWidth: filterValues.bubble.strokeWidth })
