@@ -21,9 +21,9 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
   imageElement.onload = function () {
     var img = new fabric.Image(imageElement);
     img.clipPath = clipPath;
-    // scaleToFit(img, { width, height: height / 2 })
-    img.scaleToWidth(width)
-    if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
+    scaleToFit(img, { width, height: height / 2 })
+    // img.scaleToWidth(width)
+    // if (img.width && img.width > 1080) img.scaleToHeight(height / 2)
 
     img.set({
       centeredScaling: true,
@@ -33,7 +33,6 @@ export const createVerticalCollage = (canvas: fabric.Canvas, images: string[]) =
     canvas.insertAt(img, 0, false);
     canvas.renderAll()
   }
-
 
   var imageElement2 = document.createElement('img');
   imageElement2.src = images[1];
@@ -146,7 +145,6 @@ export const updateVerticalCollageImage = (canvas: fabric.Canvas | null, newImag
       imageElement.onload = function () {
         var img = new fabric.Image(imageElement);
         img.clipPath = activeObject.clipPath;
-
         scaleToFit(img, { width, height: height / 2 })
 
         img.set({

@@ -24,7 +24,7 @@ export const createBubbleElement = (canvas: fabric.Canvas, imgUrl: string, optio
 
   const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle
   var clipPath = new fabric.Circle({
-    radius: strokeCircle.radius! - 1,
+    radius: strokeCircle.radius!,
     left: strokeCircle.left,
     top: strokeCircle.top,
     originX: 'center',
@@ -118,15 +118,15 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
   // Update strokeCircle properties
   if (options) {
     if (options.strokeWidth !== undefined) {
-      const strokeWidth = options.strokeWidth;
 
       // Update the clipPath radius to maintain the desired stroke outside the circle
-      imageClipPath.radius = strokeCircle.radius! - strokeWidth / 2;
+      imageClipPath.radius = strokeCircle.radius! ;
       imageClipPath.setCoords();
     }
 
     strokeCircle.set({
       ...options,
+      radius: strokeCircle.radius,
       strokeUniform: false,
     });
   }
