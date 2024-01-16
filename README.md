@@ -88,7 +88,7 @@ Before you begin, ensure you have the following installed:
 
 - [ReactJS](https://reactjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vitejs.dev/): If this is a Vite app, ensure you have Vite installed globally.
+- [Vite](https://vitejs.dev/): ensure you have Vite installed globally.
 
 ## Project Flow
  1. User selects a news image for customization.
