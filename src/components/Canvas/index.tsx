@@ -318,7 +318,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     let activeObject: fabric.Object | undefined | null = canvas.getActiveObject() || getExistingObject('bg-1')
 
     if (!template.backgroundImage && !canvas.getActiveObject()) {
-      let currentImageIndex = backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
+      let currentImageIndex = initialData.backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
       activeObject = getExistingObject(currentImageIndex % 2 === 0 ? 'bg-1' : 'bg-2');
     }
 
