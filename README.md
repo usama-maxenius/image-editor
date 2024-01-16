@@ -27,25 +27,25 @@ Before you begin, ensure you have the following installed:
 
 ### Installation
 
-###### 1. Clone the repository:
+ 1. Clone the repository:
 
    ```bash
    git clone https://github.com/usama-maxenius/image-editor.git
    ```
 
-###### 2. Navigate to the project directory:
+ 2. Navigate to the project directory:
 
    ```bash
    cd image-editor
    ```
 
-###### 3. Install dependencies:
+ 3. Install dependencies:
 
    ```bash
    yarn install
    ```
 
-###### 4. Start the development server:
+ 4. Start the development server:
 
    ```bash
    yarn start
@@ -79,10 +79,10 @@ Before you begin, ensure you have the following installed:
 
 ## Usage
 
-###### 1. Launch the application by following the installation steps.
-###### 2. Browse and select a news image for customization.
-###### 3. Utilize the available tools in the title, bubble, and element tabs for modifications.
-###### 4. Save your customized image or share it with others.
+ 1. Launch the application by following the installation steps.
+ 2. Browse and select a news image for customization.
+ 3. Utilize the available tools in the title, bubble, and element tabs for modifications.
+ 4. Save your customized image or share it with others.
 
 ## Technologies Used
 
@@ -91,7 +91,7 @@ Before you begin, ensure you have the following installed:
 - [Vite](https://vitejs.dev/): If this is a Vite app, ensure you have Vite installed globally.
 
 ## Project Flow
-###### 1. User selects a news image for customization.
-###### 2. User modifies the image, adds titles, bubbles, and elements.
-###### 3. Users can customize titles, bubbles, and elements with various options.
-###### 4. Apply filters and adjustments to enhance the overall image.
+ 1. User selects a news image for customization.
+ 2. User modifies the image, adds titles, bubbles, and elements.
+ 3. Users can customize titles, bubbles, and elements with various options.
+ 4. Apply filters and adjustments to enhance the overall image.
