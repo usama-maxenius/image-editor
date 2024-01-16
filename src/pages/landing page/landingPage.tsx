@@ -28,7 +28,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
   const [loading, setLoading] = useState(false);
 
   const getData = async () => {
-    
+    if (loading) return
     if (!loading) {
       try {
         setLoading(true);
@@ -55,7 +55,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
         if (error instanceof Error) toast.error(error.message)
         setLoading(false);
       }
-    }else updateStep(2)
+    } else updateStep(2)
   };
 
   return (

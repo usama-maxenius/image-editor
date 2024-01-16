@@ -17,15 +17,10 @@ package-lock.json
 .vscode/*
 !.vscode/extensions.json
 .idea
-*.DS_Store
+**/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-src/.DS_Store
 node_modules
-public/.DS_Store
-public/images/.DS_Store
-public/.DS_Store
-public/images/.DS_Store
