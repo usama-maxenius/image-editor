@@ -264,10 +264,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         strokeWidth: filter?.strokeWidth || 15,
         // Add any other options you want to update
       };
-
-      requestAnimationFrame(() => {
-        updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-      });
+      updateBubbleElement(canvas, existingBubbleStroke, newOptions);
+      canvas.renderAll()
     } else {
 
       let options: fabric.ICircleOptions = {
@@ -277,6 +275,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       }
       requestAnimationFrame(() => {
         createBubbleElement(canvas!, imgUrl!, options)
+        canvas.renderAll()
       });
     }
   }
@@ -319,7 +318,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
     let activeObject: fabric.Object | undefined | null = canvas.getActiveObject() || getExistingObject('bg-1')
 
     if (!template.backgroundImage && !canvas.getActiveObject()) {
-      let currentImageIndex = backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
+      let currentImageIndex = initialData.backgroundImages?.findIndex((bgImage: string) => bgImage === imageUrl)
       activeObject = getExistingObject(currentImageIndex % 2 === 0 ? 'bg-1' : 'bg-2');
     }
 
@@ -365,6 +364,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
         img.set({
           opacity: +opacity || 1,
           selectable: false,
+          perPixelTargetFind: false,
+          evented: false
         });
 
         img.customType = 'overlay';
@@ -422,10 +423,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => setValue(newValue)
 
-  const flipImage = () => {
+  const flipImage = (flipAxis: 'flipX' | 'flipY' = 'flipX') => {
     const activeObject = canvas?.getActiveObject()
     if (activeObject) {
-      activeObject.flipX = !activeObject?.flipX
+      activeObject[flipAxis] = !activeObject[flipAxis]
       canvas?.renderAll()
     }
   }
@@ -487,9 +488,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
       <div>
         <DeselectIcon color={canvasToolbox.isDeselectDisabled ? "disabled" : 'inherit'} aria-disabled={canvasToolbox.isDeselectDisabled} onClick={deselectObj} />
         <DeleteIcon color={canvasToolbox.isDeselectDisabled ? "disabled" : 'inherit'} aria-disabled={canvasToolbox.isDeselectDisabled} onClick={deleteActiveSelection} />
-        <FlipIcon color={canvasToolbox.isDeselectDisabled ? "disabled" : 'inherit'} aria-disabled={canvasToolbox.isDeselectDisabled} onClick={flipImage} />
+        <img src="/icons/flipX.svg"
+          className={!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''}
+          style={{ width: 25, height: 25, margin: '0 0.3rem' }} onClick={() => flipImage('flipX')} />
+        <img src="/icons/flipY.svg"
+          className={!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''}
+          style={{ width: 25, height: 25 }} onClick={() => flipImage('flipY')} />
 
-        <canvas width="1080" height="1350" ref={canvasEl}></canvas>
+        <canvas style={{ border: '2px solid #ffff' }} width="1080" height="1350" ref={canvasEl}></canvas>
         {/* Footer Panel  Start*/}
         {activeTab == 'background' && dropDown && <div>
 
@@ -799,7 +805,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                   max={40}
                   onChange={(e: any) => {
                     const value = +e.target.value;
-                    updateBubbleImage(undefined, { stroke: filterValues.bubble.stroke, strokeWidth: filterValues.bubble.strokeWidth })
+                    updateBubbleImage(undefined, { stroke: filterValues.bubble.stroke, strokeWidth: value })
                     setFilterValues((prev) => ({ ...prev, bubble: { ...prev.bubble, strokeWidth: value } }))
                   }}
                   step={1}
@@ -874,11 +880,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             <div>
               <h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
-              <ImageViewer clickHandler={(img: string) => updateBackgroundImage(img)} images={initialData.backgroundImages} />
+              <ImageViewer clickHandler={(img: string) => updateBackgroundImage(img)} images={initialData.backgroundImages}>
+                {template.diptych === 'vertical' ?
+                  <>
+                    <div>Top Images</div>
+                    <div>Bottom Images</div>
+                  </> : template.diptych === 'horizontal' ?
+                    <>
+                      <div>Left Images</div>
+                      <div>Right Images</div>
+                    </> : null
+                }
+              </ImageViewer>
 
               <h4 style={{ margin: '0px', padding: '0px' }}>AI Images</h4>
 
-              <ImageViewer clickHandler={(img: string) => updateBackgroundImage(img)} images={initialData.backgroundImages} />
+              <ImageViewer clickHandler={(img: string) => updateBackgroundImage(img)} images={initialData.backgroundImages}>
+                {template.diptych === 'vertical' ?
+                  <>
+                    <div>Top Images</div>
+                    <div>Bottom Images</div>
+                  </> : template.diptych === 'horizontal' ?
+                    <>
+                      <div>Left Images</div>
+                      <div>Right Images</div>
+                    </> : null
+                }
+              </ImageViewer>
 
               <Box {...styles.uploadBox}>
                 <label style={styles.uploadLabel}>

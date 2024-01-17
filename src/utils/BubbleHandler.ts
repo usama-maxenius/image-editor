@@ -120,7 +120,7 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
     if (options.strokeWidth !== undefined) {
 
       // Update the clipPath radius to maintain the desired stroke outside the circle
-      imageClipPath.radius = strokeCircle.radius! ;
+      imageClipPath.radius = strokeCircle.radius!;
       imageClipPath.setCoords();
     }
 
@@ -129,12 +129,8 @@ export const updateBubbleElement = (canvas: fabric.Canvas,
       radius: strokeCircle.radius,
       strokeUniform: false,
     });
+    canvas?.requestRenderAll();
   }
-
-  strokeCircle.dirty = true
-  // Render all changes
-  canvas?.renderAll();
-  strokeCircle.dirty = false
 };
 
 export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
