@@ -1,6 +1,6 @@
 import { TemplateData } from '../types';
 
-export const BaseURL = "https://image-editor.maxenius.com";
+export const BaseURL = import.meta.env.VITE_APP_BASE_URL;
 
 export const canvasDimension = {
   width: 540,
