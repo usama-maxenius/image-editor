@@ -26,7 +26,7 @@ const StyledContainer = styled(Box)(({}) => ({
 	alignItems: 'center',
 	justifyContent: 'center',
 	height: '100vh',
-	// backgroundColor: '#151433',
+	backgroundColor: 'white',
 	color: 'white',
 	width: '100%',
 }));
@@ -156,11 +156,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					)}
 				</Toolbar>
 			</AppBar>
-			<StyledContainer
-				sx={{
-					backgroundColor: 'white',
-				}}
-			>
+			<StyledContainer>
 				{isAuthenticated ? (
 					<>
 						<Typography variant='h4' gutterBottom color='black'>
