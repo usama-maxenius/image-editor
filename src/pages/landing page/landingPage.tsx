@@ -158,13 +158,13 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 			</AppBar>
 			<StyledContainer
 				sx={{
-					backgroundColor: isAuthenticated ? '#151433' : 'white',
+					backgroundColor: 'white',
 				}}
 			>
 				{isAuthenticated ? (
 					<>
-						<Typography variant='h4' gutterBottom>
-							Welcome to My App
+						<Typography variant='h4' gutterBottom color='black'>
+							PASTE NEWS LINK URL
 						</Typography>
 						<Input
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -181,7 +181,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 							}}
 							onClick={getData}
 						>
-							{loading ? <CountdownTimer /> : 'Submit'} &nbsp;&nbsp;{' '}
+							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
 							{loading && <CircularProgress size={24} color='inherit' />}
 						</Button>
 					</>
