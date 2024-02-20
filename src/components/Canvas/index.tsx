@@ -44,7 +44,10 @@ interface FilterState {
 }
 
 const toolbars = ['background', 'title', 'bubble', 'element', 'writePost'];
-const filter = 'brightness(0) saturate(100%) invert(80%) sepia(14%) saturate(1577%) hue-rotate(335deg) brightness(108%) contrast(88%)'
+const filter1 = 'brightness(0) saturate(100%) invert(80%) sepia(14%) saturate(1577%) hue-rotate(335deg) brightness(108%) contrast(88%)'
+const filter = 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)'
+
+// filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
 
 const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template }) => {
   const { borders, elements, backgroundImages, logos, texts, bubbles } = updatedSeedData
@@ -834,7 +837,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             style={{ backgroundColor: "transparent", border: "none" }}
             onClick={() => updateActiveTab('background')}
           >
-            <img src="/Tab-Icons/background.png" width='100' height="100" style={{ color: "white", fontSize: "30px", filter: activeTab === 'background' ? filter : undefined }} />
+            <img src="/Tab-Icons/background.png" width='100' height="100" 
+            style={{ color: "white", fontSize: "30px", filter: activeTab === 'background' ? filter1 : filter }} />
           </button>
 
           <button
@@ -842,21 +846,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
             onClick={() => updateActiveTab('title')}
 
           >
-            <img src="/Tab-Icons/Edit-Text.png" width='100' height="100" style={{ color: "white", fontSize: "30px", filter: activeTab === 'title' ? filter : undefined }} />
+            <img src="/Tab-Icons/Edit-Text.png" width='100' height="100" 
+            style={{ color: "white", fontSize: "30px", filter: activeTab === 'title' ?  filter1 : filter }} />
           </button>
 
           <button
             onClick={() => updateActiveTab('bubble')}
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <img src="/Tab-Icons/Add-Bubble.png" width='100' height="100" style={{ color: "white", fontSize: "30px", filter: activeTab === 'bubble' ? filter : undefined }} />
+            <img src="/Tab-Icons/Add-Bubble.png" width='100' height="100" 
+            style={{ color: "white", fontSize: "30px", filter: activeTab === 'bubble' ?  filter1 : filter }} />
           </button>
 
           <button
             onClick={() => updateActiveTab('element')}
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <img src="/Tab-Icons/Add-Elements.png" width='100' height="100" style={{ color: "white", fontSize: "30px", filter: activeTab === 'element' ? filter : undefined }} />
+            <img src="/Tab-Icons/Add-Elements.png" width='100' height="100" 
+            style={{ color: "white", fontSize: "30px", filter: activeTab === 'element' ?  filter1 : filter }} />
           </button>
 
           <button
@@ -864,7 +871,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
             style={{ backgroundColor: "transparent", border: "none" }}
           >
-            <img src="/Tab-Icons/Write-Post.png" width='100' height="100" style={{ color: "white", fontSize: "30px", filter: activeTab === 'writePost' ? filter : undefined }} />
+            <img src="/Tab-Icons/Write-Post.png" width='100' height="100" 
+            style={{ color: "white", fontSize: "30px", filter: activeTab === 'writePost' ?  filter1 : filter }} />
           </button>
 
         </div>
@@ -1058,7 +1066,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
               </Box>
 
               <Box>
-                <input type='text' style={{ lineHeight: 1.5, marginTop: '0.5rem', fontSize: '16px', background: 'transparent', outline: 'none', color: '#fff', border: 'none' }} placeholder='Social Tags' defaultValue='Social Tags' />
+                <input type='text' style={{ lineHeight: 1.5, marginTop: '0.5rem', fontSize: '16px', 
+                background: 'transparent', 
+                outline: 'none', color: '#000000',fontWeight:700, border: 'none' }} 
+                placeholder='Social Tags' defaultValue='Social Tags' />
                 {/* <h4>Social Tags</h4> */}
                 <Box
                   sx={{
@@ -1080,7 +1091,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
 
                           else createTextBox(canvas, { fill: overlayTextFiltersState.color, customType: 'hashtag' });
                         }}
-                        style={{ cursor: 'pointer', paddingBottom: '0.5rem' }}
+                        style={{ cursor: 'pointer', paddingBottom: '0.5rem',
+                        filter:  filter 
+                      }}
                         width='90px'
                       />
                     );

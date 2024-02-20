@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { styled } from "@mui/styles";
 import { BaseURL, templateData } from "./constants";
 import { APIResponse, Template, TemplateData } from "./types";
+import { Box } from "@mui/material";
 
 const StyledContainer = styled('div')({
   display: 'flex',
@@ -38,14 +39,22 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      {step == 1 ? <LandingPage setScrappedData={setScrappedData} updateStep={setStep} /> :
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+
+      </Box>
+      {/* {step == 1 ? <LandingPage setScrappedData={setScrappedData} updateStep={setStep} /> :
         step == 2 ?
           <Templates
             updateStep={setStep}
             setDefaultTemplate={setSelectedTemplate} /> :
           step == 3 ? <StyledContainer>
             <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
-          </StyledContainer> : ''}
+          </StyledContainer> : ''} */}
     </ThemeProvider>
   );
 }
