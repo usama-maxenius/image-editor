@@ -7,6 +7,7 @@ const CanvasContext = createContext({} as CanvasContextProps)
 
 export const CanvasContextProvider = ({ children }: { children: ReactNode }) => {
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null)
+  // console.log("🚀 ~ CanvasContextProvider ~ canvas:", canvas)
   const [activeTab, setActiveTab] = useState<activeTabs>('background')
   const updateCanvasContext = (canvas: fabric.Canvas | null) => setCanvas(canvas)
 

@@ -19,6 +19,8 @@ import { BaseURL } from '../../constants';
 import { APIResponse } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth0 } from '@auth0/auth0-react';
+import LoginUser from '../../components/user/LoginUser';
+
 
 const StyledContainer = styled(Box)(({}) => ({
 	display: 'flex',
@@ -29,6 +31,7 @@ const StyledContainer = styled(Box)(({}) => ({
 	backgroundColor: 'white',
 	color: 'white',
 	width: '100%',
+	marginTop:"20px",
 }));
 
 interface Props {
@@ -41,6 +44,16 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
 		null
 	);
+
+
+	const [objectFromChild, setObjectFromChild] = useState<any>(null); 
+	console.log("🚀 ~ LandingPage ~ objectFromChild:", objectFromChild)
+
+	const handleObjectFromChild = (obj: any) => {
+	  setObjectFromChild(obj);
+	};
+
+
 	const [givenUrl, setGivenUrl] = useState(
 		'https://www.bbc.com/news/world-us-canada-67920129'
 	);
@@ -155,10 +168,11 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					)}
 				</Toolbar>
 			</AppBar>
-			<StyledContainer>
+			<Box>
 				{isAuthenticated ? (
 					<>
-						<Typography variant='h4' gutterBottom color='black'>
+						{objectFromChild ? <StyledContainer>
+							<Typography variant='h4' gutterBottom color='black'>
 							PASTE NEWS LINK URL
 						</Typography>
 						<Input
@@ -179,18 +193,22 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
 							{loading && <CircularProgress size={24} color='inherit' />}
 						</Button>
+						</StyledContainer>
+						:
+					<LoginUser sendObjectToParent={handleObjectFromChild}/>
+				}
 					</>
 				) : (
-					<>
+					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
 							POSTICLE.AI
 						</Typography>
 						<Typography variant='body1' sx={{ color: 'black' }} gutterBottom>
 							CREATE & SHARE THE LATEST NEWS WITH
 						</Typography>
-					</>
+					</StyledContainer>
 				)}
-			</StyledContainer>
+			</Box>
 		</>
 	);
 }
