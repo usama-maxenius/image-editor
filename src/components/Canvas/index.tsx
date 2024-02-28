@@ -64,7 +64,7 @@ const filter =
 
 // filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
 
-const updatedSeedData: React.FC<CanvasProps> = React.memo(
+const Canvas: React.FC<CanvasProps> = React.memo(
   ({ updatedSeedData, template }) => {
     const { borders, elements, backgroundImages, logos, texts, bubbles } =
       updatedSeedData;
