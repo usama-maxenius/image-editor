@@ -18,7 +18,7 @@ import {
 import BusinessIcon from "@mui/icons-material/Business";
 import toast from "react-hot-toast";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { GetTokenSilentlyOptions, useAuth0 } from "@auth0/auth0-react";
+import {  useAuth0 } from "@auth0/auth0-react";
 import { AUTH0_DOMAIN_ID } from "../../constants";
 import axios from "axios";
 import { ColorResult, SketchPicker } from "react-color";
@@ -55,9 +55,9 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
 
-  const isStepOptional = (step: number) => {
-    return step === 1;
-  };
+  // const isStepOptional = (step: number) => {
+  //   return step === 1;
+  // };
 
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
