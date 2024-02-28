@@ -8,6 +8,7 @@ import {
   Checkbox,
   Divider,
   FormControl,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -18,14 +19,15 @@ import {
 import BusinessIcon from "@mui/icons-material/Business";
 import toast from "react-hot-toast";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {  useAuth0 } from "@auth0/auth0-react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { AUTH0_DOMAIN_ID } from "../../constants";
 import axios from "axios";
 import { ColorResult, SketchPicker } from "react-color";
 const steps = [
-  "Select campaign settings",
-  "Create an ad group",
-  "Create an ad",
+  "Select 1",
+  "Create 2",
+  "Create 3",
+  "Create 4",
 ];
 interface Tag {
   name: string;
@@ -119,6 +121,31 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
   // const handleTagClick = (tag: string) => {
   //   setSelectedTag(tag);
   // };
+
+  const [checkbox1Checked, setCheckbox1Checked] =
+    React.useState<boolean>(false);
+  const [checkbox2Checked, setCheckbox2Checked] =
+    React.useState<boolean>(false);
+  const [checkbox3Checked, setCheckbox3Checked] = React.useState<boolean>(true);
+
+  const handleCheckbox1Change = () => {
+    setCheckbox1Checked(true);
+    setCheckbox2Checked(false);
+    setCheckbox3Checked(false);
+  };
+
+  const handleCheckbox2Change = () => {
+    setCheckbox1Checked(false);
+    setCheckbox2Checked(true);
+    setCheckbox3Checked(false);
+  };
+
+  const handleCheckbox3Change = () => {
+    setCheckbox1Checked(false);
+    setCheckbox2Checked(false);
+    setCheckbox3Checked(true);
+  };
+
   const [color, setColor] = React.useState<string>("#ffffff");
   const [userName, setUserName] = React.useState<string>("");
   const [fontType, setFontType] = React.useState<string>("");
@@ -291,6 +318,9 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
           logo: logo,
           selectedTags: selectedTags,
           dateTime: dateTime,
+          freeTrail: checkbox1Checked,
+          starterTrail: checkbox2Checked,
+          proTrail: checkbox3Checked,
         },
       };
 
@@ -381,7 +411,6 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 
   //COLOR PICKER
 
-  const label = { inputProps: { "aria-label": "Checkbox demo" } };
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleColorChange = (newColor: ColorResult) => {
@@ -410,6 +439,9 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 
   //----------
 
+  const handleSubmit4 =() =>{
+    handleNext();
+  }
   // const handleChange = (e: any) => {
   //   const { name, value, files } = e.target;
   //   setFormData({
@@ -816,7 +848,7 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
-                  // alignItems: "center",
+                  alignItems: "center",
                   width: { md: "90%", sm: "95%", xs: "98%" },
                   flexDirection: "column",
                   gap: 3,
@@ -916,7 +948,16 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
                           >
                             Free
                           </Typography>
-                          <Checkbox {...label} />
+                          {/* <Checkbox {...label} /> */}
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkbox1Checked}
+                                onChange={handleCheckbox1Change}
+                              />
+                            }
+                            label=""
+                          />
                         </Box>
                         <Typography sx={{ p: 2, fontWeight: 600 }}>
                           For your personal Link tree
@@ -1012,7 +1053,16 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
                           >
                             Starter
                           </Typography>
-                          <Checkbox {...label} />
+                          {/* <Checkbox {...label} /> */}
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkbox2Checked}
+                                onChange={handleCheckbox2Change}
+                              />
+                            }
+                            label=""
+                          />
                         </Box>
                         <Typography sx={{ p: 2, fontWeight: 600 }}>
                           For growing influences
@@ -1156,20 +1206,42 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
                             justifyContent: "space-between",
                             alignItems: "center",
                             p: 2,
-                            // border:"1px solid"
+                            backgroundColor: "#502274",
+                            borderRadius: "30px 30px 0px 0px",
                           }}
                         >
                           <Typography
                             sx={{
                               fontSize: "24px",
                               fontWeight: "bold",
+                              color: "white",
                             }}
                           >
                             Pro
                           </Typography>
-                          <Checkbox {...label} />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkbox3Checked}
+                                onChange={handleCheckbox3Change}
+                                sx={{
+                                  "&.Mui-checked": {
+                                    color: "white",
+                                  },
+                                }}
+                              />
+                            }
+                            label=""
+                          />
                         </Box>
-                        <Typography sx={{ p: 2, fontWeight: 600 }}>
+                        <Typography
+                          sx={{
+                            p: 2,
+                            fontWeight: 600,
+                            backgroundColor: "#502274",
+                            color: "white",
+                          }}
+                        >
                           For creators and businesses
                         </Typography>
 
@@ -1312,15 +1384,112 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
                 </Grid>
                 <Button
                   variant="contained"
-                  onClick={handleSubmit3}
+                  onClick={handleSubmit4}
                   sx={{
                     textTransform: "none",
                     p: 2,
                     borderRadius: "20px",
+
+                    width: { md: "50%", sm: "70%", xs: "90%" },
                   }}
                 >
-                  Continue
+                  Try Pro for free
                 </Button>
+              </Box>
+            </Box>
+          )}
+          {activeStep === 3 && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  // alignItems: "center",
+                  width: { md: "520px", sm: "500px", xs: "80%" },
+                  flexDirection: "column",
+                  gap: 3,
+                  p: 2,
+                  boxShadow:
+                    "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+                }}
+              >
+              {/* <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: { md: "90%", sm: "95%", xs: "98%" },
+                  flexDirection: "column",
+                  gap: 3,
+                }}
+              > */}
+                <Typography
+                  sx={{
+                    color: "black",
+                    fontWeight: "bold",
+                    fontSize: "30px",
+                    textAlign: "center",
+                    mt:2
+                  }}
+                >
+                 Thanks for signing up
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "black",
+                    fontWeight: "400",
+                    fontSize: "13px",
+                    textAlign: "center",
+                  }}
+                >
+                  To verify your account, click on the link sent to your inbox
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "black",
+                    fontWeight: "400",
+                    fontSize: "13px",
+                    textAlign: "center",
+                  }}
+                >
+                  (ancientcitizens@hotmail.com)
+                </Typography>
+
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit3}
+                  sx={{
+                    textTransform: "none",
+                    py: 1.5,
+                    borderRadius: "20px",
+
+                    width: "100%",
+                  }}
+                >
+                 Continue
+                </Button>
+
+                {/* <Button
+                      type="submit"
+                      onClick={handleSubmit3}
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        textTransform: "none",
+                        py: 1.5,
+                        borderRadius: "20px",
+                      }}
+                    >
+                      Continue
+                    </Button> */}
+            
               </Box>
             </Box>
           )}
