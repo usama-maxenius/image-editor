@@ -23,6 +23,9 @@ const Auth0ProviderWithNavigate = ({ children }: Props) => {
 			clientId={AUTH0_CLIENT_ID}
 			authorizationParams={{
 				redirectUri: window.location.origin,
+				audience: 'https://dev-bg8owhj3eqxda764.us.auth0.com/api/v2/',
+				scope:
+					'openid profile email phone read:current_user offline_access update:current_user_metadata read:users read:roles read:role_members read:bank-performance',
 			}}
 			onRedirectCallback={onRedirectCallback}
 			useRefreshTokens

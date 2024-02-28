@@ -1,16 +1,4 @@
-import {
-	Button,
-	Typography,
-	CircularProgress,
-	AppBar,
-	Toolbar,
-	IconButton,
-	Tooltip,
-	Menu,
-	Avatar,
-	MenuItem,
-	Box,
-} from '@mui/material';
+import { Button, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import Input from '../../components/input/input';
 import CountdownTimer from '../../components/counter/counter';
@@ -19,6 +7,7 @@ import { BaseURL } from '../../constants';
 import { APIResponse } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useCanvasContext } from '../../context/CanvasContext';
 
 const StyledContainer = styled(Box)(({}) => ({
 	display: 'flex',
@@ -36,14 +25,8 @@ interface Props {
 	updateStep: Dispatch<SetStateAction<number>>;
 }
 function LandingPage({ setScrappedData, updateStep }: Props) {
-	const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0();
-	const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-	const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-		null
-	);
-	const [givenUrl, setGivenUrl] = useState(
-		'https://www.bbc.com/news/world-us-canada-67920129'
-	);
+	const { isAuthenticated } = useAuth0();
+	const { scrapURL, updateScrapURL } = useCanvasContext();
 	const [loading, setLoading] = useState(false);
 
 	const getData = async () => {
@@ -56,7 +39,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({ url: givenUrl }),
+					body: JSON.stringify({ url: scrapURL }),
 				});
 
 				const data = await response.json();
@@ -76,85 +59,8 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		} else updateStep(2);
 	};
 
-	const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorElUser(event.currentTarget);
-	};
-
-	const handleCloseNavMenu = () => {
-		setAnchorElNav(null);
-	};
-
-	const handleCloseUserMenu = () => {
-		setAnchorElUser(null);
-	};
 	return (
 		<>
-			<AppBar position='static' sx={{ backgroundColor: '#e9295d' }}>
-				<Toolbar>
-					<IconButton
-						size='large'
-						edge='start'
-						color='inherit'
-						aria-label='menu'
-						sx={{ mr: 2 }}
-					></IconButton>
-					<Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-						Posticle
-					</Typography>
-					{isAuthenticated ? (
-						<>
-							<Tooltip title='Open settings'>
-								<>
-									<Typography sx={{ mr: 2 }}>{user?.name}</Typography>
-									<IconButton sx={{ p: 0 }} onClick={handleOpenUserMenu}>
-										<Avatar alt={user?.name} src={user?.picture} />
-									</IconButton>
-								</>
-							</Tooltip>
-							<Menu
-								sx={{ mt: '45px' }}
-								id='menu-appbar'
-								anchorEl={anchorElUser}
-								anchorOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								keepMounted
-								transformOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								open={Boolean(anchorElUser)}
-								onClose={handleCloseUserMenu}
-							>
-								<MenuItem onClick={handleCloseNavMenu}>
-									<Typography textAlign='center' onClick={() => logout()}>
-										Logout
-									</Typography>
-								</MenuItem>
-							</Menu>
-						</>
-					) : (
-						<>
-							<Button
-								color='inherit'
-								onClick={() =>
-									loginWithRedirect({
-										authorizationParams: {
-											screen_hint: 'signup',
-										},
-									})
-								}
-							>
-								SIGNUP
-							</Button>
-							<Button color='inherit' onClick={() => loginWithRedirect({})}>
-								LOGIN
-							</Button>
-						</>
-					)}
-				</Toolbar>
-			</AppBar>
 			<StyledContainer>
 				{isAuthenticated ? (
 					<>
@@ -162,8 +68,9 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 							PASTE NEWS LINK URL
 						</Typography>
 						<Input
+							defaultValue={scrapURL}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								setGivenUrl(e.target.value)
+								updateScrapURL(e.target.value)
 							}
 						/>
 						<Button
