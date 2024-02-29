@@ -11,6 +11,7 @@ import { fonts } from '../constants/fonts';
 import { loadWebFont } from '../utils/FontHandler';
 import { useAuth0 } from '@auth0/auth0-react';
 import { getUserData } from '../services/userData';
+import { useNavigate } from 'react-router';
 
 const CanvasContext = createContext({} as CanvasContextProps);
 
@@ -26,9 +27,10 @@ export const CanvasContextProvider = ({
 	const [scrapURL, setScrapURL] = useState('');
 	const { user, getAccessTokenSilently } = useAuth0();
 	const [userMetaData, setUserMetaData] = useState({});
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const [isUserMetaExist, setIsUserMetaExist] = useState(false);
 
+	const navigate = useNavigate();
 	const getExistingObject = (type: string) =>
 		canvas?.getObjects()?.find((obj: any) => obj.customType === type);
 
@@ -62,6 +64,7 @@ export const CanvasContextProvider = ({
 			const userId = user?.sub;
 			const userData: any = await getUserData(token, userId);
 			const user_metadata = userData?.user_metadata;
+			if (user_metadata === undefined) navigate('/user-info');
 			if (user_metadata !== undefined) setIsUserMetaExist(true);
 			setUserMetaData(user_metadata);
 			setIsLoading(false);

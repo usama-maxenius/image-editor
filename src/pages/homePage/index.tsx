@@ -5,8 +5,6 @@ import { BaseURL, templateData } from '../../constants';
 import { styled } from '@mui/styles';
 import Templates from '../templates/templates';
 import Canvas from '../../components/Canvas';
-import { Navigate } from 'react-router';
-import { useCanvasContext } from '../../context/CanvasContext';
 
 const StyledContainer = styled('div')({
 	display: 'flex',
@@ -27,11 +25,6 @@ const HomePage = () => {
 	const [scrappedData, setScrappedData] = useState<APIResponse>();
 	const [updatedSeedData, setUpdatedSeedData] =
 		useState<TemplateData>(templateData);
-	const { isLoading, isUserMetaExist } = useCanvasContext();
-
-	if (!isLoading && !isUserMetaExist) {
-		return <Navigate to='/user-info' />;
-	}
 
 	useEffect(() => {
 		if (!scrappedData) return;
