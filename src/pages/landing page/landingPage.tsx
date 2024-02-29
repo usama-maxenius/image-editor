@@ -2,12 +2,11 @@ import { Button, Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import Input from '../../components/input/input';
 import CountdownTimer from '../../components/counter/counter';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { BaseURL } from '../../constants';
 import { APIResponse } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth0 } from '@auth0/auth0-react';
-import LoginUser from '../../components/user/LoginUser';
 import { useCanvasContext } from '../../context/CanvasContext';
 
 const StyledContainer = styled(Box)(({}) => ({
@@ -28,20 +27,8 @@ interface Props {
 }
 function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
-	const { userMetaData, scrapURL, updateScrapURL } = useCanvasContext();
-	const [objectFromChild, setObjectFromChild] = useState<any>({});
+	const { scrapURL, updateScrapURL } = useCanvasContext();
 
-	useEffect(() => {
-		setObjectFromChild(userMetaData);
-
-		return () => {
-			setObjectFromChild({});
-		};
-	}, [userMetaData]);
-
-	const handleObjectFromChild = (obj: any) => {
-		setObjectFromChild(obj);
-	};
 	const [loading, setLoading] = useState(false);
 
 	const getData = async () => {
@@ -79,34 +66,30 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 			<Box>
 				{isAuthenticated ? (
 					<>
-						{objectFromChild ? (
-							<StyledContainer>
-								<Typography variant='h4' gutterBottom color='black'>
-									PASTE NEWS LINK URL
-								</Typography>
-								<Input
-									defaultValue={scrapURL}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										updateScrapURL(e.target.value)
-									}
-								/>
-								<Button
-									variant='contained'
-									sx={{
-										mt: '30px',
-										bgcolor: 'white',
-										color: 'black',
-										'&:hover': { bgcolor: 'white', color: 'black' },
-									}}
-									onClick={getData}
-								>
-									{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-									{loading && <CircularProgress size={24} color='inherit' />}
-								</Button>
-							</StyledContainer>
-						) : (
-							<LoginUser sendObjectToParent={handleObjectFromChild} />
-						)}
+						<StyledContainer>
+							<Typography variant='h4' gutterBottom color='black'>
+								PASTE NEWS LINK URL
+							</Typography>
+							<Input
+								defaultValue={scrapURL}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									updateScrapURL(e.target.value)
+								}
+							/>
+							<Button
+								variant='contained'
+								sx={{
+									mt: '30px',
+									bgcolor: 'white',
+									color: 'black',
+									'&:hover': { bgcolor: 'white', color: 'black' },
+								}}
+								onClick={getData}
+							>
+								{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
+								{loading && <CircularProgress size={24} color='inherit' />}
+							</Button>
+						</StyledContainer>
 					</>
 				) : (
 					<StyledContainer>

@@ -1,4 +1,4 @@
-import { AUTH0_AUDIENCE_ID } from '../constants';
+import { AUTH0_DOMAIN_ID } from '../constants';
 
 /**
  * Retrieves user data using the provided token and user ID.
@@ -17,7 +17,7 @@ export const getUserData = async (
 
 	try {
 		const res = await fetch(
-			`https://${AUTH0_AUDIENCE_ID}/api/v2/users/${userId}`,
+			`https://${AUTH0_DOMAIN_ID}/api/v2/users/${userId}`,
 			{
 				headers: myHeaders,
 			}
@@ -60,7 +60,7 @@ export const updateUserData = async (
 
 	try {
 		const res = await fetch(
-			`https://${AUTH0_AUDIENCE_ID}/api/v2/users/${userId}`,
+			`https://${AUTH0_DOMAIN_ID}/api/v2/users/${userId}`,
 			requestOptions
 		);
 		if (!res.ok) {

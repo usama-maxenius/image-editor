@@ -12,7 +12,7 @@ import {
 	Typography,
 } from '@mui/material';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
 	const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
@@ -20,6 +20,7 @@ const Header = () => {
 	const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
 		null
 	);
+	const navigate = useNavigate();
 
 	const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorElUser(event.currentTarget);
@@ -97,6 +98,14 @@ const Header = () => {
 							open={Boolean(anchorElUser)}
 							onClose={handleCloseUserMenu}
 						>
+							<MenuItem onClick={handleCloseNavMenu}>
+								<Typography
+									textAlign='center'
+									onClick={() => navigate('/user-info')}
+								>
+									Account Info
+								</Typography>
+							</MenuItem>
 							<MenuItem onClick={handleCloseNavMenu}>
 								<Typography textAlign='center' onClick={() => logout()}>
 									Logout
