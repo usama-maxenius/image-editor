@@ -1,6 +1,7 @@
 import {
 	ReactNode,
 	createContext,
+	useCallback,
 	useContext,
 	useEffect,
 	useState,
@@ -8,6 +9,8 @@ import {
 import { CanvasContextProps, activeTabs } from '../types/context';
 import { fonts } from '../constants/fonts';
 import { loadWebFont } from '../utils/FontHandler';
+import { useAuth0 } from '@auth0/auth0-react';
+import { getUserData } from '../services/userData';
 
 const CanvasContext = createContext({} as CanvasContextProps);
 
@@ -21,12 +24,15 @@ export const CanvasContextProvider = ({
 	const updateCanvasContext = (canvas: fabric.Canvas | null) =>
 		setCanvas(canvas);
 	const [scrapURL, setScrapURL] = useState('');
+	const { user, getAccessTokenSilently } = useAuth0();
+	const [userMetaData, setUserMetaData] = useState({});
 
 	const getExistingObject = (type: string) =>
 		canvas?.getObjects()?.find((obj: any) => obj.customType === type);
 
 	const updateActiveTab = (tab: activeTabs) => setActiveTab(tab);
 	const updateScrapURL = (tab: string) => setScrapURL(tab);
+	const updateUserMetaData = (val: any) => setUserMetaData(val);
 
 	/**
 	 * Loads all the fonts asynchronously.
@@ -46,12 +52,28 @@ export const CanvasContextProvider = ({
 		loadAllFonts();
 	}, []);
 
+	const getUser = useCallback(async () => {
+		const token = await getAccessTokenSilently();
+		if (user?.sub) {
+			const userId = user?.sub;
+			const userData: any = await getUserData(token, userId);
+			const user_metadata = userData?.user_metadata;
+			setUserMetaData(user_metadata);
+		}
+	}, [user?.sub]);
+
+	useEffect(() => {
+		getUser();
+	}, [getUser]);
+
 	return (
 		<CanvasContext.Provider
 			value={{
 				canvas,
 				activeTab,
 				scrapURL,
+				userMetaData,
+				updateUserMetaData,
 				updateActiveTab,
 				getExistingObject,
 				updateCanvasContext,

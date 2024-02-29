@@ -53,21 +53,23 @@ const Header = () => {
 							Posticle
 						</Link>
 					</Typography>
-					<Box sx={{ ml: { md: 10 } }}>
-						<Button color='inherit'>
-							<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
-								CREATE POST
-							</Link>
-						</Button>
-						<Button color='inherit'>
-							<Link
-								to='/news'
-								style={{ textDecoration: 'none', color: 'white' }}
-							>
-								NEWS LINKS
-							</Link>
-						</Button>
-					</Box>
+					{isAuthenticated ? (
+						<Box sx={{ ml: { md: 10 } }}>
+							<Button color='inherit'>
+								<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
+									CREATE POST
+								</Link>
+							</Button>
+							<Button color='inherit'>
+								<Link
+									to='/news'
+									style={{ textDecoration: 'none', color: 'white' }}
+								>
+									NEWS LINKS
+								</Link>
+							</Button>
+						</Box>
+					) : null}
 				</Box>
 				{isAuthenticated ? (
 					<>

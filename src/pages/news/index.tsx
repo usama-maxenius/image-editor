@@ -5,12 +5,14 @@ const News = () => {
 	const [open, setOpen] = useState(false);
 	const handleClose = () => setOpen(false);
 	const handleOpen = () => setOpen(true);
+	const [isLoading, setIsLoading] = useState(true);
 	const [newsFeed, setNewsFeed] = useState<any[]>([]);
-	const { updateScrapURL } = useCanvasContext();
+	const { updateScrapURL, userMetaData, updateUserMetaData } =
+		useCanvasContext();
 	const { user, getAccessTokenSilently } = useAuth0();
 
 	const selecedInterests = () => {
-		const interests = user?.user_metadata?.interests;
+		const interests = userMetaData?.interests || [];
 		return interests?.map((interest: any) => {
 			return rssOptions.find((option) => option.interest === interest);
 		});
@@ -18,7 +20,6 @@ const News = () => {
 
 	useEffect(() => {
 		const matchedOptions = selecedInterests();
-		console.log({ matchedOptions });
 
 		(async () => {
 			let feedsData: any[] = [];
@@ -29,47 +30,58 @@ const News = () => {
 					)}&api_key=yolb35wkfczfs6xdjzb1bracablicibpftnj7svf`
 				)
 					.then((res) => res.json())
-					.then((data) => feedsData.push(data));
+					.then((data) => feedsData.push(data))
+					.catch(() => setIsLoading(false));
 			}
 			setNewsFeed(feedsData);
+			setIsLoading(false);
 		})();
-	}, [user]);
+	}, [userMetaData]);
 
 	const handleDelete = async (val: string) => {
-		console.info('You clicked the delete icon.', val);
 		const token = await getAccessTokenSilently();
 
 		const userId = user?.sub as string;
 
-		await updateUserMetaData(token, userId, {
+		const userData: any = await updateUserData(token, userId, {
 			user_metadata: {
-				...user?.user_metadata,
-				interests: user?.user_metadata?.interests?.filter(
+				...userMetaData,
+				interests: userMetaData?.interests?.filter(
 					(interest: any) => interest !== val
 				),
 			},
 		});
+		updateUserMetaData(userData?.user_metadata);
 	};
 
 	return (
 		<Box sx={{ mx: '3rem' }}>
-			<Button
-				variant='contained'
-				// sx={{ backgroundColor: '#e9295d' }}
-				onClick={handleOpen}
+			<Stack
+				direction='row'
+				spacing={1}
+				mt={2}
+				alignItems='center'
+				justifyContent='center'
 			>
-				Add Interest
-			</Button>
+				<Button
+					variant='contained'
+					// sx={{ backgroundColor: '#e9295d' }}
+					onClick={handleOpen}
+				>
+					Add Interest
+				</Button>
+				{userMetaData?.interests?.map((interest: any) => (
+					<Chip
+						key={interest}
+						label={interest}
+						variant='outlined'
+						onDelete={() => handleDelete(interest)}
+					/>
+				))}
+			</Stack>
 
-			{user?.user_metadata?.interests?.map((interest: any) => (
-				<Chip
-					key={interest}
-					label={interest}
-					variant='outlined'
-					onDelete={() => handleDelete(interest)}
-				/>
-			))}
 			{open && <InterestDialog open={open} handleClose={handleClose} />}
+
 			<Box sx={{ m: '3rem auto' }}>
 				<Grid
 					container
@@ -77,15 +89,22 @@ const News = () => {
 					justifyItems='center'
 					justifyContent='center'
 				>
-					{newsFeed?.map((feed, i) => (
-						<Grid item xs={6} md={6}>
-							<MultiActionAreaCard
-								key={i}
-								feed={feed}
-								updateScrapURL={updateScrapURL}
-							/>
-						</Grid>
-					))}
+					{isLoading && newsFeed.length === 0 ? (
+						<Box sx={{ display: 'flex', height: '50vh', alignItems: 'center' }}>
+							<Typography>Please Wait... </Typography> &nbsp; &nbsp;
+							<CircularProgress />
+						</Box>
+					) : (
+						newsFeed?.map((feed, i) => (
+							<Grid item xs={6} md={6}>
+								<MultiActionAreaCard
+									key={i}
+									feed={feed}
+									updateScrapURL={updateScrapURL}
+								/>
+							</Grid>
+						))
+					)}
 				</Grid>
 			</Box>
 		</Box>
@@ -103,11 +122,13 @@ import {
 	Button,
 	CardActionArea,
 	Chip,
+	CircularProgress,
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogTitle,
 	Grid,
+	Stack,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCanvasContext } from '../../context/CanvasContext';
@@ -183,21 +204,24 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 
 import Select from 'react-select';
 
-import { updateUserMetaData } from '../../services/userMetaData';
+import { updateUserData } from '../../services/userData';
 import { useAuth0 } from '@auth0/auth0-react';
 
 function InterestDialog({ open, handleClose }: any) {
 	const { getAccessTokenSilently, user } = useAuth0();
+	const { userMetaData, updateUserMetaData } = useCanvasContext();
 	const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
 
 	useEffect(() => {
+		const interests = userMetaData?.interests || [];
 		const matchedOptions = interestOptions.filter((option) =>
-			user?.user_metadata?.interests?.includes(option.value)
+			interests?.includes(option.value)
 		);
-		console.log({ matchedOptions }, user?.user_metadata);
 		setSelectedOptions(matchedOptions);
-		return () => {};
-	}, [user]);
+		return () => {
+			setSelectedOptions([]);
+		};
+	}, [userMetaData]);
 
 	const saveHandler = async () => {
 		const token = await getAccessTokenSilently();
@@ -206,12 +230,17 @@ function InterestDialog({ open, handleClose }: any) {
 		}
 
 		const interests = selectedOptions?.map((option) => option.value);
-		await updateUserMetaData(token, user?.sub, {
+		const payload = {
 			user_metadata: {
-				...user?.user_metadata,
-				interests: [...user?.user_metadata.interests, ...interests],
+				...userMetaData,
+				interests: userMetaData.interests
+					? [...userMetaData.interests, ...interests]
+					: [...interests],
 			},
-		});
+		};
+		const userData: any = await updateUserData(token, user?.sub, payload);
+
+		updateUserMetaData(userData?.user_metadata);
 
 		handleClose();
 	};
