@@ -716,7 +716,7 @@ const LoginUser = () => {
 															onChange={() =>
 																setUserMetaDataPayload((prev) => ({
 																	...prev,
-																	company: { ...prev.company, plan: 'starter' },
+																	company: { ...prev.company, plan: 'free' },
 																}))
 															}
 														/>
