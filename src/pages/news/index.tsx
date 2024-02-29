@@ -256,8 +256,6 @@ function InterestDialog({ open, handleClose }: any) {
 			<DialogContent
 				sx={{ minHeight: '100px', minWidth: { xs: '100%', md: '400px' } }}
 			>
-				{/* <DialogContentText id='alert-dialog-description'></DialogContentText> */}
-
 				<Select
 					defaultValue={selectedOptions}
 					isMulti
@@ -266,6 +264,7 @@ function InterestDialog({ open, handleClose }: any) {
 					options={interestOptions}
 					className='basic-multi-select'
 					classNamePrefix='select'
+					// menuPortalTarget={document.body}
 				/>
 			</DialogContent>
 			<DialogActions>

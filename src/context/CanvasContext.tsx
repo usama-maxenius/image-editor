@@ -26,6 +26,8 @@ export const CanvasContextProvider = ({
 	const [scrapURL, setScrapURL] = useState('');
 	const { user, getAccessTokenSilently } = useAuth0();
 	const [userMetaData, setUserMetaData] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
+	const [isUserMetaExist, setIsUserMetaExist] = useState(false);
 
 	const getExistingObject = (type: string) =>
 		canvas?.getObjects()?.find((obj: any) => obj.customType === type);
@@ -33,6 +35,7 @@ export const CanvasContextProvider = ({
 	const updateActiveTab = (tab: activeTabs) => setActiveTab(tab);
 	const updateScrapURL = (tab: string) => setScrapURL(tab);
 	const updateUserMetaData = (val: any) => setUserMetaData(val);
+	const updateIsUserMetaExist = (val: boolean) => setIsUserMetaExist(val);
 
 	/**
 	 * Loads all the fonts asynchronously.
@@ -53,14 +56,17 @@ export const CanvasContextProvider = ({
 	}, []);
 
 	const getUser = useCallback(async () => {
+		setIsLoading(true);
 		const token = await getAccessTokenSilently();
 		if (user?.sub) {
 			const userId = user?.sub;
 			const userData: any = await getUserData(token, userId);
 			const user_metadata = userData?.user_metadata;
+			if (user_metadata !== undefined) setIsUserMetaExist(true);
 			setUserMetaData(user_metadata);
+			setIsLoading(false);
 		}
-	}, [user?.sub]);
+	}, [user]);
 
 	useEffect(() => {
 		getUser();
@@ -73,6 +79,9 @@ export const CanvasContextProvider = ({
 				activeTab,
 				scrapURL,
 				userMetaData,
+				isLoading,
+				isUserMetaExist,
+				updateIsUserMetaExist,
 				updateUserMetaData,
 				updateActiveTab,
 				getExistingObject,
