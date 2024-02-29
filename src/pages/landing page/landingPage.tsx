@@ -25,6 +25,7 @@ interface Props {
 	setScrappedData: Dispatch<SetStateAction<APIResponse | undefined>>;
 	updateStep: Dispatch<SetStateAction<number>>;
 }
+
 function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
 	const { scrapURL, updateScrapURL } = useCanvasContext();

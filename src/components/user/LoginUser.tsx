@@ -33,23 +33,37 @@ interface Tag {
 	icon: React.ReactNode;
 }
 
+interface UserMetaDataPayload {
+	company: {
+		name: string;
+		website: string;
+		color: string;
+		font: string;
+		logo: File | null;
+		date: string;
+		tags: string[];
+		plan: string;
+	};
+}
+
 const LoginUser = () => {
 	const [activeStep, setActiveStep] = React.useState(0);
 	const [skipped, setSkipped] = React.useState(new Set<number>());
-	const { userMetaData } = useCanvasContext();
+	const { userMetaData, updateIsUserMetaExist } = useCanvasContext();
 	const [isLoading, setIsLoading] = React.useState(false);
-	const [userMetaDataPayload, setUserMetaDataPayload] = React.useState({
-		company: {
-			name: '',
-			website: '',
-			color: '',
-			font: '',
-			logo: null,
-			date: '',
-			tags: [''],
-			plan: 'free',
-		},
-	});
+	const [userMetaDataPayload, setUserMetaDataPayload] =
+		React.useState<UserMetaDataPayload>({
+			company: {
+				name: '',
+				website: '',
+				color: '',
+				font: '',
+				logo: null,
+				date: '',
+				tags: [''],
+				plan: 'free',
+			},
+		});
 
 	React.useEffect(() => {
 		if (userMetaData?.company) setUserMetaDataPayload(userMetaData);
@@ -95,30 +109,6 @@ const LoginUser = () => {
 		{ name: '#Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
 		{ name: '#PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
 	];
-
-	// const [checkbox1Checked, setCheckbox1Checked] =
-	// 	React.useState<boolean>(false);
-	// const [checkbox2Checked, setCheckbox2Checked] =
-	// 	React.useState<boolean>(false);
-	// const [checkbox3Checked, setCheckbox3Checked] = React.useState<boolean>(true);
-
-	// const handleCheckbox1Change = () => {
-	// 	setCheckbox1Checked(true);
-	// 	setCheckbox2Checked(false);
-	// 	setCheckbox3Checked(false);
-	// };
-
-	// const handleCheckbox2Change = () => {
-	// 	setCheckbox1Checked(false);
-	// 	setCheckbox2Checked(true);
-	// 	setCheckbox3Checked(false);
-	// };
-
-	// const handleCheckbox3Change = () => {
-	// 	setCheckbox1Checked(false);
-	// 	setCheckbox2Checked(false);
-	// 	setCheckbox3Checked(true);
-	// };
 
 	const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUserMetaDataPayload((prev) => ({
@@ -189,6 +179,7 @@ const LoginUser = () => {
 				if (response.status === 200) {
 					toast.success('Data saved successfully');
 					setIsLoading(false);
+					updateIsUserMetaExist(true);
 					navigate('/');
 				} else {
 					setIsLoading(false);
@@ -317,12 +308,10 @@ const LoginUser = () => {
 										{userMetaDataPayload?.company?.logo && (
 											<img
 												src={
-													((userMetaDataPayload.company?.logo as any)?.includes(
-														'https'
-													) as any)
+													typeof userMetaDataPayload.company?.logo === 'string'
 														? userMetaDataPayload.company?.logo
 														: URL.createObjectURL(
-																userMetaDataPayload.company?.logo as any
+																userMetaDataPayload.company?.logo
 														  )
 												}
 												alt='User Photo'
@@ -459,11 +448,11 @@ const LoginUser = () => {
 												type='file'
 												name='userPhoto'
 												accept='image/png, image/jpeg'
-												required={
-													!(userMetaDataPayload.company?.logo as any)?.includes(
-														'https'
-													)
-												}
+												// required={
+												// 	!(userMetaDataPayload.company?.logo as any)?.includes(
+												// 		'https'
+												// 	)
+												// }
 												onChange={handleImage}
 												style={{
 													position: 'absolute',
@@ -501,9 +490,15 @@ const LoginUser = () => {
 												textOverflow: 'ellipsis',
 											}}
 										>
-											{userMetaDataPayload.company.logo
-												? userMetaDataPayload.company.logo
-												: 'Select File'}
+											{userMetaDataPayload.company.logo ? (
+												typeof userMetaDataPayload.company.logo === 'string' ? (
+													userMetaDataPayload.company.logo
+												) : (
+													<span>{userMetaDataPayload.company.logo.name}</span>
+												)
+											) : (
+												'Select File'
+											)}
 										</label>
 									</Box>
 
@@ -538,7 +533,6 @@ const LoginUser = () => {
 							sx={{
 								display: 'flex',
 								justifyContent: 'center',
-								// alignItems: "center",
 								width: { md: '520px', sm: '500px', xs: '80%' },
 								flexDirection: 'column',
 								gap: 3,

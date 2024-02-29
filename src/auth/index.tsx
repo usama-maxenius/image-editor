@@ -1,7 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppState, Auth0Provider } from '@auth0/auth0-react';
-import { AUTH0_CLIENT_ID, AUTH0_DOMAIN_ID } from '../constants';
+import {
+	AUTH0_AUDIENCE_ID,
+	AUTH0_CLIENT_ID,
+	AUTH0_DOMAIN_ID,
+} from '../constants';
 
 interface Props {
 	children: React.ReactNode;
@@ -23,7 +27,7 @@ const Auth0ProviderWithNavigate = ({ children }: Props) => {
 			clientId={AUTH0_CLIENT_ID}
 			authorizationParams={{
 				redirectUri: window.location.origin,
-				audience: `https://${AUTH0_DOMAIN_ID}/api/v2/`,
+				audience: `https://${AUTH0_AUDIENCE_ID}/api/v2/`,
 				scope:
 					'openid profile email phone read:current_user update:current_user_metadata read:users read:roles read:branding update:branding',
 			}}
