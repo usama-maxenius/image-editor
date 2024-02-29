@@ -23,6 +23,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { AUTH0_DOMAIN_ID } from '../../constants';
 import axios from 'axios';
 import { ColorResult, SketchPicker } from 'react-color';
+import { useCanvasContext } from '../../context/CanvasContext';
+import { uploadToCloudinary } from '../../services/cloudinary';
 const steps = ['Select 1', 'Create 2', 'Create 3', 'Create 4'];
 interface Tag {
 	name: string;
@@ -141,17 +143,22 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 
 	//_____________________________________________________________________
 	const { user, getAccessTokenSilently } = useAuth0();
+	const { userMetaData } = useCanvasContext();
 
 	// console.log("🚀 ~ user:", user);
 	const handleSubmit3 = async () => {
+		let imgUrl = null;
+		if (logo) imgUrl = await uploadToCloudinary(logo);
+
 		if (selectedTags.length !== 0) {
 			const data = {
 				user_metadata: {
+					...userMetaData,
 					name: userName,
 					color: color,
 					fontType: fontType,
 					website: website,
-					logo: logo,
+					logo: imgUrl,
 					selectedTags: selectedTags,
 					dateTime: dateTime,
 					freeTrail: checkbox1Checked,
@@ -173,7 +180,6 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 				});
 
 				if (response.status === 200) {
-					console.log('Data saved successfully', response?.data);
 					toast.success('Data saved successfully');
 					sendObjectToParent(data);
 					handleNext();
@@ -229,20 +235,15 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 
 	const handleSubmit1 = (e: any) => {
 		e.preventDefault();
-		toast.success('Upload successfully');
 		handleNext();
-		console.log('🚀 ~ logo:', logo);
+	};
 
-		console.log(
-			'userName',
-			userName,
-			'color',
-			color,
-			'fontType',
-			fontType,
-			'website',
-			website
-		);
+	const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files === null) {
+			return;
+		}
+		const file = event.target.files[0];
+		setLogo(file);
 	};
 
 	return (
@@ -419,13 +420,7 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
 													name='userPhoto'
 													accept='image/png, image/jpeg'
 													required
-													onChange={(
-														event: React.ChangeEvent<HTMLInputElement>
-													) =>
-														setLogo(
-															event.target.files ? event.target.files[0] : null
-														)
-													}
+													onChange={handleImage}
 													style={{
 														position: 'absolute',
 														width: '1px',

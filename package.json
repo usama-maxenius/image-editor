@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
+    "@cloudinary/react": "^1.13.0",
+    "@cloudinary/url-gen": "^1.18.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.19",
