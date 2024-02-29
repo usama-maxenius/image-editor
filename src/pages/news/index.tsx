@@ -254,7 +254,7 @@ function InterestDialog({ open, handleClose }: any) {
 		>
 			<DialogTitle id='alert-dialog-title'>Add Interests</DialogTitle>
 			<DialogContent
-				sx={{ minHeight: '100px', minWidth: { xs: '100%', md: '400px' } }}
+				sx={{ minHeight: '300px', minWidth: { xs: '100%', md: '400px' } }}
 			>
 				<Select
 					defaultValue={selectedOptions}
@@ -264,7 +264,6 @@ function InterestDialog({ open, handleClose }: any) {
 					options={interestOptions}
 					className='basic-multi-select'
 					classNamePrefix='select'
-					// menuPortalTarget={document.body}
 				/>
 			</DialogContent>
 			<DialogActions>
