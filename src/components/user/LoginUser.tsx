@@ -164,7 +164,7 @@ const LoginUser = () => {
 		const { company } = userMetaDataPayload;
 		setIsLoading(true);
 		let imgUrl = null;
-		if (company.logo) imgUrl = await uploadToCloudinary(company.logo);
+		if (company.logo) imgUrl = await uploadToCloudinary(company.logo as any);
 
 		if (company.tags.length !== 0) {
 			const data = {
@@ -317,10 +317,12 @@ const LoginUser = () => {
 										{userMetaDataPayload?.company?.logo && (
 											<img
 												src={
-													userMetaDataPayload.company?.logo?.includes('https')
+													((userMetaDataPayload.company?.logo as any)?.includes(
+														'https'
+													) as any)
 														? userMetaDataPayload.company?.logo
 														: URL.createObjectURL(
-																userMetaDataPayload.company?.logo
+																userMetaDataPayload.company?.logo as any
 														  )
 												}
 												alt='User Photo'
@@ -458,7 +460,9 @@ const LoginUser = () => {
 												name='userPhoto'
 												accept='image/png, image/jpeg'
 												required={
-													!userMetaDataPayload.company?.logo?.includes('https')
+													!(userMetaDataPayload.company?.logo as any)?.includes(
+														'https'
+													)
 												}
 												onChange={handleImage}
 												style={{
