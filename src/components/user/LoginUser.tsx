@@ -26,7 +26,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { AUTH0_DOMAIN_ID } from "../../constants";
 import axios from "axios";
 import { ColorResult, SketchPicker } from "react-color";
-const steps = ["Select 1", "Create 2", "Create 3", "Create 4"];
+// const steps = ["Select 1", "Create 2", "Create 3", "Create 4"];
 interface Tag {
   name: string;
   icon: React.ReactNode;
@@ -55,9 +55,9 @@ const LoginUser: React.FC<ChildProps> = ({ sendObjectToParent }) => {
     setSkipped(newSkipped);
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
+  // const handleReset = () => {
+  //   setActiveStep(0);
+  // };
 
   const tags: Tag[] = [
     { name: "Gaming", icon: <BusinessIcon sx={{ width: "20px" }} /> },
