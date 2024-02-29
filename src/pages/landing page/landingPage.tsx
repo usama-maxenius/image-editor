@@ -107,7 +107,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 						) : (
 							<LoginUser sendObjectToParent={handleObjectFromChild} />
 						)}
-					</>
+            						</>
 				) : (
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
