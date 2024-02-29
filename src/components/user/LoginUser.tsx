@@ -1227,7 +1227,7 @@ const LoginUser = () => {
 									textAlign: 'center',
 								}}
 							>
-								(ancientcitizens@hotmail.com)
+								({user?.email})
 							</Typography>
 
 							<Button
