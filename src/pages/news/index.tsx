@@ -233,7 +233,7 @@ function InterestDialog({ open, handleClose }: any) {
 		const payload = {
 			user_metadata: {
 				...userMetaData,
-				interests: userMetaData.interests
+				interests: userMetaData?.interests
 					? [...userMetaData.interests, ...interests]
 					: [...interests],
 			},
