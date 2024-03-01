@@ -14,11 +14,11 @@ const StyledContainer = styled(Box)(({}) => ({
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	height: '100vh',
+	height: '80vh',
 	backgroundColor: 'white',
 	color: 'white',
 	width: '100%',
-	marginTop: '20px',
+	marginTop: '10px',
 }));
 
 interface Props {
@@ -30,10 +30,10 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
 	const { scrapURL, updateScrapURL } = useCanvasContext();
 
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 
 	const getData = async () => {
-		if (loading) return;
+		// if (loading) return;
 		if (!loading) {
 			try {
 				setLoading(true);
@@ -66,32 +66,30 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		<>
 			<Box>
 				{isAuthenticated ? (
-					<>
-						<StyledContainer>
-							<Typography variant='h4' gutterBottom color='black'>
-								PASTE NEWS LINK URL
-							</Typography>
-							<Input
-								defaultValue={scrapURL}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									updateScrapURL(e.target.value)
-								}
-							/>
-							<Button
-								variant='contained'
-								sx={{
-									mt: '30px',
-									bgcolor: 'white',
-									color: 'black',
-									'&:hover': { bgcolor: 'white', color: 'black' },
-								}}
-								onClick={getData}
-							>
-								{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-								{loading && <CircularProgress size={24} color='inherit' />}
-							</Button>
-						</StyledContainer>
-					</>
+					<StyledContainer>
+						<Typography variant='h4' gutterBottom color='black'>
+							PASTE NEWS LINK URL
+						</Typography>
+						<Input
+							defaultValue={scrapURL}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								updateScrapURL(e.target.value)
+							}
+						/>
+						<Button
+							variant='contained'
+							sx={{
+								mt: '30px',
+								bgcolor: 'white',
+								color: 'black',
+								'&:hover': { bgcolor: 'white', color: 'black' },
+							}}
+							onClick={getData}
+						>
+							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
+							{loading && <CircularProgress size={24} color='inherit' />}
+						</Button>
+					</StyledContainer>
 				) : (
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>

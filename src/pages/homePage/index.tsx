@@ -12,6 +12,7 @@ const StyledContainer = styled('div')({
 	alignItems: 'center',
 	justifyContent: 'center',
 	minHeight: '100vh',
+	height: '100%',
 	backgroundColor: '#151433',
 	color: 'white',
 	width: '100%',

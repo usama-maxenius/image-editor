@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
-
+import myLogo from '../../../public/logo/logo.png';
 import {
 	Checkbox,
 	CircularProgress,
@@ -11,6 +11,7 @@ import {
 	FormControl,
 	FormControlLabel,
 	Grid,
+	InputAdornment,
 	InputLabel,
 	MenuItem,
 	Popover,
@@ -27,7 +28,7 @@ import { ColorResult, SketchPicker } from 'react-color';
 import { useCanvasContext } from '../../context/CanvasContext';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { useNavigate } from 'react-router';
-
+import GradientIcon from '@mui/icons-material/Gradient';
 interface Tag {
 	name: string;
 	icon: React.ReactNode;
@@ -49,7 +50,8 @@ interface UserMetaDataPayload {
 const LoginUser = () => {
 	const [activeStep, setActiveStep] = React.useState(0);
 	const [skipped, setSkipped] = React.useState(new Set<number>());
-	const { userMetaData, updateIsUserMetaExist } = useCanvasContext();
+	const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
+		useCanvasContext();
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [userMetaDataPayload, setUserMetaDataPayload] =
 		React.useState<UserMetaDataPayload>({
@@ -100,14 +102,14 @@ const LoginUser = () => {
 
 	//-----------------two -------------
 	const tags: Tag[] = [
-		{ name: '#Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+		{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
 		{
-			name: '#Xbox',
+			name: 'Xbox',
 			icon: <BusinessIcon sx={{ width: '20px' }} />,
 		},
-		{ name: '#Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: '#Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: '#PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+		{ name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+		{ name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+		{ name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
 	];
 
 	const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,6 +165,7 @@ const LoginUser = () => {
 					company: { ...company, logo: imgUrl },
 				},
 			};
+			console.log('🚀 ~ handleSubmit3 ~ data:', data);
 
 			const accessToken = await getAccessTokenSilently();
 
@@ -177,9 +180,11 @@ const LoginUser = () => {
 				});
 
 				if (response.status === 200) {
+					console.log('Data saved successfully', response?.data?.user_metadata);
 					toast.success('Data saved successfully');
 					setIsLoading(false);
 					updateIsUserMetaExist(true);
+					updateUserMetaData(response?.data?.user_metadata);
 					navigate('/');
 				} else {
 					setIsLoading(false);
@@ -271,9 +276,6 @@ const LoginUser = () => {
 								justifyContent: 'center',
 								width: { md: '520px', sm: '500px', xs: '80%' },
 								flexDirection: 'column',
-								gap: 3,
-								mt: 2,
-								// border: "1px solid",
 								p: 2,
 								boxShadow:
 									'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
@@ -285,6 +287,7 @@ const LoginUser = () => {
 									fontWeight: 'bold',
 									fontSize: '30px',
 									textAlign: 'center',
+									pb: 0.5,
 								}}
 							>
 								Tell us about yourself
@@ -305,7 +308,7 @@ const LoginUser = () => {
 											justifyContent: 'center',
 										}}
 									>
-										{userMetaDataPayload?.company?.logo && (
+										{userMetaDataPayload?.company?.logo ? (
 											<img
 												src={
 													typeof userMetaDataPayload.company?.logo === 'string'
@@ -315,9 +318,17 @@ const LoginUser = () => {
 														  )
 												}
 												alt='User Photo'
+												width={'85px'}
+												height={'85px'}
+												style={{ marginLeft: '10px', borderRadius: '50%' }}
+											/>
+										) : (
+											<img
+												src={myLogo}
+												alt='User Photo'
 												width={'100px'}
 												height={'100px'}
-												style={{ marginLeft: '10px', borderRadius: '50%' }}
+												style={{ marginLeft: '10px' }}
 											/>
 										)}
 									</Box>
@@ -352,16 +363,30 @@ const LoginUser = () => {
 											onClick={handleClick}
 											variant='outlined'
 											fullWidth
+											InputProps={{
+												startAdornment: (
+													<InputAdornment position='start'>
+														<GradientIcon
+															sx={{
+																color: userMetaDataPayload.company.color,
+																cursor: 'pointer',
+															}}
+														/>
+													</InputAdornment>
+												),
+											}}
 										/>
 										<Box
+											onClick={handleClick}
 											sx={{
 												marginTop: '10px',
-												width: { md: '70%', sm: '70%', xs: '50%' },
+												width: { md: '50%', sm: '50%', xs: '40%' },
 												height: '36px',
 												backgroundColor: userMetaDataPayload.company.color,
 												position: 'absolute',
 												right: 10,
 												top: 0,
+												cursor: 'pointer',
 											}}
 										></Box>
 										<Popover
@@ -568,18 +593,28 @@ const LoginUser = () => {
 								variant='filled'
 								label='Tell us your name'
 								placeholder='Click a tag to select'
-								value={userMetaDataPayload.company.tags?.join(', ')} // Display selected tags as comma-separated string
+								// value={userMetaDataPayload.company.tags?.join(', ')}
+								value={
+									userMetaDataPayload.company.tags
+										? userMetaDataPayload.company.tags.slice(1).join(', ')
+										: ''
+								}
 								onChange={(event) =>
 									setUserMetaDataPayload((prev) => ({
 										...prev,
 										company: {
 											...prev.company,
-											tags: event.target.value.split(', '),
+											// tags: event.target.value.split(' '),
+											tags: event.target.value
+												.trim()
+												.split(',')
+												.map((tag) => tag.trim()),
 										},
 									}))
 								}
 								required
 							/>
+
 							<Box
 								sx={{
 									display: 'flex',
@@ -610,6 +645,16 @@ const LoginUser = () => {
 											justifyContent: 'center',
 											alignItems: 'center',
 											gap: 1,
+											':hover': {
+												color: userMetaDataPayload.company.tags.includes(
+													tag?.name
+												)
+													? 'black'
+													: 'black',
+												// backgroundColor :userMetaDataPayload.company.tags.includes(tag?.name)
+												// ? "#F0F0F0"
+												// : null,
+											},
 										}}
 										onClick={() => handleTagClick(tag.name)}
 									>
@@ -696,12 +741,21 @@ const LoginUser = () => {
 													justifyContent: 'space-between',
 													alignItems: 'center',
 													p: 2,
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'free'
+															? '#502274'
+															: '',
+													borderRadius: '30px 30px 0px 0px',
 												}}
 											>
 												<Typography
 													sx={{
 														fontSize: '24px',
 														fontWeight: 'bold',
+														color:
+															userMetaDataPayload?.company?.plan === 'free'
+																? 'white'
+																: '',
 													}}
 												>
 													Free
@@ -719,12 +773,31 @@ const LoginUser = () => {
 																	company: { ...prev.company, plan: 'free' },
 																}))
 															}
+															sx={{
+																'&.Mui-checked': {
+																	color: 'white',
+																},
+															}}
 														/>
 													}
 													label=''
 												/>
 											</Box>
-											<Typography sx={{ p: 2, fontWeight: 600 }}>
+											<Typography
+												sx={{
+													p: 2,
+													fontWeight: 600,
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'free'
+															? '#502274'
+															: '',
+
+													color:
+														userMetaDataPayload?.company?.plan === 'free'
+															? 'white'
+															: '',
+												}}
+											>
 												For your personal Link tree
 											</Typography>
 
@@ -808,12 +881,21 @@ const LoginUser = () => {
 													justifyContent: 'space-between',
 													alignItems: 'center',
 													p: 2,
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'starter'
+															? '#502274'
+															: '',
+													borderRadius: '30px 30px 0px 0px',
 												}}
 											>
 												<Typography
 													sx={{
 														fontSize: '24px',
 														fontWeight: 'bold',
+														color:
+															userMetaDataPayload?.company?.plan === 'starter'
+																? 'white'
+																: '',
 													}}
 												>
 													Starter
@@ -831,12 +913,30 @@ const LoginUser = () => {
 																	company: { ...prev.company, plan: 'starter' },
 																}))
 															}
+															sx={{
+																'&.Mui-checked': {
+																	color: 'white',
+																},
+															}}
 														/>
 													}
 													label=''
 												/>
 											</Box>
-											<Typography sx={{ p: 2, fontWeight: 600 }}>
+											<Typography
+												sx={{
+													p: 2,
+													fontWeight: 600,
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'starter'
+															? '#502274'
+															: '',
+													color:
+														userMetaDataPayload?.company?.plan === 'starter'
+															? 'white'
+															: '',
+												}}
+											>
 												For growing influences
 											</Typography>
 
@@ -978,7 +1078,10 @@ const LoginUser = () => {
 													justifyContent: 'space-between',
 													alignItems: 'center',
 													p: 2,
-													backgroundColor: '#502274',
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'pro'
+															? '#502274'
+															: '',
 													borderRadius: '30px 30px 0px 0px',
 												}}
 											>
@@ -986,7 +1089,11 @@ const LoginUser = () => {
 													sx={{
 														fontSize: '24px',
 														fontWeight: 'bold',
-														color: 'white',
+														// color: 'white',
+														color:
+															userMetaDataPayload?.company?.plan === 'pro'
+																? 'white'
+																: '',
 													}}
 												>
 													Pro
@@ -1017,8 +1124,14 @@ const LoginUser = () => {
 												sx={{
 													p: 2,
 													fontWeight: 600,
-													backgroundColor: '#502274',
-													color: 'white',
+													backgroundColor:
+														userMetaDataPayload?.company?.plan === 'pro'
+															? '#502274'
+															: '',
+													color:
+														userMetaDataPayload?.company?.plan === 'pro'
+															? 'white'
+															: '',
 												}}
 											>
 												For creators and businesses
