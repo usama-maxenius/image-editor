@@ -30,10 +30,10 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
 	const { scrapURL, updateScrapURL } = useCanvasContext();
 
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 
 	const getData = async () => {
-		// if (loading) return;
+		if (loading) return;
 		if (!loading) {
 			try {
 				setLoading(true);
