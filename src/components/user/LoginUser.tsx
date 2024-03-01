@@ -391,8 +391,7 @@ const LoginUser = () => {
 												vertical: 'bottom',
 												horizontal: 'left',
 											}}
-                      
-										>
+                      										>
 											<SketchPicker
 												color={userMetaDataPayload.company.color}
 												onChange={handleColorChange}
