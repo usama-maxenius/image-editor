@@ -66,30 +66,30 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		<>
 			<Box>
 				{isAuthenticated ? (
-						<StyledContainer >
-							<Typography variant='h4' gutterBottom color='black'>
-								PASTE NEWS LINK URL
-							</Typography>
-							<Input
-								defaultValue={scrapURL}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									updateScrapURL(e.target.value)
-								}
-							/>
-							<Button
-								variant='contained'
-								sx={{
-									mt: '30px',
-									bgcolor: 'white',
-									color: 'black',
-									'&:hover': { bgcolor: 'white', color: 'black' },
-								}}
-								onClick={getData}
-							>
-								{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-								{loading && <CircularProgress size={24} color='inherit' />}
-							</Button>
-						</StyledContainer>
+					<StyledContainer>
+						<Typography variant='h4' gutterBottom color='black'>
+							PASTE NEWS LINK URL
+						</Typography>
+						<Input
+							defaultValue={scrapURL}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								updateScrapURL(e.target.value)
+							}
+						/>
+						<Button
+							variant='contained'
+							sx={{
+								mt: '30px',
+								bgcolor: 'white',
+								color: 'black',
+								'&:hover': { bgcolor: 'white', color: 'black' },
+							}}
+							onClick={getData}
+						>
+							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
+							{loading && <CircularProgress size={24} color='inherit' />}
+						</Button>
+					</StyledContainer>
 				) : (
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
