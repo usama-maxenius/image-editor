@@ -103,7 +103,7 @@ const News = () => {
 									feed={feed}
 									updateScrapURL={updateScrapURL}
 								/>
-							</Grid>
+							</Grid> 
 						))
 					)}
 				</Grid>
