@@ -72,7 +72,9 @@ export const CanvasContextProvider = ({
 	}, [user]);
 
 	useEffect(() => {
-		if (isAuthenticated) getUser();
+		if (isAuthenticated) {
+			getUser();
+		}
 	}, [isAuthenticated, getUser]);
 
 	return (
