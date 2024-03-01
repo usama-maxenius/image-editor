@@ -55,7 +55,7 @@ const News = () => {
 	};
 
 	return (
-		<Box sx={{ mx: '3rem' }}>
+		<Box sx={{ mx: '3rem' , minHeight:"50vh", display:"flex", justifyContent:"space-between",alignItems:"center", flexDirection:"column"}}>
 			<Stack
 				direction='row'
 				spacing={1}
@@ -81,7 +81,8 @@ const News = () => {
 			</Stack>
 
 			{open && <InterestDialog open={open} handleClose={handleClose} />}
-
+				
+			
 			<Box sx={{ m: '3rem auto' }}>
 				<Grid
 					container
@@ -107,6 +108,15 @@ const News = () => {
 					)}
 				</Grid>
 			</Box>
+			<Typography sx={{
+			fontSize:"24px",
+			fontFamily:"Helvetica",
+			textAlign:"center",
+			color:"#E9295D"
+			}}>
+				You haven't chosen any interests yet! <br />
+				Please pick one that interests you.
+			</Typography>
 		</Box>
 	);
 };

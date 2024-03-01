@@ -14,11 +14,11 @@ const StyledContainer = styled(Box)(({}) => ({
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	height: '100vh',
+	height: '80vh',
 	backgroundColor: 'white',
 	color: 'white',
 	width: '100%',
-	marginTop: '20px',
+	marginTop: '10px',
 }));
 
 interface Props {
@@ -66,8 +66,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		<>
 			<Box>
 				{isAuthenticated ? (
-					<>
-						<StyledContainer>
+						<StyledContainer >
 							<Typography variant='h4' gutterBottom color='black'>
 								PASTE NEWS LINK URL
 							</Typography>
@@ -91,7 +90,6 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 								{loading && <CircularProgress size={24} color='inherit' />}
 							</Button>
 						</StyledContainer>
-					</>
 				) : (
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
