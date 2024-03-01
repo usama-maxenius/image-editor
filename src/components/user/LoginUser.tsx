@@ -1,9 +1,9 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import CheckIcon from "@mui/icons-material/Check";
-import myLogo from "../../../public/logo/logo.png";
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import CheckIcon from '@mui/icons-material/Check';
+import myLogo from '../../../public/logo/logo.png';
 import {
   Checkbox,
   CircularProgress,
@@ -17,18 +17,18 @@ import {
   Popover,
   Select,
   TextField,
-} from "@mui/material";
-import BusinessIcon from "@mui/icons-material/Business";
-import toast from "react-hot-toast";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { useAuth0 } from "@auth0/auth0-react";
-import { AUTH0_DOMAIN_ID } from "../../constants";
-import axios from "axios";
-import { ColorResult, SketchPicker } from "react-color";
-import { useCanvasContext } from "../../context/CanvasContext";
-import { uploadToCloudinary } from "../../services/cloudinary";
-import { useNavigate } from "react-router";
-import GradientIcon from "@mui/icons-material/Gradient";
+} from '@mui/material';
+import BusinessIcon from '@mui/icons-material/Business';
+import toast from 'react-hot-toast';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useAuth0 } from '@auth0/auth0-react';
+import { AUTH0_DOMAIN_ID } from '../../constants';
+import axios from 'axios';
+import { ColorResult, SketchPicker } from 'react-color';
+import { useCanvasContext } from '../../context/CanvasContext';
+import { uploadToCloudinary } from '../../services/cloudinary';
+import { useNavigate } from 'react-router';
+import GradientIcon from '@mui/icons-material/Gradient';
 interface Tag {
   name: string;
   icon: React.ReactNode;
@@ -50,19 +50,20 @@ interface UserMetaDataPayload {
 const LoginUser = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
-  const { userMetaData, updateIsUserMetaExist, updateUserMetaData } = useCanvasContext();
+  const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
+    useCanvasContext();
   const [isLoading, setIsLoading] = React.useState(false);
   const [userMetaDataPayload, setUserMetaDataPayload] =
     React.useState<UserMetaDataPayload>({
       company: {
-        name: "",
-        website: "",
-        color: "",
-        font: "",
+        name: '',
+        website: '',
+        color: '',
+        font: '',
         logo: null,
-        date: "",
-        tags: [""],
-        plan: "free",
+        date: '',
+        tags: [''],
+        plan: 'free',
       },
     });
 
@@ -71,14 +72,14 @@ const LoginUser = () => {
     return () => {
       setUserMetaDataPayload({
         company: {
-          name: "",
-          website: "",
-          color: "",
-          font: "",
+          name: '',
+          website: '',
+          color: '',
+          font: '',
           logo: null,
-          date: "",
-          tags: [""],
-          plan: "free",
+          date: '',
+          tags: [''],
+          plan: 'free',
         },
       });
     };
@@ -101,14 +102,14 @@ const LoginUser = () => {
 
   //-----------------two -------------
   const tags: Tag[] = [
-    { name: "Gaming", icon: <BusinessIcon sx={{ width: "20px" }} /> },
+    { name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
     {
-      name: "Xbox",
-      icon: <BusinessIcon sx={{ width: "20px" }} />,
+      name: 'Xbox',
+      icon: <BusinessIcon sx={{ width: '20px' }} />,
     },
-    { name: "Playstation", icon: <BusinessIcon sx={{ width: "20px" }} /> },
-    { name: "Virtual Reality", icon: <BusinessIcon sx={{ width: "20px" }} /> },
-    { name: "PC Gaming etc", icon: <BusinessIcon sx={{ width: "20px" }} /> },
+    { name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+    { name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+    { name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
   ];
 
   const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,8 +135,8 @@ const LoginUser = () => {
 
   const handleSubmitOne = async () => {
     const { company } = userMetaDataPayload;
-    if (company.date.trim() === "") {
-      toast.error("Please select a date and time");
+    if (company.date.trim() === '') {
+      toast.error('Please select a date and time');
       return;
     }
     if (company.tags.length !== 0) {
@@ -143,7 +144,7 @@ const LoginUser = () => {
 
       // handleNext();
     } else {
-      toast.error("Please enter a valid SelectedTag");
+      toast.error('Please enter a valid SelectedTag');
     }
   };
 
@@ -164,7 +165,7 @@ const LoginUser = () => {
           company: { ...company, logo: imgUrl },
         },
       };
-      console.log("🚀 ~ handleSubmit3 ~ data:", data)
+      console.log('🚀 ~ handleSubmit3 ~ data:', data);
 
       const accessToken = await getAccessTokenSilently();
 
@@ -172,33 +173,33 @@ const LoginUser = () => {
         const url = `https://${AUTH0_DOMAIN_ID}/api/v2/users/${user?.sub}`;
         const headers = {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
         const response = await axios.patch(url, data, {
           headers: headers,
         });
 
         if (response.status === 200) {
-          console.log("Data saved successfully" ,response?.data?.user_metadata);
-          toast.success("Data saved successfully");
+          console.log('Data saved successfully', response?.data?.user_metadata);
+          toast.success('Data saved successfully');
           setIsLoading(false);
           updateIsUserMetaExist(true);
-          updateUserMetaData(response?.data?.user_metadata)
-          navigate("/");
+          updateUserMetaData(response?.data?.user_metadata);
+          navigate('/');
         } else {
           setIsLoading(false);
-          console.error("Failed to save data:", response.data);
+          console.error('Failed to save data:', response.data);
         }
       } catch (error) {
         setIsLoading(false);
         if (error) {
-          console.error("Error response:", error);
+          console.error('Error response:', error);
         }
       }
 
       // handleNext();
     } else {
-      toast.error("Please enter a valid SelectedTag");
+      toast.error('Please enter a valid SelectedTag');
     }
   };
   //COLOR PICKER
@@ -234,7 +235,7 @@ const LoginUser = () => {
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? "color-popover" : undefined;
+  const id = open ? 'color-popover' : undefined;
 
   //----------
 
@@ -264,28 +265,28 @@ const LoginUser = () => {
         {activeStep === 0 && (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
             }}
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                width: { md: "520px", sm: "500px", xs: "80%" },
-                flexDirection: "column",
+                display: 'flex',
+                justifyContent: 'center',
+                width: { md: '520px', sm: '500px', xs: '80%' },
+                flexDirection: 'column',
                 p: 2,
                 boxShadow:
-                  "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+                  'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
               }}
             >
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "30px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: 'bold',
+                  fontSize: '30px',
+                  textAlign: 'center',
                   pb: 0.5,
                 }}
               >
@@ -294,40 +295,40 @@ const LoginUser = () => {
               <form onSubmit={handleSubmit1}>
                 <Box
                   sx={{
-                    display: "flex",
+                    display: 'flex',
                     gap: 2,
-                    flexDirection: "column",
+                    flexDirection: 'column',
                   }}
                 >
                   {/* Upload user photo */}
                   <Box
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     {userMetaDataPayload?.company?.logo ? (
                       <img
                         src={
-                          typeof userMetaDataPayload.company?.logo === "string"
+                          typeof userMetaDataPayload.company?.logo === 'string'
                             ? userMetaDataPayload.company?.logo
                             : URL.createObjectURL(
                                 userMetaDataPayload.company?.logo
                               )
                         }
                         alt="User Photo"
-                        width={"85px"}
-                        height={"85px"}
-                        style={{ marginLeft: "10px", borderRadius: "50%" }}
+                        width={'85px'}
+                        height={'85px'}
+                        style={{ marginLeft: '10px', borderRadius: '50%' }}
                       />
                     ) : (
                       <img
                         src={myLogo}
                         alt="User Photo"
-                        width={"100px"}
-                        height={"100px"}
-                        style={{ marginLeft: "10px" }}
+                        width={'100px'}
+                        height={'100px'}
+                        style={{ marginLeft: '10px' }}
                       />
                     )}
                   </Box>
@@ -351,7 +352,7 @@ const LoginUser = () => {
 
                   <div
                     style={{
-                      position: "relative",
+                      position: 'relative',
                     }}
                   >
                     <TextField
@@ -368,7 +369,7 @@ const LoginUser = () => {
                             <GradientIcon
                               sx={{
                                 color: userMetaDataPayload.company.color,
-                                cursor: "pointer",
+                                cursor: 'pointer',
                               }}
                             />
                           </InputAdornment>
@@ -378,14 +379,14 @@ const LoginUser = () => {
                     <Box
                       onClick={handleClick}
                       sx={{
-                        marginTop: "10px",
-                        width: { md: "50%", sm: "50%", xs: "40%" },
-                        height: "36px",
+                        marginTop: '10px',
+                        width: { md: '50%', sm: '50%', xs: '40%' },
+                        height: '36px',
                         backgroundColor: userMetaDataPayload.company.color,
-                        position: "absolute",
+                        position: 'absolute',
                         right: 10,
                         top: 0,
-                        cursor: "pointer",
+                        cursor: 'pointer',
                       }}
                     ></Box>
                     <Popover
@@ -394,8 +395,8 @@ const LoginUser = () => {
                       anchorEl={anchorEl}
                       onClose={handleClose}
                       anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
+                        vertical: 'bottom',
+                        horizontal: 'left',
                       }}
                     >
                       <SketchPicker
@@ -453,19 +454,19 @@ const LoginUser = () => {
 
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      border: "1px solid #C4C4C4",
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      border: '1px solid #C4C4C4',
                       py: 1,
                       backgroundColor: userMetaDataPayload.company.logo
-                        ? "#C4C4C4"
+                        ? '#C4C4C4'
                         : null,
                     }}
                   >
                     <label
                       htmlFor="upload-photo"
-                      style={{ display: "flex", alignItems: "center" }}
+                      style={{ display: 'flex', alignItems: 'center' }}
                     >
                       <input
                         id="upload-photo"
@@ -479,49 +480,49 @@ const LoginUser = () => {
                         // }
                         onChange={handleImage}
                         style={{
-                          position: "absolute",
-                          width: "1px",
-                          height: "1px",
-                          padding: "0",
-                          margin: "-1px",
-                          overflow: "hidden",
-                          clip: "rect(0, 0, 0, 0)",
-                          border: "0",
-                          cursor: "pointer",
+                          position: 'absolute',
+                          width: '1px',
+                          height: '1px',
+                          padding: '0',
+                          margin: '-1px',
+                          overflow: 'hidden',
+                          clip: 'rect(0, 0, 0, 0)',
+                          border: '0',
+                          cursor: 'pointer',
                         }}
                       />
 
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
+                          display: 'flex',
+                          alignItems: 'center',
+                          cursor: 'pointer',
                         }}
                       >
-                        <span style={{ marginRight: "0.5rem" }}>
+                        <span style={{ marginRight: '0.5rem' }}>
                           <i className="fas fa-file-image"></i>
                         </span>
-                        <CloudUploadIcon sx={{ fontSize: "36px" }} />
+                        <CloudUploadIcon sx={{ fontSize: '36px' }} />
                       </div>
                     </label>
                     <label
                       htmlFor="upload-photo"
                       style={{
-                        marginLeft: "0.5rem",
-                        maxWidth: "100%",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
+                        marginLeft: '0.5rem',
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
                       }}
                     >
                       {userMetaDataPayload.company.logo ? (
-                        typeof userMetaDataPayload.company.logo === "string" ? (
+                        typeof userMetaDataPayload.company.logo === 'string' ? (
                           userMetaDataPayload.company.logo
                         ) : (
                           <span>{userMetaDataPayload.company.logo.name}</span>
                         )
                       ) : (
-                        "Select File"
+                        'Select File'
                       )}
                     </label>
                   </Box>
@@ -531,9 +532,9 @@ const LoginUser = () => {
                     variant="contained"
                     color="primary"
                     sx={{
-                      textTransform: "none",
+                      textTransform: 'none',
                       py: 1.5,
-                      borderRadius: "20px",
+                      borderRadius: '20px',
                     }}
                   >
                     Continue
@@ -547,30 +548,30 @@ const LoginUser = () => {
         {activeStep === 1 && (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
             }}
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                width: { md: "520px", sm: "500px", xs: "80%" },
-                flexDirection: "column",
+                display: 'flex',
+                justifyContent: 'center',
+                width: { md: '520px', sm: '500px', xs: '80%' },
+                flexDirection: 'column',
                 gap: 3,
                 p: 2,
                 boxShadow:
-                  "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+                  'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
               }}
             >
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "30px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: 'bold',
+                  fontSize: '30px',
+                  textAlign: 'center',
                 }}
               >
                 Tell us about yourself
@@ -595,8 +596,8 @@ const LoginUser = () => {
                 // value={userMetaDataPayload.company.tags?.join(', ')}
                 value={
                   userMetaDataPayload.company.tags
-                    ? userMetaDataPayload.company.tags.slice(1).join(", ")
-                    : ""
+                    ? userMetaDataPayload.company.tags.slice(1).join(', ')
+                    : ''
                 }
                 onChange={(event) =>
                   setUserMetaDataPayload((prev) => ({
@@ -606,7 +607,7 @@ const LoginUser = () => {
                       // tags: event.target.value.split(' '),
                       tags: event.target.value
                         .trim()
-                        .split(",")
+                        .split(',')
                         .map((tag) => tag.trim()),
                     },
                   }))
@@ -616,9 +617,9 @@ const LoginUser = () => {
 
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
                   gap: 2,
                 }}
               >
@@ -626,30 +627,30 @@ const LoginUser = () => {
                   <Button
                     key={index}
                     sx={{
-                      marginRight: "10px",
-                      cursor: "pointer",
+                      marginRight: '10px',
+                      cursor: 'pointer',
                       color: userMetaDataPayload.company.tags.includes(
                         tag?.name
                       )
-                        ? "white"
-                        : "black", // Change text color based on selection
+                        ? 'white'
+                        : 'black', // Change text color based on selection
                       backgroundColor:
                         userMetaDataPayload.company.tags.includes(tag?.name)
-                          ? "#4B1248"
-                          : "transparent", // Highlight selected tags
-                      border: "1px solid",
-                      borderRadius: "20px",
+                          ? '#4B1248'
+                          : 'transparent', // Highlight selected tags
+                      border: '1px solid',
+                      borderRadius: '20px',
                       px: 2,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                       gap: 1,
-                      ":hover": {
+                      ':hover': {
                         color: userMetaDataPayload.company.tags.includes(
                           tag?.name
                         )
-                          ? "black"
-                          : "black",
+                          ? 'black'
+                          : 'black',
                         // backgroundColor :userMetaDataPayload.company.tags.includes(tag?.name)
                         // ? "#F0F0F0"
                         // : null,
@@ -666,9 +667,9 @@ const LoginUser = () => {
                 variant="contained"
                 onClick={handleSubmitOne}
                 sx={{
-                  textTransform: "none",
+                  textTransform: 'none',
                   py: 1.5,
-                  borderRadius: "20px",
+                  borderRadius: '20px',
                 }}
               >
                 Continue
@@ -680,38 +681,38 @@ const LoginUser = () => {
         {activeStep === 2 && (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
             }}
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: { md: "90%", sm: "95%", xs: "98%" },
-                flexDirection: "column",
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: { md: '90%', sm: '95%', xs: '98%' },
+                flexDirection: 'column',
                 gap: 3,
               }}
             >
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "30px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: 'bold',
+                  fontSize: '30px',
+                  textAlign: 'center',
                 }}
               >
                 Find the plane for you
               </Typography>
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "400",
-                  fontSize: "13px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: '400',
+                  fontSize: '13px',
+                  textAlign: 'center',
                 }}
               >
                 You can change at anytime
@@ -722,39 +723,39 @@ const LoginUser = () => {
                   <Box
                     sx={{
                       minHeight: 500,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexDirection: "column",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      flexDirection: 'column',
                       //  p:2,
-                      borderRadius: "30px",
-                      height: "100%",
+                      borderRadius: '30px',
+                      height: '100%',
 
                       boxShadow:
-                        "rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px",
+                        'rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px',
                     }}
                   >
                     <Box>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                           p: 2,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "free"
-                              ? "#502274"
-                              : "",
-                          borderRadius: "30px 30px 0px 0px",
+                            userMetaDataPayload?.company?.plan === 'free'
+                              ? '#502274'
+                              : '',
+                          borderRadius: '30px 30px 0px 0px',
                         }}
                       >
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
                             color:
-                              userMetaDataPayload?.company?.plan === "free"
-                                ? "white"
-                                : "",
+                              userMetaDataPayload?.company?.plan === 'free'
+                                ? 'white'
+                                : '',
                           }}
                         >
                           Free
@@ -764,17 +765,17 @@ const LoginUser = () => {
                           control={
                             <Checkbox
                               checked={
-                                userMetaDataPayload.company.plan === "free"
+                                userMetaDataPayload.company.plan === 'free'
                               }
                               onChange={() =>
                                 setUserMetaDataPayload((prev) => ({
                                   ...prev,
-                                  company: { ...prev.company, plan: "free" },
+                                  company: { ...prev.company, plan: 'free' },
                                 }))
                               }
                               sx={{
-                                "&.Mui-checked": {
-                                  color: "white",
+                                '&.Mui-checked': {
+                                  color: 'white',
                                 },
                               }}
                             />
@@ -787,14 +788,14 @@ const LoginUser = () => {
                           p: 2,
                           fontWeight: 600,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "free"
-                              ? "#502274"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'free'
+                              ? '#502274'
+                              : '',
 
                           color:
-                            userMetaDataPayload?.company?.plan === "free"
-                              ? "white"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'free'
+                              ? 'white'
+                              : '',
                         }}
                       >
                         For your personal Link tree
@@ -804,29 +805,29 @@ const LoginUser = () => {
                       <Typography
                         sx={{
                           p: 2,
-                          fontSize: "18px",
+                          fontSize: '18px',
                           fontWeight: 600,
-                          fontFamily: "Roboto",
+                          fontFamily: 'Roboto',
                         }}
                       >
                         For your personal Link tree
                       </Typography>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'flex-start',
+                          alignItems: 'center',
                           px: 2,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
                             py: 2,
                             pl: 0.5,
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
+                            fontFamily: 'Roboto',
                           }}
                         >
                           Unlimited Links
@@ -837,9 +838,9 @@ const LoginUser = () => {
                       <Box sx={{ p: 2 }}>
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
-                            fontFamily: "Roboto",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            fontFamily: 'Roboto',
                           }}
                         >
                           Free
@@ -847,9 +848,9 @@ const LoginUser = () => {
 
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
+                            fontFamily: 'Roboto',
                           }}
                         >
                           Free, Forever
@@ -863,38 +864,38 @@ const LoginUser = () => {
                   <Box
                     sx={{
                       minHeight: 500,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexDirection: "column",
-                      height: "100%",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      flexDirection: 'column',
+                      height: '100%',
 
-                      borderRadius: "30px",
+                      borderRadius: '30px',
                       boxShadow:
-                        "rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px",
+                        'rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px',
                     }}
                   >
                     <Box>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                           p: 2,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "starter"
-                              ? "#502274"
-                              : "",
-                          borderRadius: "30px 30px 0px 0px",
+                            userMetaDataPayload?.company?.plan === 'starter'
+                              ? '#502274'
+                              : '',
+                          borderRadius: '30px 30px 0px 0px',
                         }}
                       >
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
                             color:
-                              userMetaDataPayload?.company?.plan === "starter"
-                                ? "white"
-                                : "",
+                              userMetaDataPayload?.company?.plan === 'starter'
+                                ? 'white'
+                                : '',
                           }}
                         >
                           Starter
@@ -904,17 +905,17 @@ const LoginUser = () => {
                           control={
                             <Checkbox
                               checked={
-                                userMetaDataPayload.company.plan === "starter"
+                                userMetaDataPayload.company.plan === 'starter'
                               }
                               onChange={() =>
                                 setUserMetaDataPayload((prev) => ({
                                   ...prev,
-                                  company: { ...prev.company, plan: "starter" },
+                                  company: { ...prev.company, plan: 'starter' },
                                 }))
                               }
                               sx={{
-                                "&.Mui-checked": {
-                                  color: "white",
+                                '&.Mui-checked': {
+                                  color: 'white',
                                 },
                               }}
                             />
@@ -927,13 +928,13 @@ const LoginUser = () => {
                           p: 2,
                           fontWeight: 600,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "starter"
-                              ? "#502274"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'starter'
+                              ? '#502274'
+                              : '',
                           color:
-                            userMetaDataPayload?.company?.plan === "starter"
-                              ? "white"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'starter'
+                              ? 'white'
+                              : '',
                         }}
                       >
                         For growing influences
@@ -943,29 +944,29 @@ const LoginUser = () => {
                       <Typography
                         sx={{
                           p: 2,
-                          fontSize: "18px",
+                          fontSize: '18px',
                           fontWeight: 600,
-                          fontFamily: "Roboto",
+                          fontFamily: 'Roboto',
                         }}
                       >
                         For growing influences
                       </Typography>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'flex-start',
+                          alignItems: 'center',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Upgrade Style Options
@@ -973,18 +974,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Monetization support w/affiliate marketing tools
@@ -992,18 +993,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Scheduling
@@ -1011,18 +1012,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Audience insights
@@ -1033,9 +1034,9 @@ const LoginUser = () => {
                       <Box sx={{ p: 2 }}>
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
-                            fontFamily: "Roboto",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            fontFamily: 'Roboto',
                           }}
                         >
                           $4 USD
@@ -1043,10 +1044,10 @@ const LoginUser = () => {
 
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Per month, billed annually, or $5 billed monthly
@@ -1060,39 +1061,39 @@ const LoginUser = () => {
                   <Box
                     sx={{
                       minHeight: 500,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      flexDirection: "column",
-                      height: "100%",
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      flexDirection: 'column',
+                      height: '100%',
 
-                      borderRadius: "30px",
+                      borderRadius: '30px',
                       boxShadow:
-                        "rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px",
+                        'rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px',
                     }}
                   >
                     <Box>
                       <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                           p: 2,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "pro"
-                              ? "#502274"
-                              : "",
-                          borderRadius: "30px 30px 0px 0px",
+                            userMetaDataPayload?.company?.plan === 'pro'
+                              ? '#502274'
+                              : '',
+                          borderRadius: '30px 30px 0px 0px',
                         }}
                       >
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
                             // color: 'white',
                             color:
-                              userMetaDataPayload?.company?.plan === "pro"
-                                ? "white"
-                                : "",
+                              userMetaDataPayload?.company?.plan === 'pro'
+                                ? 'white'
+                                : '',
                           }}
                         >
                           Pro
@@ -1101,17 +1102,17 @@ const LoginUser = () => {
                           control={
                             <Checkbox
                               checked={
-                                userMetaDataPayload.company.plan === "pro"
+                                userMetaDataPayload.company.plan === 'pro'
                               }
                               onChange={() =>
                                 setUserMetaDataPayload((prev) => ({
                                   ...prev,
-                                  company: { ...prev.company, plan: "pro" },
+                                  company: { ...prev.company, plan: 'pro' },
                                 }))
                               }
                               sx={{
-                                "&.Mui-checked": {
-                                  color: "white",
+                                '&.Mui-checked': {
+                                  color: 'white',
                                 },
                               }}
                             />
@@ -1124,13 +1125,13 @@ const LoginUser = () => {
                           p: 2,
                           fontWeight: 600,
                           backgroundColor:
-                            userMetaDataPayload?.company?.plan === "pro"
-                              ? "#502274"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'pro'
+                              ? '#502274'
+                              : '',
                           color:
-                            userMetaDataPayload?.company?.plan === "pro"
-                              ? "white"
-                              : "",
+                            userMetaDataPayload?.company?.plan === 'pro'
+                              ? 'white'
+                              : '',
                         }}
                       >
                         For creators and businesses
@@ -1141,27 +1142,27 @@ const LoginUser = () => {
                       <Typography
                         sx={{
                           p: 2,
-                          fontSize: "18px",
+                          fontSize: '18px',
                           fontWeight: 600,
-                          fontFamily: "Roboto",
+                          fontFamily: 'Roboto',
                         }}
                       >
                         For creators and businesses
                       </Typography>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Advanced customization of buttons, themes, and fonts
@@ -1169,18 +1170,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Click, conversion, and revenue tracking
@@ -1188,18 +1189,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Upgraded customer support
@@ -1207,18 +1208,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Option to hide Linktree logo
@@ -1226,18 +1227,18 @@ const LoginUser = () => {
                       </Box>
                       <Box
                         sx={{
-                          display: "flex",
+                          display: 'flex',
                           px: 2,
                           pb: 1,
                         }}
                       >
-                        <CheckIcon sx={{ color: "#E04BED" }} />
+                        <CheckIcon sx={{ color: '#E04BED' }} />
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           Social platform integrations to automatically display
@@ -1249,9 +1250,9 @@ const LoginUser = () => {
                       <Box sx={{ p: 2 }}>
                         <Typography
                           sx={{
-                            fontSize: "24px",
-                            fontWeight: "bold",
-                            fontFamily: "Roboto",
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            fontFamily: 'Roboto',
                           }}
                         >
                           Free for 30 days
@@ -1259,10 +1260,10 @@ const LoginUser = () => {
 
                         <Typography
                           sx={{
-                            fontSize: "18px",
+                            fontSize: '18px',
                             fontWeight: 500,
-                            fontFamily: "Roboto",
-                            color: "#666666",
+                            fontFamily: 'Roboto',
+                            color: '#666666',
                           }}
                         >
                           $7.50 per month, billed annually, or $9 billed monthly
@@ -1276,11 +1277,11 @@ const LoginUser = () => {
                 variant="contained"
                 onClick={handleSubmit4}
                 sx={{
-                  textTransform: "none",
+                  textTransform: 'none',
                   p: 2,
-                  borderRadius: "20px",
+                  borderRadius: '20px',
 
-                  width: { md: "50%", sm: "70%", xs: "90%" },
+                  width: { md: '50%', sm: '70%', xs: '90%' },
                 }}
               >
                 Try Pro for free
@@ -1291,31 +1292,31 @@ const LoginUser = () => {
         {activeStep === 3 && (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
             }}
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
+                display: 'flex',
+                justifyContent: 'center',
                 // alignItems: "center",
-                width: { md: "520px", sm: "500px", xs: "80%" },
-                flexDirection: "column",
+                width: { md: '520px', sm: '500px', xs: '80%' },
+                flexDirection: 'column',
                 gap: 3,
                 p: 2,
                 boxShadow:
-                  "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px",
+                  'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
               }}
             >
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "bold",
-                  fontSize: "30px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: 'bold',
+                  fontSize: '30px',
+                  textAlign: 'center',
                   mt: 2,
                 }}
               >
@@ -1323,20 +1324,20 @@ const LoginUser = () => {
               </Typography>
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "400",
-                  fontSize: "13px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: '400',
+                  fontSize: '13px',
+                  textAlign: 'center',
                 }}
               >
                 To verify your account, click on the link sent to your inbox
               </Typography>
               <Typography
                 sx={{
-                  color: "black",
-                  fontWeight: "400",
-                  fontSize: "13px",
-                  textAlign: "center",
+                  color: 'black',
+                  fontWeight: '400',
+                  fontSize: '13px',
+                  textAlign: 'center',
                 }}
               >
                 ({user?.email})
@@ -1346,17 +1347,17 @@ const LoginUser = () => {
                 variant="contained"
                 onClick={handleSubmit3}
                 sx={{
-                  textTransform: "none",
+                  textTransform: 'none',
                   py: 1.5,
-                  borderRadius: "20px",
-                  position: "relative",
-                  width: "100%",
+                  borderRadius: '20px',
+                  position: 'relative',
+                  width: '100%',
                 }}
               >
                 {isLoading ? (
-                  <CircularProgress size={24} sx={{ color: "white" }} /> // Render CircularProgress while loading
+                  <CircularProgress size={24} sx={{ color: 'white' }} /> // Render CircularProgress while loading
                 ) : (
-                  "Continue"
+                  'Continue'
                 )}
               </Button>
             </Box>
