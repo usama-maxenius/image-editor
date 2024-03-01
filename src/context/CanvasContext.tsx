@@ -25,7 +25,7 @@ export const CanvasContextProvider = ({
 	const updateCanvasContext = (canvas: fabric.Canvas | null) =>
 		setCanvas(canvas);
 	const [scrapURL, setScrapURL] = useState('');
-	const { user, getAccessTokenSilently } = useAuth0();
+	const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
 	const [userMetaData, setUserMetaData] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isUserMetaExist, setIsUserMetaExist] = useState(false);
@@ -72,8 +72,8 @@ export const CanvasContextProvider = ({
 	}, [user]);
 
 	useEffect(() => {
-		getUser();
-	}, [getUser]);
+		if (isAuthenticated) getUser();
+	}, [isAuthenticated, getUser]);
 
 	return (
 		<CanvasContext.Provider
