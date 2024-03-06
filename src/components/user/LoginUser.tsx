@@ -29,10 +29,7 @@ import { useCanvasContext } from '../../context/CanvasContext';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { useNavigate } from 'react-router';
 import GradientIcon from '@mui/icons-material/Gradient';
-interface Tag {
-	name: string;
-	icon: React.ReactNode;
-}
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface UserMetaDataPayload {
 	company: {
@@ -45,6 +42,7 @@ interface UserMetaDataPayload {
 		logo3: File | null;
 		date: string;
 		tags: string[];
+		selectedTags: string[];
 		inputTagValue: '';
 		plan: string;
 	};
@@ -69,11 +67,23 @@ const LoginUser = () => {
 				logo2: null,
 				logo3: null,
 				date: '',
-				tags: [''],
+				selectedTags: [''],
+				tags: [
+					'Gaming',
+					'Xbox',
+					'Playstation',
+					'Virtual Reality',
+					'PC Gaming etc',
+				],
+
 				inputTagValue: '',
 				plan: 'free',
 			},
 		});
+	console.log(
+		'🚀 ~ handleTagClick ~ tags:',
+		userMetaDataPayload?.company?.selectedTags
+	);
 
 	React.useEffect(() => {
 		if (userMetaData?.company) setUserMetaDataPayload(userMetaData);
@@ -89,6 +99,8 @@ const LoginUser = () => {
 					logo3: null,
 					date: '',
 					tags: [''],
+					selectedTags: [''],
+					// tags: ['Gaming','Xbox','Playstation', 'Playstation', 'Virtual Reality', 'PC Gaming etc'],
 					inputTagValue: '',
 					plan: 'free',
 				},
@@ -112,16 +124,89 @@ const LoginUser = () => {
 	};
 
 	//-----------------two -------------
-	const tags: Tag[] = [
-		{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{
-			name: 'Xbox',
-			icon: <BusinessIcon sx={{ width: '20px' }} />,
-		},
-		{ name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-	];
+
+	// const handleAddTag = (newTag: any) => {
+	// 	if (
+	// 		newTag !== '' &&
+	// 		userMetaDataPayload.company.tags.length < 10 &&
+	// 		!userMetaDataPayload.company.tags.includes(newTag)
+	// 	) {
+	// 		setUserMetaDataPayload((prev) => ({
+	// 			...prev,
+	// 			company: {
+	// 				...prev.company,
+	// 				tags: [...prev.company.tags, newTag],
+	// 			},
+	// 		}));
+	// 	}
+	// };
+
+	// const handleAddTag = (newTag: any) => {
+	// 	console.log(
+	// 		'userMetaDataPayload.company.tags.length',
+	// 		userMetaDataPayload.company.tags.length
+	// 	);
+	// 	if (
+	// 		newTag !== '' &&
+	// 		userMetaDataPayload.company.tags.length < 10 &&
+	// 		!userMetaDataPayload.company.tags.includes(newTag)
+	// 	) {
+	// 		setUserMetaDataPayload((prev) => ({
+	// 			...prev,
+	// 			company: {
+	// 				...prev.company,
+	// 				tags: [...prev.company.tags, newTag],
+	// 			},
+	// 		}));
+	// 	} else if (userMetaDataPayload.company.tags.includes(newTag)) {
+	// 		toast.error('Tag already exists.');
+	// 	} else {
+	// 		toast.error('Maximum of 10 tags allowed.');
+	// 	}
+	// };
+	const handleAddTag = (newTag: any) => {
+		if (newTag !== '') {
+			// Check if the tag already exists in the list
+			const tagExists = userMetaDataPayload.company.tags.includes(newTag);
+
+			if (!tagExists) {
+				// Check if the maximum limit of 10 tags is reached
+				if (userMetaDataPayload.company.tags.length < 10) {
+					setUserMetaDataPayload((prev) => ({
+						...prev,
+						company: {
+							...prev.company,
+							tags: [...prev.company.tags, newTag],
+						},
+					}));
+				} else {
+					toast.error('Maximum of 10 tags allowed.');
+				}
+			} else {
+				toast.error('Tag already exists.');
+			}
+		} else {
+			toast.error('Tag cannot be empty.');
+		}
+	};
+
+	const handleKeyDown = (event: any) => {
+		if (event.key === 'Enter') {
+			const newTag = event.target.value.trim();
+			handleAddTag(newTag);
+			event.target.value = ''; // Clear the input field
+		}
+	};
+	// const tags: Tag[] = [
+	// 	{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{
+	// 		name: 'Xbox',
+	// 		icon: <BusinessIcon sx={{ width: '20px' }} />,
+	// 	},
+	// 	{ name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{ name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{ name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// ];
 
 	// const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 	// 	setUserMetaDataPayload((prev) => ({
@@ -133,16 +218,31 @@ const LoginUser = () => {
 	const handleTagClick = (tagName: string) => {
 		let tags = userMetaDataPayload.company.tags || [];
 		if (userMetaDataPayload.company.tags?.includes(tagName)) {
+			// Filter out the clicked tag correctly
 			tags = userMetaDataPayload.company.tags?.filter((tag) => tag !== tagName);
 		} else {
 			tags.push(tagName);
 		}
-
 		setUserMetaDataPayload((prev) => ({
 			...prev,
 			company: { ...prev.company, tags },
 		}));
 	};
+	// const handleTagClick = (tagName: string) => {
+	// 	let selectedTags = userMetaDataPayload.company.selectedTags || [];
+	// 	if (userMetaDataPayload.company.selectedTags?.includes(tagName)) {
+	// 		// Filter out the clicked tag correctly
+	// 		selectedTags = userMetaDataPayload.company.selectedTags?.filter(
+	// 			(tag) => tag !== tagName
+	// 		);
+	// 	} else {
+	// 		selectedTags.push(tagName);
+	// 	}
+	// 	setUserMetaDataPayload((prev) => ({
+	// 		...prev,
+	// 		company: { ...prev.company, selectedTags },
+	// 	}));
+	// };
 
 	const handleSubmitOne = async () => {
 		const { company } = userMetaDataPayload;
@@ -966,44 +1066,32 @@ const LoginUser = () => {
 								Playstation’, ‘Virtual Reality’ etc
 							</Typography>
 
-							{/* <TextField
-								id='datetime'
-								label='Preferred Date and Time'
-								type='datetime-local'
-								value={userMetaDataPayload.company.date}
-								required
-								onChange={handleDateTimeChange}
-								InputLabelProps={{
-									shrink: true,
-								}}
-							/> */}
 							<TextField
+								id='tag-input'
+								label='Enter tag'
+								onKeyDown={handleKeyDown}
+								fullWidth
+							/>
+							{/* <TextField
 								id='filled-basic'
 								variant='filled'
 								label='Select your interests'
 								placeholder='Click a tag to select'
-								// value={userMetaDataPayload.company.tags?.join(', ')}
-								value={
-									userMetaDataPayload.company.tags
-										? userMetaDataPayload.company.tags.slice(1).join(', ')
-										: ''
+								value={userMetaDataPayload.company.tags.join(', ')} // Display selected tags
+								onChange={(event) =>
+									setUserMetaDataPayload((prev) => ({
+										...prev,
+										company: {
+											...prev.company,
+											tags: event.target.value
+												.trim()
+												.split(',')
+												.map((tag) => tag.trim()),
+										},
+									}))
 								}
-								// onChange={handleInputChange}
-								// onChange={(event) =>
-								// 	setUserMetaDataPayload((prev) => ({
-								// 		...prev,
-								// 		company: {
-								// 			...prev.company,
-								// 			// tags: event.target.value.split(' '),
-								// 			tags: event.target.value
-								// 				.trim()
-								// 				.split(',')
-								// 				.map((tag) => tag.trim()),
-								// 		},
-								// 	}))
-								// }
 								required
-							/>
+							/> */}
 
 							<Box
 								sx={{
@@ -1013,19 +1101,17 @@ const LoginUser = () => {
 									gap: 2,
 								}}
 							>
-								{tags.map((tag, index) => (
+								{userMetaDataPayload?.company?.tags?.map((tag, index) => (
 									<Button
 										key={index}
 										sx={{
 											marginRight: '10px',
 											cursor: 'pointer',
-											color: userMetaDataPayload.company.tags.includes(
-												tag?.name
-											)
+											color: userMetaDataPayload.company.tags.includes(tag)
 												? 'white'
 												: 'black', // Change text color based on selection
 											backgroundColor:
-												userMetaDataPayload.company.tags.includes(tag?.name)
+												userMetaDataPayload.company.tags.includes(tag)
 													? '#4B1248'
 													: 'transparent', // Highlight selected tags
 											border: '1px solid',
@@ -1036,17 +1122,25 @@ const LoginUser = () => {
 											alignItems: 'center',
 											gap: 1,
 											':hover': {
-												color: userMetaDataPayload.company.tags.includes(
-													tag?.name
-												)
+												color: userMetaDataPayload.company.tags.includes(tag)
 													? 'black'
 													: 'black',
 											},
 										}}
-										onClick={() => handleTagClick(tag.name)}
+										onClick={() => handleTagClick(tag)}
 									>
-										{tag.icon}
-										{tag.name}
+										{tag && (
+											<>
+												<BusinessIcon sx={{ width: '20px' }} />
+												{tag}
+												<ClearIcon
+													sx={{ fontSize: '20px', color: '#4B1248' }}
+												/>
+												{userMetaDataPayload.company.selectedTags?.includes(
+													tag
+												)}
+											</>
+										)}
 									</Button>
 								))}
 							</Box>
