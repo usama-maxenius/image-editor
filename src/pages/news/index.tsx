@@ -64,7 +64,7 @@ const News = () => {
 
 	const { user, getAccessTokenSilently } = useAuth0();
 
-	const [activeTab, setActiveTab] = useState<number>(0);
+	const [activeTab, setActiveTab] = useState<string>('');
 	console.log('🚀 ~ News ~ activeTab:', activeTab);
 
 	const submitTabHandler = async (data: any) => {
@@ -141,6 +141,12 @@ const News = () => {
 
 	// }, [userMetaData]);
 
+	// const index = userMetaData?.interests?.indexOf(val);
+	// if (index !== undefined && index !== -1) {
+	// 	setActiveTab(index);
+	// }
+	// console.log('🚀 ~ handleDelete ~ index:', index);
+
 	const handleDelete = async (val: string) => {
 		const token = await getAccessTokenSilently();
 
@@ -154,6 +160,7 @@ const News = () => {
 				),
 			},
 		});
+		setNewsFeed(['']);
 		updateUserMetaData(userData?.user_metadata);
 	};
 
@@ -174,9 +181,7 @@ const News = () => {
 	};
 
 	const [value, setValue] = useState(0);
-
-	// const title = feed?.feed?.title;
-	// const text = title ? title.split('&gt;')[1]?.trim().toLowerCase() : '';
+	console.log('🚀 ~ News ~ value:', value);
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		event.preventDefault();
@@ -195,18 +200,20 @@ const News = () => {
 				<Button variant='contained' onClick={handleOpen}>
 					Add Interest
 				</Button>
-				{userMetaData?.interests?.map((interest: any) => (
+				{userMetaData?.interests?.map((interest: any, i: number) => (
 					<Chip
-						key={interest}
+						key={i}
+						// key={interest}
 						label={interest}
 						variant='outlined'
 						onDelete={() => handleDelete(interest)}
 					/>
 				))}
 
-				{userMetaData?.tags?.map((interest: any) => (
+				{userMetaData?.tags?.map((interest: any, i: number) => (
 					<Chip
-						key={interest?.tagName}
+						key={i}
+						// key={interest?.tagName}
 						label={interest?.tagName}
 						variant='outlined'
 						onDelete={() => handleDelete2(interest?.tagName)}
@@ -240,6 +247,8 @@ const News = () => {
 								value={value}
 								onChange={handleChange}
 								aria-label='basic tabs example'
+								variant='scrollable'
+								scrollButtons='auto'
 							>
 								{userMetaData?.interests?.map((interest: any, i: number) => {
 									return (
@@ -269,88 +278,95 @@ const News = () => {
 						</Box>
 					</Box>
 
-					{userMetaData?.interests.length !== 0
-						? userMetaData?.interests?.map((interest: any) => (
-								<CustomTabPanel key={interest} value={value} index={value}>
-									<>
-										{/* {interest} {value} */}
-										<Box sx={{ m: '3rem auto' }}>
-											<Grid
-												container
-												spacing={4}
-												justifyItems='center'
-												justifyContent='center'
-											>
-												{isLoading && newsFeed.length === 0 ? (
-													<Box
-														sx={{
-															display: 'flex',
-															height: '50vh',
-															alignItems: 'center',
-														}}
-													>
-														<Typography>Please Wait... </Typography> &nbsp;
-														&nbsp;
-														<CircularProgress />
-													</Box>
-												) : (
-													newsFeed?.map((feed, i) => (
-														<Grid item xs={6} md={6}>
-															<MultiActionAreaCard
-																key={i}
-																feed={feed}
-																updateScrapURL={updateScrapURL}
-															/>
-														</Grid>
-													))
-												)}
-											</Grid>
-										</Box>
-									</>
-									{/* )} */}
-								</CustomTabPanel>
-						  ))
-						: [' '].map((interest: any) => (
-								<CustomTabPanel key={interest} value={value} index={value}>
-									<>
-										{/* {interest} {value} */}
-										<Box sx={{ m: '3rem auto' }}>
-											<Grid
-												container
-												spacing={4}
-												justifyItems='center'
-												justifyContent='center'
-											>
-												{isLoading && newsFeed.length === 0 ? (
-													<Box
-														sx={{
-															display: 'flex',
-															height: '50vh',
-															alignItems: 'center',
-														}}
-													>
-														{/* <Typography>Please Wait... </Typography> &nbsp; */}
-														<Typography>Kindly Select Interest... </Typography>{' '}
-														&nbsp; &nbsp;
-														<CircularProgress />
-													</Box>
-												) : (
-													newsFeed?.map((feed, i) => (
-														<Grid item xs={6} md={6}>
-															<MultiActionAreaCard
-																key={i}
-																feed={feed}
-																updateScrapURL={updateScrapURL}
-															/>
-														</Grid>
-													))
-												)}
-											</Grid>
-										</Box>
-									</>
-									{/* )} */}
-								</CustomTabPanel>
-						  ))}
+					{userMetaData?.interests?.length !== 0
+						? userMetaData?.interests?.map((interest: any, i: number) => {
+								return (
+									<CustomTabPanel key={i} value={value} index={value}>
+										<>
+											<p style={{ display: 'none' }}>{interest}</p>
+
+											<Box sx={{ m: '3rem auto' }}>
+												<Grid
+													container
+													spacing={4}
+													justifyItems='center'
+													justifyContent='center'
+												>
+													{isLoading && newsFeed?.length === 0 ? (
+														<Box
+															sx={{
+																display: 'flex',
+																height: '50vh',
+																alignItems: 'center',
+															}}
+														>
+															<Typography>Please Wait... </Typography> &nbsp;
+															&nbsp;
+															<CircularProgress />
+														</Box>
+													) : (
+														newsFeed?.map((feed, i) => (
+															<Grid item xs={6} md={6}>
+																<MultiActionAreaCard
+																	key={i}
+																	feed={feed}
+																	updateScrapURL={updateScrapURL}
+																/>
+															</Grid>
+														))
+													)}
+												</Grid>
+											</Box>
+										</>
+										{/* )} */}
+									</CustomTabPanel>
+								);
+						  })
+						: [' '].map((interest: any) => {
+								return (
+									<CustomTabPanel key={interest} value={value} index={value}>
+										<>
+											{/* {interest} {value} */}
+											<Box sx={{ m: '3rem auto' }}>
+												<Grid
+													container
+													spacing={4}
+													justifyItems='center'
+													justifyContent='center'
+												>
+													{isLoading && newsFeed?.length === 0 ? (
+														<Box
+															sx={{
+																display: 'flex',
+																height: '50vh',
+																alignItems: 'center',
+															}}
+														>
+															{/* <Typography>Please Wait... </Typography> &nbsp; */}
+															<Typography>
+																Kindly Select Interest...{' '}
+															</Typography>{' '}
+															&nbsp; &nbsp;
+															<CircularProgress />
+														</Box>
+													) : (
+														newsFeed?.map((feed, i) => (
+															<Grid item xs={6} md={6}>
+																<MultiActionAreaCard
+																	key={i}
+																	feed={feed}
+																	updateScrapURL={updateScrapURL}
+																/>
+															</Grid>
+														))
+													)}
+												</Grid>
+											</Box>
+										</>
+										{/* )} */}
+									</CustomTabPanel>
+								);
+						  })}
 				</Box>
 			</Box>
 

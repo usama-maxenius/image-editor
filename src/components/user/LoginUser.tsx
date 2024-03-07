@@ -18,7 +18,7 @@ import {
 	Select,
 	TextField,
 } from '@mui/material';
-import BusinessIcon from '@mui/icons-material/Business';
+
 import toast from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -29,7 +29,6 @@ import { useCanvasContext } from '../../context/CanvasContext';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { useNavigate } from 'react-router';
 import GradientIcon from '@mui/icons-material/Gradient';
-import ClearIcon from '@mui/icons-material/Clear';
 
 interface UserMetaDataPayload {
 	company: {
@@ -164,39 +163,39 @@ const LoginUser = () => {
 	// 		toast.error('Maximum of 10 tags allowed.');
 	// 	}
 	// };
-	const handleAddTag = (newTag: any) => {
-		if (newTag !== '') {
-			// Check if the tag already exists in the list
-			const tagExists = userMetaDataPayload.company.tags.includes(newTag);
+	// const handleAddTag = (newTag: any) => {
+	// 	if (newTag !== '') {
+	// 		// Check if the tag already exists in the list
+	// 		const tagExists = userMetaDataPayload.company.tags.includes(newTag);
 
-			if (!tagExists) {
-				// Check if the maximum limit of 10 tags is reached
-				if (userMetaDataPayload.company.tags.length < 10) {
-					setUserMetaDataPayload((prev) => ({
-						...prev,
-						company: {
-							...prev.company,
-							tags: [...prev.company.tags, newTag],
-						},
-					}));
-				} else {
-					toast.error('Maximum of 10 tags allowed.');
-				}
-			} else {
-				toast.error('Tag already exists.');
-			}
-		} else {
-			toast.error('Tag cannot be empty.');
-		}
-	};
+	// 		if (!tagExists) {
+	// 			// Check if the maximum limit of 10 tags is reached
+	// 			if (userMetaDataPayload.company.tags.length < 10) {
+	// 				setUserMetaDataPayload((prev) => ({
+	// 					...prev,
+	// 					company: {
+	// 						...prev.company,
+	// 						tags: [...prev.company.tags, newTag],
+	// 					},
+	// 				}));
+	// 			} else {
+	// 				toast.error('Maximum of 10 tags allowed.');
+	// 			}
+	// 		} else {
+	// 			toast.error('Tag already exists.');
+	// 		}
+	// 	} else {
+	// 		toast.error('Tag cannot be empty.');
+	// 	}
+	// };
 
-	const handleKeyDown = (event: any) => {
-		if (event.key === 'Enter') {
-			const newTag = event.target.value.trim();
-			handleAddTag(newTag);
-			event.target.value = ''; // Clear the input field
-		}
-	};
+	// const handleKeyDown = (event: any) => {
+	// 	if (event.key === 'Enter') {
+	// 		const newTag = event.target.value.trim();
+	// 		handleAddTag(newTag);
+	// 		event.target.value = ''; // Clear the input field
+	// 	}
+	// };
 	// const tags: Tag[] = [
 	// 	{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
 	// 	{
@@ -215,19 +214,6 @@ const LoginUser = () => {
 	// 	}));
 	// };
 
-	const handleTagClick = (tagName: string) => {
-		let tags = userMetaDataPayload.company.tags || [];
-		if (userMetaDataPayload.company.tags?.includes(tagName)) {
-			// Filter out the clicked tag correctly
-			tags = userMetaDataPayload.company.tags?.filter((tag) => tag !== tagName);
-		} else {
-			tags.push(tagName);
-		}
-		setUserMetaDataPayload((prev) => ({
-			...prev,
-			company: { ...prev.company, tags },
-		}));
-	};
 	// const handleTagClick = (tagName: string) => {
 	// 	let selectedTags = userMetaDataPayload.company.selectedTags || [];
 	// 	if (userMetaDataPayload.company.selectedTags?.includes(tagName)) {
@@ -244,20 +230,20 @@ const LoginUser = () => {
 	// 	}));
 	// };
 
-	const handleSubmitOne = async () => {
-		const { company } = userMetaDataPayload;
-		if (company.date.trim() === '') {
-			toast.error('Please select a date and time');
-			return;
-		}
-		if (company.tags.length !== 0) {
-			handleNext();
+	// const handleSubmitOne = async () => {
+	// 	const { company } = userMetaDataPayload;
+	// 	if (company.date.trim() === '') {
+	// 		toast.error('Please select a date and time');
+	// 		return;
+	// 	}
+	// 	if (company.tags.length !== 0) {
+	// 		handleNext();
 
-			// handleNext();
-		} else {
-			toast.error('Please enter a valid SelectedTag');
-		}
-	};
+	// 		// handleNext();
+	// 	} else {
+	// 		toast.error('Please enter a valid SelectedTag');
+	// 	}
+	// };
 
 	//_____________________________________________________________________
 	const { user, getAccessTokenSilently } = useAuth0();
@@ -267,15 +253,31 @@ const LoginUser = () => {
 		const { company } = userMetaDataPayload;
 		setIsLoading(true);
 		let imgUrl = null;
-		if (company.logo) imgUrl = await uploadToCloudinary(company.logo as any);
+		let imgUrl2 = null;
+		let imgUrl3 = null;
 
+		if (company.logo) imgUrl = await uploadToCloudinary(company.logo as any);
+		if (company.logo2) imgUrl2 = await uploadToCloudinary(company.logo2 as any);
+		if (company.logo3) imgUrl3 = await uploadToCloudinary(company.logo3 as any);
 		if (company.tags.length !== 0) {
+			// const data = {
+			// 	user_metadata: {
+			// 		...userMetaData,
+			// 		company: { ...company, logo: imgUrl },
+			// 	},
+			// };
 			const data = {
 				user_metadata: {
 					...userMetaData,
-					company: { ...company, logo: imgUrl },
+					company: {
+						...company,
+						logo: imgUrl,
+						logo2: imgUrl2,
+						logo3: imgUrl3,
+					},
 				},
 			};
+
 			const accessToken = await getAccessTokenSilently();
 
 			try {
@@ -297,7 +299,7 @@ const LoginUser = () => {
 					navigate('/');
 				} else {
 					setIsLoading(false);
-					console.error('Failed to save data:', response.data);
+					console.error('Failed to save data:', response?.data);
 				}
 			} catch (error) {
 				setIsLoading(false);
@@ -433,7 +435,7 @@ const LoginUser = () => {
 								>
 									<TextField
 										name='userName'
-										label='Company/Brand/Social Media Account User Name'
+										label=' Company/Brand/Social Media Account User Name'
 										variant='outlined'
 										value={userMetaDataPayload.company.name}
 										onChange={(event) =>
@@ -456,7 +458,7 @@ const LoginUser = () => {
 									>
 										<TextField
 											id='color-field'
-											label='Choose a color'
+											label='Select the main color of your brand/logo'
 											value={userMetaDataPayload.company.color}
 											onChange={handleInputChange}
 											onClick={handleClick}
@@ -507,7 +509,7 @@ const LoginUser = () => {
 
 									<FormControl fullWidth variant='outlined'>
 										<InputLabel id='font-type-label'>
-											Select Font Type
+											Select font type
 										</InputLabel>
 										<Select
 											labelId='font-type-label'
@@ -577,11 +579,11 @@ const LoginUser = () => {
 												{userMetaDataPayload?.company?.logo ? (
 													<img
 														src={
-															typeof userMetaDataPayload.company?.logo ===
+															typeof userMetaDataPayload?.company?.logo ===
 															'string'
 																? userMetaDataPayload.company?.logo
-																: URL.createObjectURL(
-																		userMetaDataPayload.company?.logo
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo
 																  )
 														}
 														alt='User Photo'
@@ -687,7 +689,7 @@ const LoginUser = () => {
 																	whiteSpace: 'nowrap',
 																	overflow: 'hidden',
 																	textOverflow: 'ellipsis',
-																	border: '1px solid red',
+
 																	px: 2,
 																}}
 															>
@@ -695,7 +697,18 @@ const LoginUser = () => {
 															</Typography>
 														)
 													) : (
-														'Square logo'
+														<Typography
+															variant='body1'
+															sx={{
+																width: '70px',
+																whiteSpace: 'nowrap',
+																overflow: 'hidden',
+																textOverflow: 'ellipsis',
+																pr: 1,
+															}}
+														>
+															Square logo
+														</Typography>
 													)}
 												</label>
 											</Box>
@@ -719,11 +732,11 @@ const LoginUser = () => {
 												{userMetaDataPayload?.company?.logo2 ? (
 													<img
 														src={
-															typeof userMetaDataPayload.company?.logo2 ===
+															typeof userMetaDataPayload?.company?.logo2 ===
 															'string'
-																? userMetaDataPayload.company?.logo2
-																: URL.createObjectURL(
-																		userMetaDataPayload.company?.logo2
+																? userMetaDataPayload?.company?.logo2
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo2
 																  )
 														}
 														alt='User Photo'
@@ -874,11 +887,11 @@ const LoginUser = () => {
 												{userMetaDataPayload?.company?.logo3 ? (
 													<img
 														src={
-															typeof userMetaDataPayload.company?.logo3 ===
+															typeof userMetaDataPayload?.company?.logo3 ===
 															'string'
-																? userMetaDataPayload.company?.logo3
-																: URL.createObjectURL(
-																		userMetaDataPayload.company?.logo3
+																? userMetaDataPayload?.company?.logo3
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo3
 																  )
 														}
 														alt='User Photo'
@@ -1031,7 +1044,7 @@ const LoginUser = () => {
 					</Box>
 				)}
 
-				{activeStep === 1 && (
+				{/* {activeStep === 1 && (
 					<Box
 						sx={{
 							display: 'flex',
@@ -1072,26 +1085,7 @@ const LoginUser = () => {
 								onKeyDown={handleKeyDown}
 								fullWidth
 							/>
-							{/* <TextField
-								id='filled-basic'
-								variant='filled'
-								label='Select your interests'
-								placeholder='Click a tag to select'
-								value={userMetaDataPayload.company.tags.join(', ')} // Display selected tags
-								onChange={(event) =>
-									setUserMetaDataPayload((prev) => ({
-										...prev,
-										company: {
-											...prev.company,
-											tags: event.target.value
-												.trim()
-												.split(',')
-												.map((tag) => tag.trim()),
-										},
-									}))
-								}
-								required
-							/> */}
+							
 
 							<Box
 								sx={{
@@ -1157,9 +1151,9 @@ const LoginUser = () => {
 							</Button>
 						</Box>
 					</Box>
-				)}
+				)} */}
 
-				{activeStep === 2 && (
+				{activeStep === 1 && (
 					<Box
 						sx={{
 							display: 'flex',
@@ -1770,7 +1764,7 @@ const LoginUser = () => {
 						</Box>
 					</Box>
 				)}
-				{activeStep === 3 && (
+				{activeStep === 2 && (
 					<Box
 						sx={{
 							display: 'flex',
