@@ -43,9 +43,37 @@ const News = () => {
 	const { updateScrapURL, userMetaData, updateUserMetaData } =
 		useCanvasContext();
 
+	const isMobile = useMediaQuery('(max-width:600px)');
+	const tabStyles = {
+		minWidth: isMobile ? 'auto' : 120,
+		color: 'black',
+		'& .MuiButtonBase-root-MuiTab-root': {
+			minHeight: '20px',
+		},
+		'&.Mui-selected': {
+			color: 'white',
+			backgroundColor: '#4B1248',
+			borderRadius: '5px 5px',
+			minHeight: '20px',
+			height: '40px',
+		},
+		'& .MuiTabs-indicator': {
+			// backgroundColor: '#4B1248',
+		},
+	};
+
 	const { user, getAccessTokenSilently } = useAuth0();
 
+	const [activeTab, setActiveTab] = useState<number>(0);
+	console.log('🚀 ~ News ~ activeTab:', activeTab);
+
 	const submitTabHandler = async (data: any) => {
+		const index = userMetaData?.interests?.indexOf(data);
+		console.log('🚀 ~ submitTabHandler ~ index:', index);
+		if (index !== undefined && index !== -1) {
+			setActiveTab(index + data);
+		}
+
 		const newValue: any = rssOptions.find((option) => option.interest === data);
 		(async () => {
 			let feedsData: any[] = [];
@@ -66,12 +94,8 @@ const News = () => {
 	};
 
 	const submitTabHandler2 = async (data: any) => {
-		// console.log('data', data);
-		// const newValue: any = rssOptions.find((option) => option.interest === data);
 		(async () => {
 			let feedsData: any[] = [];
-
-			// for (const option of matchedOptions) {
 			await fetch(
 				`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(
 					data?.tagUrl
@@ -80,7 +104,7 @@ const News = () => {
 				.then((res) => res.json())
 				.then((data) => feedsData.push(data))
 				.catch(() => setIsLoading(false));
-			console.log('feedsData two', feedsData);
+
 			setNewsFeed(feedsData);
 			setIsLoading(false);
 		})();
@@ -109,13 +133,12 @@ const News = () => {
 	// 				.then((res) => res.json())
 	// 				.then((data) => feedsData.push(data))
 	// 				.catch(() => setIsLoading(false));
-	// 			console.log('option?.value', option?.value);
-	// 			console.log('matchedOptions--', matchedOptions);
+
 	// 		}
 	// 		setNewsFeed(feedsData);
 	// 		setIsLoading(false);
 	// 	})();
-	// 	console.log('🚀 ~ useEffect ~ matchedOptions:', matchedOptions);
+
 	// }, [userMetaData]);
 
 	const handleDelete = async (val: string) => {
@@ -134,8 +157,24 @@ const News = () => {
 		updateUserMetaData(userData?.user_metadata);
 	};
 
+	const handleDelete2 = async (val: string) => {
+		const token = await getAccessTokenSilently();
+
+		const userId = user?.sub as string;
+
+		const userData: any = await updateUserData(token, userId, {
+			user_metadata: {
+				...userMetaData,
+				tags: userMetaData?.tags?.filter(
+					(interest: any) => interest?.tagName !== val
+				),
+			},
+		});
+		updateUserMetaData(userData?.user_metadata);
+	};
+
 	const [value, setValue] = useState(0);
-	console.log('🚀 ~ submitTabHandler2 ~ value:', value);
+
 	// const title = feed?.feed?.title;
 	// const text = title ? title.split('&gt;')[1]?.trim().toLowerCase() : '';
 
@@ -164,6 +203,15 @@ const News = () => {
 						onDelete={() => handleDelete(interest)}
 					/>
 				))}
+
+				{userMetaData?.tags?.map((interest: any) => (
+					<Chip
+						key={interest?.tagName}
+						label={interest?.tagName}
+						variant='outlined'
+						onDelete={() => handleDelete2(interest?.tagName)}
+					/>
+				))}
 			</Stack>
 
 			<Box>
@@ -177,7 +225,17 @@ const News = () => {
 							mt: 2,
 						}}
 					>
-						<Box sx={{ borderBottom: 1, borderColor: 'divider', width: '80%' }}>
+						<Box
+							sx={{
+								borderBottom: 1,
+								borderColor: 'divider',
+								width: 'auto',
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								mt: 2,
+							}}
+						>
 							<Tabs
 								value={value}
 								onChange={handleChange}
@@ -190,6 +248,9 @@ const News = () => {
 											onClick={() => submitTabHandler(interest)}
 											{...a11yProps(i)}
 											key={i}
+											sx={{
+												...tabStyles,
+											}}
 										/>
 									);
 								})}
@@ -200,54 +261,96 @@ const News = () => {
 											onClick={() => submitTabHandler2(interest)}
 											{...a11yProps(i)}
 											key={i}
+											sx={tabStyles}
 										/>
 									);
 								})}
 							</Tabs>
 						</Box>
 					</Box>
-					{/* //interest: any, */}
-					{userMetaData?.interests?.map((interest: any) => {
-						return (
-							<CustomTabPanel key={interest} value={value} index={value}>
-								<>
-									{/* {interest} {value} */}
-									<Box sx={{ m: '3rem auto' }}>
-										<Grid
-											container
-											spacing={4}
-											justifyItems='center'
-											justifyContent='center'
-										>
-											{isLoading && newsFeed.length === 0 ? (
-												<Box
-													sx={{
-														display: 'flex',
-														height: '50vh',
-														alignItems: 'center',
-													}}
-												>
-													<Typography>Please Wait... </Typography> &nbsp; &nbsp;
-													<CircularProgress />
-												</Box>
-											) : (
-												newsFeed?.map((feed, i) => (
-													<Grid item xs={6} md={6}>
-														<MultiActionAreaCard
-															key={i}
-															feed={feed}
-															updateScrapURL={updateScrapURL}
-														/>
-													</Grid>
-												))
-											)}
-										</Grid>
-									</Box>
-								</>
-								{/* )} */}
-							</CustomTabPanel>
-						);
-					})}
+
+					{userMetaData?.interests.length !== 0
+						? userMetaData?.interests?.map((interest: any) => (
+								<CustomTabPanel key={interest} value={value} index={value}>
+									<>
+										{/* {interest} {value} */}
+										<Box sx={{ m: '3rem auto' }}>
+											<Grid
+												container
+												spacing={4}
+												justifyItems='center'
+												justifyContent='center'
+											>
+												{isLoading && newsFeed.length === 0 ? (
+													<Box
+														sx={{
+															display: 'flex',
+															height: '50vh',
+															alignItems: 'center',
+														}}
+													>
+														<Typography>Please Wait... </Typography> &nbsp;
+														&nbsp;
+														<CircularProgress />
+													</Box>
+												) : (
+													newsFeed?.map((feed, i) => (
+														<Grid item xs={6} md={6}>
+															<MultiActionAreaCard
+																key={i}
+																feed={feed}
+																updateScrapURL={updateScrapURL}
+															/>
+														</Grid>
+													))
+												)}
+											</Grid>
+										</Box>
+									</>
+									{/* )} */}
+								</CustomTabPanel>
+						  ))
+						: [' '].map((interest: any) => (
+								<CustomTabPanel key={interest} value={value} index={value}>
+									<>
+										{/* {interest} {value} */}
+										<Box sx={{ m: '3rem auto' }}>
+											<Grid
+												container
+												spacing={4}
+												justifyItems='center'
+												justifyContent='center'
+											>
+												{isLoading && newsFeed.length === 0 ? (
+													<Box
+														sx={{
+															display: 'flex',
+															height: '50vh',
+															alignItems: 'center',
+														}}
+													>
+														{/* <Typography>Please Wait... </Typography> &nbsp; */}
+														<Typography>Kindly Select Interest... </Typography>{' '}
+														&nbsp; &nbsp;
+														<CircularProgress />
+													</Box>
+												) : (
+													newsFeed?.map((feed, i) => (
+														<Grid item xs={6} md={6}>
+															<MultiActionAreaCard
+																key={i}
+																feed={feed}
+																updateScrapURL={updateScrapURL}
+															/>
+														</Grid>
+													))
+												)}
+											</Grid>
+										</Box>
+									</>
+									{/* )} */}
+								</CustomTabPanel>
+						  ))}
 				</Box>
 			</Box>
 
@@ -329,6 +432,7 @@ import {
 	Tab,
 	Tabs,
 	TextField,
+	useMediaQuery,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCanvasContext } from '../../context/CanvasContext';
@@ -534,8 +638,6 @@ function InterestDialog({ open, handleClose }: any) {
 	const { userMetaData, updateUserMetaData } = useCanvasContext();
 	const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
 
-	// console.log('userMetaData', userMetaData);
-
 	useEffect(() => {
 		const interests = userMetaData?.interests || [];
 		const matchedOptions = interestOptions.filter((option) =>
@@ -544,13 +646,9 @@ function InterestDialog({ open, handleClose }: any) {
 		setSelectedOptions(matchedOptions);
 	}, [userMetaData]);
 
-	const handleSelectChange = (
-		newValue: MultiValue<any>
-		// actionMeta: ActionMeta<any>
-	) => {
-		// Extract options from newValue
+	const handleSelectChange = (newValue: MultiValue<any>) => {
 		const options = newValue as any[];
-		// Filter out duplicate options
+
 		const uniqueOptions = options.filter(
 			(option, index, self) =>
 				index ===
@@ -578,12 +676,12 @@ function InterestDialog({ open, handleClose }: any) {
 			return;
 		}
 
-		const interests = selectedOptions?.map((option) => option.value);
+		const interests = selectedOptions?.map((option) => option?.value);
 		const payload = {
 			user_metadata: {
 				...userMetaData,
 				interests: userMetaData?.interests
-					? [...userMetaData.interests, ...interests]
+					? [...userMetaData?.interests, ...interests]
 					: [...interests],
 			},
 		};
@@ -596,8 +694,6 @@ function InterestDialog({ open, handleClose }: any) {
 	// add and url
 	const [tagName, setTagName] = useState<string>('');
 	const [tagUrl, setTagUrl] = useState<string>('');
-	// const [tags, setTags] = useState<Tag[]>([]);
-	// console.log('🚀 ~ InterestDialog ~ tags:', tags);
 
 	const handleAddUrl = async () => {
 		const token = await getAccessTokenSilently();
@@ -605,10 +701,6 @@ function InterestDialog({ open, handleClose }: any) {
 			return;
 		}
 		if (tagName.trim() !== '' && tagUrl.trim() !== '') {
-			// const newTag: Tag = { name: tagName, urls: [tagUrl] };
-			// setTags([...tags, newTag]);
-			// const newData = [...tags, newTag];
-
 			const newData = {
 				tagName: tagName,
 				tagUrl: tagUrl,
@@ -618,7 +710,7 @@ function InterestDialog({ open, handleClose }: any) {
 				user_metadata: {
 					...userMetaData,
 					tags: userMetaData?.tags
-						? [...userMetaData.tags, newData]
+						? [...userMetaData?.tags, newData]
 						: [newData],
 				},
 			};
@@ -630,61 +722,6 @@ function InterestDialog({ open, handleClose }: any) {
 			setTagUrl('');
 		}
 	};
-
-	// 	const handleRemoveUrl = async (tagName: string, tagUrl: string, index: number) => {
-	//     const token: string = await getAccessTokenSilently(); // Assuming getAccessTokenSilently() returns a string
-	//     if (!user?.sub) {
-	//         return;
-	//     }
-	//     const newData: any[] | undefined = userMetaData?.tags.filter((item: any) => !(item.tagName === tagName && item.tagUrl === tagUrl));
-
-	//     const updatedTags: any[] | undefined = newData?.splice(index, 1); // Corrected the type for updatedTags
-
-	//     const payload = {
-	//         user_metadata: {
-	//             ...userMetaData,
-	//             tags: userMetaData?.tags
-	//                 ? [...userMetaData.tags, ...updatedTags]
-	//                 : updatedTags ? [updatedTags] : [],
-	// 								undefined
-	//         },
-	//     };
-
-	//     const userData: any = await updateUserData(token, user?.sub, payload);
-	//     updateUserMetaData(userData?.user_metadata);
-	// };
-
-	// const payload = {
-	// 	user_metadata: {
-	// 		...userMetaData,
-	// 		tags: userMetaData?.tags
-	// 			? [...userMetaData.tags, updatedTags]
-	// 			: [updatedTags],
-	// 	},
-	// };
-
-	// updateUserData(token, user?.sub, payload);
-
-	// const [tagName, setTagName] = useState<string>('');
-	// const [currentTagUrls, setCurrentTagUrls] = useState<string[]>([]);
-	// const [tags, setTags] = useState<Tag[]>([]);
-	// console.log('🚀 ~ InterestDialog ~ tags:', tags);
-
-	// const handleAddUrl = () => {
-	// 	if (currentTagUrls.length > 0) {
-	// 		const existingTagIndex = tags.findIndex((tag) => tag.name === tagName);
-	// 		if (existingTagIndex !== -1) {
-	// 			const updatedTags = [...tags];
-	// 			updatedTags[existingTagIndex].urls.push(...currentTagUrls);
-	// 			setTags(updatedTags);
-	// 		} else {
-	// 			const newTag: Tag = { name: tagName, urls: [...currentTagUrls] };
-	// 			setTags([...tags, newTag]);
-	// 		}
-	// 		setCurrentTagUrls([]);
-	// 		setTagName('');
-	// 	}
-	// };
 
 	return (
 		<Dialog
@@ -729,21 +766,6 @@ function InterestDialog({ open, handleClose }: any) {
 							}}
 						/>
 
-						{/* <TextField
-							fullWidth
-							label='Add Interests URLs (press Enter after each URL)'
-							variant='outlined'
-							placeholder='Enter tag URLs (press Enter after each URL)'
-							value={currentTagUrls.join(',')}
-							onChange={(e) => setCurrentTagUrls(e.target.value.split(','))}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									e.preventDefault();
-									handleAddUrl();
-								}
-							}}
-							required
-						/> */}
 						<TextField
 							fullWidth
 							label='Add Interests URL'
@@ -816,7 +838,7 @@ function InterestDialog({ open, handleClose }: any) {
 													fontSize: '24px',
 												}}
 											>
-												{tag.tagName}
+												{tag?.tagName}
 											</Typography>
 											<a
 												href={tag?.tagUrl}
