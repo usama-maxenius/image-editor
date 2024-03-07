@@ -18,7 +18,7 @@ import {
 	Select,
 	TextField,
 } from '@mui/material';
-import BusinessIcon from '@mui/icons-material/Business';
+
 import toast from 'react-hot-toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -29,10 +29,6 @@ import { useCanvasContext } from '../../context/CanvasContext';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { useNavigate } from 'react-router';
 import GradientIcon from '@mui/icons-material/Gradient';
-interface Tag {
-	name: string;
-	icon: React.ReactNode;
-}
 
 interface UserMetaDataPayload {
 	company: {
@@ -41,8 +37,12 @@ interface UserMetaDataPayload {
 		color: string;
 		font: string;
 		logo: File | null;
+		logo2: File | null;
+		logo3: File | null;
 		date: string;
 		tags: string[];
+		selectedTags: string[];
+		inputTagValue: '';
 		plan: string;
 	};
 }
@@ -52,7 +52,9 @@ const LoginUser = () => {
 	const [skipped, setSkipped] = React.useState(new Set<number>());
 	const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
 		useCanvasContext();
+
 	const [isLoading, setIsLoading] = React.useState(false);
+
 	const [userMetaDataPayload, setUserMetaDataPayload] =
 		React.useState<UserMetaDataPayload>({
 			company: {
@@ -61,11 +63,26 @@ const LoginUser = () => {
 				color: '',
 				font: '',
 				logo: null,
+				logo2: null,
+				logo3: null,
 				date: '',
-				tags: [''],
+				selectedTags: [''],
+				tags: [
+					'Gaming',
+					'Xbox',
+					'Playstation',
+					'Virtual Reality',
+					'PC Gaming etc',
+				],
+
+				inputTagValue: '',
 				plan: 'free',
 			},
 		});
+	console.log(
+		'🚀 ~ handleTagClick ~ tags:',
+		userMetaDataPayload?.company?.selectedTags
+	);
 
 	React.useEffect(() => {
 		if (userMetaData?.company) setUserMetaDataPayload(userMetaData);
@@ -77,8 +94,13 @@ const LoginUser = () => {
 					color: '',
 					font: '',
 					logo: null,
+					logo2: null,
+					logo3: null,
 					date: '',
 					tags: [''],
+					selectedTags: [''],
+					// tags: ['Gaming','Xbox','Playstation', 'Playstation', 'Virtual Reality', 'PC Gaming etc'],
+					inputTagValue: '',
 					plan: 'free',
 				},
 			});
@@ -101,52 +123,127 @@ const LoginUser = () => {
 	};
 
 	//-----------------two -------------
-	const tags: Tag[] = [
-		{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{
-			name: 'Xbox',
-			icon: <BusinessIcon sx={{ width: '20px' }} />,
-		},
-		{ name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-		{ name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
-	];
 
-	const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setUserMetaDataPayload((prev) => ({
-			...prev,
-			company: { ...prev.company, date: event.target.value },
-		}));
-	};
+	// const handleAddTag = (newTag: any) => {
+	// 	if (
+	// 		newTag !== '' &&
+	// 		userMetaDataPayload.company.tags.length < 10 &&
+	// 		!userMetaDataPayload.company.tags.includes(newTag)
+	// 	) {
+	// 		setUserMetaDataPayload((prev) => ({
+	// 			...prev,
+	// 			company: {
+	// 				...prev.company,
+	// 				tags: [...prev.company.tags, newTag],
+	// 			},
+	// 		}));
+	// 	}
+	// };
 
-	const handleTagClick = (tagName: string) => {
-		let tags = userMetaDataPayload.company.tags || [];
-		if (userMetaDataPayload.company.tags?.includes(tagName)) {
-			tags = userMetaDataPayload.company.tags?.filter((tag) => tag !== tagName);
-		} else {
-			tags.push(tagName);
-		}
+	// const handleAddTag = (newTag: any) => {
+	// 	console.log(
+	// 		'userMetaDataPayload.company.tags.length',
+	// 		userMetaDataPayload.company.tags.length
+	// 	);
+	// 	if (
+	// 		newTag !== '' &&
+	// 		userMetaDataPayload.company.tags.length < 10 &&
+	// 		!userMetaDataPayload.company.tags.includes(newTag)
+	// 	) {
+	// 		setUserMetaDataPayload((prev) => ({
+	// 			...prev,
+	// 			company: {
+	// 				...prev.company,
+	// 				tags: [...prev.company.tags, newTag],
+	// 			},
+	// 		}));
+	// 	} else if (userMetaDataPayload.company.tags.includes(newTag)) {
+	// 		toast.error('Tag already exists.');
+	// 	} else {
+	// 		toast.error('Maximum of 10 tags allowed.');
+	// 	}
+	// };
+	// const handleAddTag = (newTag: any) => {
+	// 	if (newTag !== '') {
+	// 		// Check if the tag already exists in the list
+	// 		const tagExists = userMetaDataPayload.company.tags.includes(newTag);
 
-		setUserMetaDataPayload((prev) => ({
-			...prev,
-			company: { ...prev.company, tags },
-		}));
-	};
+	// 		if (!tagExists) {
+	// 			// Check if the maximum limit of 10 tags is reached
+	// 			if (userMetaDataPayload.company.tags.length < 10) {
+	// 				setUserMetaDataPayload((prev) => ({
+	// 					...prev,
+	// 					company: {
+	// 						...prev.company,
+	// 						tags: [...prev.company.tags, newTag],
+	// 					},
+	// 				}));
+	// 			} else {
+	// 				toast.error('Maximum of 10 tags allowed.');
+	// 			}
+	// 		} else {
+	// 			toast.error('Tag already exists.');
+	// 		}
+	// 	} else {
+	// 		toast.error('Tag cannot be empty.');
+	// 	}
+	// };
 
-	const handleSubmitOne = async () => {
-		const { company } = userMetaDataPayload;
-		if (company.date.trim() === '') {
-			toast.error('Please select a date and time');
-			return;
-		}
-		if (company.tags.length !== 0) {
-			handleNext();
+	// const handleKeyDown = (event: any) => {
+	// 	if (event.key === 'Enter') {
+	// 		const newTag = event.target.value.trim();
+	// 		handleAddTag(newTag);
+	// 		event.target.value = ''; // Clear the input field
+	// 	}
+	// };
+	// const tags: Tag[] = [
+	// 	{ name: 'Gaming', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{
+	// 		name: 'Xbox',
+	// 		icon: <BusinessIcon sx={{ width: '20px' }} />,
+	// 	},
+	// 	{ name: 'Playstation', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{ name: 'Virtual Reality', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// 	{ name: 'PC Gaming etc', icon: <BusinessIcon sx={{ width: '20px' }} /> },
+	// ];
 
-			// handleNext();
-		} else {
-			toast.error('Please enter a valid SelectedTag');
-		}
-	};
+	// const handleDateTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	// 	setUserMetaDataPayload((prev) => ({
+	// 		...prev,
+	// 		company: { ...prev.company, date: event.target.value },
+	// 	}));
+	// };
+
+	// const handleTagClick = (tagName: string) => {
+	// 	let selectedTags = userMetaDataPayload.company.selectedTags || [];
+	// 	if (userMetaDataPayload.company.selectedTags?.includes(tagName)) {
+	// 		// Filter out the clicked tag correctly
+	// 		selectedTags = userMetaDataPayload.company.selectedTags?.filter(
+	// 			(tag) => tag !== tagName
+	// 		);
+	// 	} else {
+	// 		selectedTags.push(tagName);
+	// 	}
+	// 	setUserMetaDataPayload((prev) => ({
+	// 		...prev,
+	// 		company: { ...prev.company, selectedTags },
+	// 	}));
+	// };
+
+	// const handleSubmitOne = async () => {
+	// 	const { company } = userMetaDataPayload;
+	// 	if (company.date.trim() === '') {
+	// 		toast.error('Please select a date and time');
+	// 		return;
+	// 	}
+	// 	if (company.tags.length !== 0) {
+	// 		handleNext();
+
+	// 		// handleNext();
+	// 	} else {
+	// 		toast.error('Please enter a valid SelectedTag');
+	// 	}
+	// };
 
 	//_____________________________________________________________________
 	const { user, getAccessTokenSilently } = useAuth0();
@@ -156,16 +253,30 @@ const LoginUser = () => {
 		const { company } = userMetaDataPayload;
 		setIsLoading(true);
 		let imgUrl = null;
-		if (company.logo) imgUrl = await uploadToCloudinary(company.logo as any);
+		let imgUrl2 = null;
+		let imgUrl3 = null;
 
+		if (company.logo) imgUrl = await uploadToCloudinary(company.logo as any);
+		if (company.logo2) imgUrl2 = await uploadToCloudinary(company.logo2 as any);
+		if (company.logo3) imgUrl3 = await uploadToCloudinary(company.logo3 as any);
 		if (company.tags.length !== 0) {
+			// const data = {
+			// 	user_metadata: {
+			// 		...userMetaData,
+			// 		company: { ...company, logo: imgUrl },
+			// 	},
+			// };
 			const data = {
 				user_metadata: {
 					...userMetaData,
-					company: { ...company, logo: imgUrl },
+					company: {
+						...company,
+						logo: imgUrl,
+						logo2: imgUrl2,
+						logo3: imgUrl3,
+					},
 				},
 			};
-			console.log('🚀 ~ handleSubmit3 ~ data:', data);
 
 			const accessToken = await getAccessTokenSilently();
 
@@ -180,7 +291,7 @@ const LoginUser = () => {
 				});
 
 				if (response.status === 200) {
-					console.log('Data saved successfully', response?.data?.user_metadata);
+					// console.log('Data saved successfully', response?.data?.user_metadata);
 					toast.success('Data saved successfully');
 					setIsLoading(false);
 					updateIsUserMetaExist(true);
@@ -188,7 +299,7 @@ const LoginUser = () => {
 					navigate('/');
 				} else {
 					setIsLoading(false);
-					console.error('Failed to save data:', response.data);
+					console.error('Failed to save data:', response?.data);
 				}
 			} catch (error) {
 				setIsLoading(false);
@@ -247,16 +358,34 @@ const LoginUser = () => {
 		e.preventDefault();
 		handleNext();
 	};
-
 	const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (event.target.files === null) {
-			return;
+		if (event.target.files && event.target.files.length > 0) {
+			const file = event.target.files[0];
+			setUserMetaDataPayload((prev) => ({
+				...prev,
+				company: { ...prev.company, logo: file as any },
+			}));
 		}
-		const file = event.target.files[0];
-		setUserMetaDataPayload((prev) => ({
-			...prev,
-			company: { ...prev.company, logo: file as any },
-		}));
+	};
+
+	const handleImage2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files.length > 0) {
+			const file = event.target.files[0];
+			setUserMetaDataPayload((prev) => ({
+				...prev,
+				company: { ...prev.company, logo2: file as any },
+			}));
+		}
+	};
+
+	const handleImage3 = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files.length > 0) {
+			const file = event.target.files[0];
+			setUserMetaDataPayload((prev) => ({
+				...prev,
+				company: { ...prev.company, logo3: file as any },
+			}));
+		}
 	};
 
 	return (
@@ -276,7 +405,8 @@ const LoginUser = () => {
 								justifyContent: 'center',
 								width: { md: '520px', sm: '500px', xs: '80%' },
 								flexDirection: 'column',
-								p: 2,
+								px: 2,
+								py: 1.5,
 								boxShadow:
 									'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
 							}}
@@ -285,12 +415,15 @@ const LoginUser = () => {
 								sx={{
 									color: 'black',
 									fontWeight: 'bold',
-									fontSize: '30px',
+									fontSize: '12px',
 									textAlign: 'center',
-									pb: 0.5,
+									mb: 2,
+									// border: '1px solid',
 								}}
 							>
-								Tell us about yourself
+								Lets setup your profile (you can change this later). If you have
+								more than one brand, enter your main brands details for now and
+								we will add your other accounts later’
 							</Typography>
 							<form onSubmit={handleSubmit1}>
 								<Box
@@ -300,41 +433,9 @@ const LoginUser = () => {
 										flexDirection: 'column',
 									}}
 								>
-									{/* Upload user photo */}
-									<Box
-										sx={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-										}}
-									>
-										{userMetaDataPayload?.company?.logo ? (
-											<img
-												src={
-													typeof userMetaDataPayload.company?.logo === 'string'
-														? userMetaDataPayload.company?.logo
-														: URL.createObjectURL(
-																userMetaDataPayload.company?.logo
-														  )
-												}
-												alt='User Photo'
-												width={'85px'}
-												height={'85px'}
-												style={{ marginLeft: '10px', borderRadius: '50%' }}
-											/>
-										) : (
-											<img
-												src={myLogo}
-												alt='User Photo'
-												width={'100px'}
-												height={'100px'}
-												style={{ marginLeft: '10px' }}
-											/>
-										)}
-									</Box>
 									<TextField
 										name='userName'
-										label='Company/Brand/Social Media Account User Name'
+										label=' Company/Brand/Social Media Account User Name'
 										variant='outlined'
 										value={userMetaDataPayload.company.name}
 										onChange={(event) =>
@@ -357,7 +458,7 @@ const LoginUser = () => {
 									>
 										<TextField
 											id='color-field'
-											label='Choose a color'
+											label='Select the main color of your brand/logo'
 											value={userMetaDataPayload.company.color}
 											onChange={handleInputChange}
 											onClick={handleClick}
@@ -408,7 +509,7 @@ const LoginUser = () => {
 
 									<FormControl fullWidth variant='outlined'>
 										<InputLabel id='font-type-label'>
-											Select Font Type
+											Select font type
 										</InputLabel>
 										<Select
 											labelId='font-type-label'
@@ -449,82 +550,480 @@ const LoginUser = () => {
 											}))
 										}
 										fullWidth
-										// required
 									/>
 
 									<Box
 										sx={{
 											display: 'flex',
-											justifyContent: 'center',
+											justifyContent: 'space-between',
 											alignItems: 'center',
-											border: '1px solid #C4C4C4',
-											py: 1,
-											backgroundColor: userMetaDataPayload.company.logo
-												? '#C4C4C4'
-												: null,
+											flexWrap: 'wrap',
 										}}
 									>
-										<label
-											htmlFor='upload-photo'
-											style={{ display: 'flex', alignItems: 'center' }}
-										>
-											<input
-												id='upload-photo'
-												type='file'
-												name='userPhoto'
-												accept='image/png, image/jpeg'
-												// required={
-												// 	!(userMetaDataPayload.company?.logo as any)?.includes(
-												// 		'https'
-												// 	)
-												// }
-												onChange={handleImage}
-												style={{
-													position: 'absolute',
-													width: '1px',
-													height: '1px',
-													padding: '0',
-													margin: '-1px',
-													overflow: 'hidden',
-													clip: 'rect(0, 0, 0, 0)',
-													border: '0',
-													cursor: 'pointer',
-												}}
-											/>
-
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													cursor: 'pointer',
-												}}
-											>
-												<span style={{ marginRight: '0.5rem' }}>
-													<i className='fas fa-file-image'></i>
-												</span>
-												<CloudUploadIcon sx={{ fontSize: '36px' }} />
-											</div>
-										</label>
-										<label
-											htmlFor='upload-photo'
-											style={{
-												marginLeft: '0.5rem',
-												maxWidth: '100%',
-												overflow: 'hidden',
-												whiteSpace: 'nowrap',
-												textOverflow: 'ellipsis',
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												flexDirection: 'column',
+												gap: 2,
 											}}
 										>
-											{userMetaDataPayload.company.logo ? (
-												typeof userMetaDataPayload.company.logo === 'string' ? (
-													userMetaDataPayload.company.logo
+											<Box
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+												}}
+											>
+												{userMetaDataPayload?.company?.logo ? (
+													<img
+														src={
+															typeof userMetaDataPayload?.company?.logo ===
+															'string'
+																? userMetaDataPayload.company?.logo
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo
+																  )
+														}
+														alt='User Photo'
+														width={'85px'}
+														height={'85px'}
+														style={{ marginLeft: '10px', borderRadius: '20px' }}
+													/>
 												) : (
-													<span>{userMetaDataPayload.company.logo.name}</span>
-												)
-											) : (
-												'Select File'
-											)}
-										</label>
+													<img
+														src={myLogo}
+														alt='User Photo'
+														width={'70px'}
+														height={'70px'}
+														style={{ marginLeft: '10px' }}
+													/>
+												)}
+											</Box>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													border: '1px solid #C4C4C4',
+													py: 0.7,
+													borderRadius: '20px',
+													cursor: 'pointer',
+													backgroundColor: userMetaDataPayload.company.logo3
+														? '#C4C4C4'
+														: null,
+													'&: hover': {
+														backgroundColor: '#4B1248',
+														color: '#FFFFFF',
+													},
+												}}
+											>
+												<label
+													htmlFor='upload-photo'
+													style={{ display: 'flex', alignItems: 'center' }}
+												>
+													<input
+														id='upload-photo'
+														type='file'
+														name='userPhoto'
+														accept='image/png, image/jpeg'
+														onChange={handleImage}
+														style={{
+															position: 'absolute',
+															width: '1px',
+															height: '1px',
+															padding: '0',
+															margin: '-1px',
+															overflow: 'hidden',
+															clip: 'rect(0, 0, 0, 0)',
+															border: '0',
+															cursor: 'pointer',
+														}}
+													/>
+
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															cursor: 'pointer',
+														}}
+													>
+														<span style={{ marginRight: '0.5rem' }}>
+															<i className='fas fa-file-image'></i>
+														</span>
+														<CloudUploadIcon sx={{ fontSize: '36px' }} />
+													</div>
+												</label>
+												<label
+													htmlFor='upload-photo'
+													style={{
+														marginLeft: '0.5rem',
+														maxWidth: '100%',
+														overflow: 'hidden',
+														whiteSpace: 'nowrap',
+														textOverflow: 'ellipsis',
+													}}
+												>
+													{userMetaDataPayload.company.logo ? (
+														typeof userMetaDataPayload.company.logo ===
+														'string' ? (
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '70px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+																	pr: 1,
+																}}
+															>
+																{userMetaDataPayload.company.logo}
+															</Typography>
+														) : (
+															// <span>
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '50px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+
+																	px: 2,
+																}}
+															>
+																{userMetaDataPayload.company.logo.name}
+															</Typography>
+														)
+													) : (
+														<Typography
+															variant='body1'
+															sx={{
+																width: '70px',
+																whiteSpace: 'nowrap',
+																overflow: 'hidden',
+																textOverflow: 'ellipsis',
+																pr: 1,
+															}}
+														>
+															Square logo
+														</Typography>
+													)}
+												</label>
+											</Box>
+										</Box>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												flexDirection: 'column',
+												gap: 2,
+											}}
+										>
+											<Box
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+												}}
+											>
+												{userMetaDataPayload?.company?.logo2 ? (
+													<img
+														src={
+															typeof userMetaDataPayload?.company?.logo2 ===
+															'string'
+																? userMetaDataPayload?.company?.logo2
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo2
+																  )
+														}
+														alt='User Photo'
+														width={'85px'}
+														height={'85px'}
+														style={{ marginLeft: '10px', borderRadius: '20px' }}
+													/>
+												) : (
+													<img
+														src={myLogo}
+														alt='User Photo'
+														width={'70px'}
+														height={'70px'}
+														style={{
+															marginLeft: '10px',
+															border: '1px solid',
+															padding: '5px',
+														}}
+													/>
+												)}
+											</Box>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													border: '1px solid #C4C4C4',
+													py: 0.7,
+													borderRadius: '20px',
+													cursor: 'pointer',
+													backgroundColor: userMetaDataPayload.company.logo3
+														? '#C4C4C4'
+														: null,
+													'&: hover': {
+														backgroundColor: '#4B1248',
+														color: '#FFFFFF',
+													},
+												}}
+											>
+												<label
+													htmlFor='upload-photo2'
+													style={{ display: 'flex', alignItems: 'center' }}
+												>
+													<input
+														id='upload-photo2'
+														type='file'
+														name='userPhoto'
+														accept='image/png, image/jpeg'
+														onChange={handleImage2}
+														style={{
+															position: 'absolute',
+															width: '1px',
+															height: '1px',
+															padding: '0',
+															margin: '-1px',
+															overflow: 'hidden',
+															clip: 'rect(0, 0, 0, 0)',
+															border: '0',
+															cursor: 'pointer',
+														}}
+													/>
+
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															cursor: 'pointer',
+														}}
+													>
+														<span style={{ marginRight: '0.5rem' }}>
+															<i className='fas fa-file-image'></i>
+														</span>
+														<CloudUploadIcon sx={{ fontSize: '36px' }} />
+													</div>
+												</label>
+												<label
+													htmlFor='upload-photo2'
+													style={{
+														marginLeft: '0.5rem',
+														maxWidth: '100%',
+														overflow: 'hidden',
+														whiteSpace: 'nowrap',
+														textOverflow: 'ellipsis',
+													}}
+												>
+													{userMetaDataPayload.company.logo2 ? (
+														typeof userMetaDataPayload.company.logo2 ===
+														'string' ? (
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '70px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+																	pr: 1,
+																}}
+															>
+																{userMetaDataPayload.company.logo2}
+															</Typography>
+														) : (
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '70px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+																	pr: 1,
+																}}
+															>
+																{userMetaDataPayload.company.logo2.name}
+															</Typography>
+														)
+													) : (
+														<Typography
+															variant='body1'
+															sx={{
+																width: '70px',
+																whiteSpace: 'nowrap',
+																overflow: 'hidden',
+																textOverflow: 'ellipsis',
+																pr: 1,
+															}}
+														>
+															Rectangular Logo
+														</Typography>
+													)}
+												</label>
+											</Box>
+										</Box>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												flexDirection: 'column',
+												gap: 2,
+											}}
+										>
+											<Box
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+												}}
+											>
+												{userMetaDataPayload?.company?.logo3 ? (
+													<img
+														src={
+															typeof userMetaDataPayload?.company?.logo3 ===
+															'string'
+																? userMetaDataPayload?.company?.logo3
+																: URL?.createObjectURL(
+																		userMetaDataPayload?.company?.logo3
+																  )
+														}
+														alt='User Photo'
+														width={'85px'}
+														height={'85px'}
+														style={{ marginLeft: '10px', borderRadius: '20px' }}
+													/>
+												) : (
+													<img
+														src={myLogo}
+														alt='User Photo'
+														width={'70px'}
+														height={'70px'}
+														style={{
+															marginLeft: '10px',
+															border: '1px solid',
+															padding: '5px',
+														}}
+													/>
+												)}
+											</Box>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'center',
+													alignItems: 'center',
+													border: '1px solid #C4C4C4',
+													py: 0.7,
+													borderRadius: '20px',
+													cursor: 'pointer',
+													backgroundColor: userMetaDataPayload.company.logo3
+														? '#C4C4C4'
+														: null,
+													'&: hover': {
+														backgroundColor: '#4B1248',
+														color: '#FFFFFF',
+													},
+												}}
+											>
+												<label
+													htmlFor='upload-photo3'
+													style={{ display: 'flex', alignItems: 'center' }}
+												>
+													<input
+														id='upload-photo3'
+														type='file'
+														name='userPhoto'
+														accept='image/png, image/jpeg'
+														onChange={handleImage3}
+														style={{
+															position: 'absolute',
+															width: '1px',
+															height: '1px',
+															padding: '0',
+															margin: '-1px',
+															overflow: 'hidden',
+															clip: 'rect(0, 0, 0, 0)',
+															border: '0',
+															cursor: 'pointer',
+														}}
+													/>
+
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															cursor: 'pointer',
+														}}
+													>
+														<span style={{ marginRight: '0.5rem' }}>
+															<i className='fas fa-file-image'></i>
+														</span>
+														<CloudUploadIcon sx={{ fontSize: '36px' }} />
+													</div>
+												</label>
+												<label
+													htmlFor='upload-photo3'
+													style={{
+														marginLeft: '0.5rem',
+														maxWidth: '100%',
+														overflow: 'hidden',
+														whiteSpace: 'nowrap',
+														textOverflow: 'ellipsis',
+													}}
+												>
+													{userMetaDataPayload.company.logo3 ? (
+														typeof userMetaDataPayload.company.logo3 ===
+														'string' ? (
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '70px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+																	pr: 1,
+																}}
+															>
+																{userMetaDataPayload.company.logo3}
+															</Typography>
+														) : (
+															<Typography
+																variant='body1'
+																sx={{
+																	width: '70px',
+																	whiteSpace: 'nowrap',
+																	overflow: 'hidden',
+																	textOverflow: 'ellipsis',
+																	pr: 1,
+																}}
+															>
+																{userMetaDataPayload.company.logo3.name}
+															</Typography>
+															// </span>
+														)
+													) : (
+														<Typography
+															variant='body1'
+															sx={{
+																width: '70px',
+																whiteSpace: 'nowrap',
+																overflow: 'hidden',
+																textOverflow: 'ellipsis',
+																pr: 1,
+															}}
+														>
+															User Profile
+														</Typography>
+													)}
+												</label>
+											</Box>
+										</Box>
 									</Box>
 
 									<Button
@@ -545,7 +1044,7 @@ const LoginUser = () => {
 					</Box>
 				)}
 
-				{activeStep === 1 && (
+				{/* {activeStep === 1 && (
 					<Box
 						sx={{
 							display: 'flex',
@@ -570,50 +1069,23 @@ const LoginUser = () => {
 								sx={{
 									color: 'black',
 									fontWeight: 'bold',
-									fontSize: '30px',
+									fontSize: '12px',
 									textAlign: 'center',
 								}}
 							>
-								Tell us about yourself
+								Tell us about the news you want to receive. Use the fields below
+								to enter up to 10 keywords relevant to your niche. For example,
+								if you post about gaming, you might enter ‘Gaming’, ‘Xbox’,
+								Playstation’, ‘Virtual Reality’ etc
 							</Typography>
 
 							<TextField
-								id='datetime'
-								label='Preferred Date and Time'
-								type='datetime-local'
-								value={userMetaDataPayload.company.date}
-								required
-								onChange={handleDateTimeChange}
-								InputLabelProps={{
-									shrink: true,
-								}}
+								id='tag-input'
+								label='Enter tag'
+								onKeyDown={handleKeyDown}
+								fullWidth
 							/>
-							<TextField
-								id='filled-basic'
-								variant='filled'
-								label='Tell us your name'
-								placeholder='Click a tag to select'
-								// value={userMetaDataPayload.company.tags?.join(', ')}
-								value={
-									userMetaDataPayload.company.tags
-										? userMetaDataPayload.company.tags.slice(1).join(', ')
-										: ''
-								}
-								onChange={(event) =>
-									setUserMetaDataPayload((prev) => ({
-										...prev,
-										company: {
-											...prev.company,
-											// tags: event.target.value.split(' '),
-											tags: event.target.value
-												.trim()
-												.split(',')
-												.map((tag) => tag.trim()),
-										},
-									}))
-								}
-								required
-							/>
+							
 
 							<Box
 								sx={{
@@ -623,19 +1095,17 @@ const LoginUser = () => {
 									gap: 2,
 								}}
 							>
-								{tags.map((tag, index) => (
+								{userMetaDataPayload?.company?.tags?.map((tag, index) => (
 									<Button
 										key={index}
 										sx={{
 											marginRight: '10px',
 											cursor: 'pointer',
-											color: userMetaDataPayload.company.tags.includes(
-												tag?.name
-											)
+											color: userMetaDataPayload.company.tags.includes(tag)
 												? 'white'
 												: 'black', // Change text color based on selection
 											backgroundColor:
-												userMetaDataPayload.company.tags.includes(tag?.name)
+												userMetaDataPayload.company.tags.includes(tag)
 													? '#4B1248'
 													: 'transparent', // Highlight selected tags
 											border: '1px solid',
@@ -646,20 +1116,25 @@ const LoginUser = () => {
 											alignItems: 'center',
 											gap: 1,
 											':hover': {
-												color: userMetaDataPayload.company.tags.includes(
-													tag?.name
-												)
+												color: userMetaDataPayload.company.tags.includes(tag)
 													? 'black'
 													: 'black',
-												// backgroundColor :userMetaDataPayload.company.tags.includes(tag?.name)
-												// ? "#F0F0F0"
-												// : null,
 											},
 										}}
-										onClick={() => handleTagClick(tag.name)}
+										onClick={() => handleTagClick(tag)}
 									>
-										{tag.icon}
-										{tag.name}
+										{tag && (
+											<>
+												<BusinessIcon sx={{ width: '20px' }} />
+												{tag}
+												<ClearIcon
+													sx={{ fontSize: '20px', color: '#4B1248' }}
+												/>
+												{userMetaDataPayload.company.selectedTags?.includes(
+													tag
+												)}
+											</>
+										)}
 									</Button>
 								))}
 							</Box>
@@ -676,9 +1151,9 @@ const LoginUser = () => {
 							</Button>
 						</Box>
 					</Box>
-				)}
+				)} */}
 
-				{activeStep === 2 && (
+				{activeStep === 1 && (
 					<Box
 						sx={{
 							display: 'flex',
@@ -1289,7 +1764,7 @@ const LoginUser = () => {
 						</Box>
 					</Box>
 				)}
-				{activeStep === 3 && (
+				{activeStep === 2 && (
 					<Box
 						sx={{
 							display: 'flex',

@@ -241,11 +241,11 @@ export const rssOptions = [
 	// 	label: 'Politico (Top 10 Blogs)',
 	// 	interest: 'politics',
 	// },
-	{
-		value: 'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml',
-		label: 'HuffPost (Politics)',
-		interest: 'politics',
-	},
+	// {
+	// 	value: 'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml',
+	// 	label: 'HuffPost (Politics)',
+	// 	interest: 'politics',
+	// },
 	{
 		value: 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
 		label: 'CNN (All Politics)',
@@ -1397,26 +1397,26 @@ export const rssOptions = [
 	// 	label: 'Entertainment Weekly Latest',
 	// 	interest: 'entertainment',
 	// },
-	{
-		value: 'http://grantland.com/hollywood-prospectus/feed/',
-		label: 'Grantland Hollywood Prospectus',
-		interest: 'entertainment',
-	},
-	{
-		value: 'http://www.latimes.com/entertainment/rss2.0.xml',
-		label: 'Los Angeles Times Entertainment',
-		interest: 'entertainment',
-	},
-	{
-		value: 'http://feeds.feedburner.com/nymag/vulture',
-		label: 'NYMag Vulture',
-		interest: 'entertainment',
-	},
-	{
-		value: 'http://www.newyorker.com/feed/culture',
-		label: 'New Yorker Culture',
-		interest: 'entertainment',
-	},
+	// {
+	// 	value: 'http://grantland.com/hollywood-prospectus/feed/',
+	// 	label: 'Grantland Hollywood Prospectus',
+	// 	interest: 'entertainment',
+	// },
+	// {
+	// 	value: 'http://www.latimes.com/entertainment/rss2.0.xml',
+	// 	label: 'Los Angeles Times Entertainment',
+	// 	interest: 'entertainment',
+	// },
+	// {
+	// 	value: 'http://feeds.feedburner.com/nymag/vulture',
+	// 	label: 'NYMag Vulture',
+	// 	interest: 'entertainment',
+	// },
+	// {
+	// 	value: 'http://www.newyorker.com/feed/culture',
+	// 	label: 'New Yorker Culture',
+	// 	interest: 'entertainment',
+	// },
 	{
 		value: 'http://www.buzzfeed.com/tvandmovies.xml',
 		label: 'BuzzFeed TV & Movies',
