@@ -1,3 +1,4 @@
+
 import {
   Button,
   Typography,
@@ -31,13 +32,16 @@ const StyledContainer = styled(Box)(({}) => ({
   color: "white",
   width: "100%",
   marginTop: "20px",
+
 }));
 
 interface Props {
   setScrappedData: Dispatch<SetStateAction<APIResponse | undefined>>;
   updateStep: Dispatch<SetStateAction<number>>;
 }
+
 function LandingPage({ setScrappedData, updateStep }: Props) {
+
   const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0();
   const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -209,6 +213,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
       </Box>
     </>
   );
+
 }
 
 export default LandingPage;

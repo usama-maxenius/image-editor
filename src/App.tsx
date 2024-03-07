@@ -1,3 +1,4 @@
+
 import LandingPage from "./pages/landing page/landingPage";
 import Templates from "./pages/templates/templates";
 import { ThemeProvider } from "@mui/material/styles";
@@ -65,6 +66,7 @@ function App() {
     </ThemeProvider>
     </>
   );
+
 }
 
 export default App;

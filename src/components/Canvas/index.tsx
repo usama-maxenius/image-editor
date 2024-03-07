@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { Typography, Box, IconButton, Stack } from "@mui/material";
@@ -1543,6 +1544,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       </div>
     );
   }
+
 );
 
 export default Canvas;

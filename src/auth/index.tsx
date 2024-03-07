@@ -1,7 +1,9 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { AUTH0_CLIENT_ID, AUTH0_DOMAIN_ID, AUTH0_AUDIENCE_ID } from "../constants";
+
 
 interface Props {
   children: React.ReactNode;
@@ -17,6 +19,7 @@ console.log("🚀 ~ Auth0ProviderWithNavigate ~ id:-----", id)
   if (!(AUTH0_DOMAIN_ID && AUTH0_CLIENT_ID && AUTH0_AUDIENCE_ID)) {
     return null;
   }
+
 
   return (
     <Auth0Provider
@@ -40,6 +43,7 @@ console.log("🚀 ~ Auth0ProviderWithNavigate ~ id:-----", id)
       {children}
     </Auth0Provider>
   );
+
 };
 
 export default Auth0ProviderWithNavigate;
