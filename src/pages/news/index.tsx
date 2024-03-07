@@ -45,21 +45,8 @@ const News = () => {
 
 	const { user, getAccessTokenSilently } = useAuth0();
 
-	// const selecedInterests = () => {
-	// 	const interests = userMetaData?.interests || [];
-
-	// 	return interests?.map((interest: any) => {
-	// 		return rssOptions.find((option) => option.interest === interest);
-	// 	});
-	// };
-
 	const submitTabHandler = async (data: any) => {
 		const newValue: any = rssOptions.find((option) => option.interest === data);
-
-		// let feedsData: any[] = [];
-
-		// const matchedOptions = selecedInterests();
-
 		(async () => {
 			let feedsData: any[] = [];
 
@@ -77,6 +64,35 @@ const News = () => {
 			setIsLoading(false);
 		})();
 	};
+
+	const submitTabHandler2 = async (data: any) => {
+		// console.log('data', data);
+		// const newValue: any = rssOptions.find((option) => option.interest === data);
+		(async () => {
+			let feedsData: any[] = [];
+
+			// for (const option of matchedOptions) {
+			await fetch(
+				`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(
+					data?.tagUrl
+				)}&api_key=yolb35wkfczfs6xdjzb1bracablicibpftnj7svf`
+			)
+				.then((res) => res.json())
+				.then((data) => feedsData.push(data))
+				.catch(() => setIsLoading(false));
+			console.log('feedsData two', feedsData);
+			setNewsFeed(feedsData);
+			setIsLoading(false);
+		})();
+	};
+
+	// const selecedInterests = () => {
+	// 	const interests = userMetaData?.interests || [];
+
+	// 	return interests?.map((interest: any) => {
+	// 		return rssOptions.find((option) => option.interest === interest);
+	// 	});
+	// };
 
 	// useEffect(() => {
 	// 	const matchedOptions = selecedInterests();
@@ -119,6 +135,7 @@ const News = () => {
 	};
 
 	const [value, setValue] = useState(0);
+	console.log('🚀 ~ submitTabHandler2 ~ value:', value);
 	// const title = feed?.feed?.title;
 	// const text = title ? title.split('&gt;')[1]?.trim().toLowerCase() : '';
 
@@ -126,6 +143,7 @@ const News = () => {
 		event.preventDefault();
 		setValue(newValue);
 	};
+
 	return (
 		<>
 			<Stack
@@ -175,15 +193,25 @@ const News = () => {
 										/>
 									);
 								})}
+								{userMetaData?.tags?.map((interest: any, i: number) => {
+									return (
+										<Tab
+											label={interest?.tagName}
+											onClick={() => submitTabHandler2(interest)}
+											{...a11yProps(i)}
+											key={i}
+										/>
+									);
+								})}
 							</Tabs>
 						</Box>
 					</Box>
 					{/* //interest: any, */}
-					{userMetaData?.interests?.map((i: number) => {
+					{userMetaData?.interests?.map((interest: any) => {
 						return (
-							<CustomTabPanel key={i} value={value} index={i}>
+							<CustomTabPanel key={interest} value={value} index={value}>
 								<>
-									{/* {interest} */}
+									{/* {interest} {value} */}
 									<Box sx={{ m: '3rem auto' }}>
 										<Grid
 											container
