@@ -8,15 +8,17 @@ import Auth0ProviderWithNavigate from './auth/index.tsx';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './components/theme/theme';
 
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<BrowserRouter>
 		<Auth0ProviderWithNavigate>
-			<ThemeProvider theme={theme}>
-				<CanvasContextProvider>
-					<App />
-					<Toaster position='top-right' />
-				</CanvasContextProvider>
-			</ThemeProvider>
+
+			<CanvasContextProvider>
+				<App />
+				
+				<Toaster position='top-right' />
+			</CanvasContextProvider>
+
 		</Auth0ProviderWithNavigate>
 	</BrowserRouter>
 );
