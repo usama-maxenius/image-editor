@@ -654,7 +654,8 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
 	[`& .${tooltipClasses.tooltip}`]: {
 		backgroundColor: '#f5f5f9',
 		color: 'rgba(0, 0, 0, 0.87)',
-		maxWidth: 220,
+		// maxWidth: 220,
+		maxWidth: '500px',
 		fontSize: theme.typography.pxToRem(12),
 		border: '1px solid #dadde9',
 	},
@@ -771,17 +772,52 @@ function InterestDialog({ open, handleClose }: any) {
 			<DialogContent
 				sx={{ minHeight: '300px', minWidth: { xs: '100%', md: '400px' } }}
 			>
-				<Box>
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
 					{userMetaData?.tags?.map((tag: any, index: number) => (
 						<HtmlTooltip
 							key={index}
 							title={
 								<React.Fragment>
-									<b>{tag?.tagName}</b>
+									{/* <b>{tag?.tagName}</b>
 									<br />
 									<u>
 										{'URL'} {tag?.tagUrl}
-									</u>
+									</u> */}
+									<Typography>
+										Lorem ipsum dolor sit amet consectetur adipisicing elit.
+										Maxime mollitia, molestiae quas vel sint commodi repudiandae
+										consequuntur voluptatum laborum numquam blanditiis harum
+										quisquam eius sed odit fugiat iusto fuga praesentium optio,
+										eaque rerum! Provident similique accusantium nemo autem.
+										Veritatis obcaecati tenetur iure eius earum ut molestias
+										architecto voluptate aliquam nihil, eveniet aliquid culpa
+										officia aut! Impedit sit sunt quaerat, odit, tenetur error,
+										harum nesciunt ipsum debitis quas aliquid. Reprehenderit,
+										quia. Quo neque error repudiandae fuga? Ipsa laudantium
+										molestias eos sapiente officiis modi at sunt excepturi
+										expedita sint? Sed quibusdam recusandae alias error harum
+										maxime adipisci amet laborum. Perspiciatis minima nesciunt
+										dolorem! Officiis iure rerum voluptates a cumque velit
+										quibusdam sed amet tempora. Sit laborum ab, eius fugit
+										doloribus tenetur fugiat, temporibus enim commodi iusto
+										libero magni deleniti quod quam consequuntur! Commodi minima
+										excepturi repudiandae velit hic maxime doloremque. Quaerat
+										provident commodi consectetur veniam similique ad earum
+										omnis ipsum saepe, voluptas, hic voluptates pariatur est
+										explicabo fugiat, dolorum eligendi quam cupiditate excepturi
+										mollitia maiores labore suscipit quas? Nulla, placeat.
+										Voluptatem quaerat non architecto ab laudantium modi minima
+										sunt esse temporibus sint culpa, recusandae aliquam numquam
+										totam ratione voluptas quod exercitationem fuga. Possimus
+										quis earum veniam quasi aliquam eligendi, placeat qui
+										corporis!
+									</Typography>
 								</React.Fragment>
 							}
 						>
