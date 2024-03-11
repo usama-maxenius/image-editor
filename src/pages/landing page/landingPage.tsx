@@ -1,9 +1,10 @@
-import { Button, Typography, CircularProgress, Box } from '@mui/material';
+import { Typography, CircularProgress, Box } from '@mui/material';
 import { styled } from '@mui/system';
-import Input from '../../components/input/input';
+// import Input from '../../components/input/input';
 import CountdownTimer from '../../components/counter/counter';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { BaseURL } from '../../constants';
+
 import { APIResponse } from '../../types';
 import toast from 'react-hot-toast';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -28,7 +29,7 @@ interface Props {
 
 function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
-	const { scrapURL, updateScrapURL } = useCanvasContext();
+	const { scrapURL } = useCanvasContext();
 
 	const [loading, setLoading] = useState(false);
 
@@ -62,35 +63,85 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 		} else updateStep(2);
 	};
 
+	useEffect(() => {
+		scrapURL ? getData() : '';
+	}, []);
+
 	return (
 		<>
 			<Box>
 				{isAuthenticated ? (
 					<StyledContainer>
-						<Typography variant='h4' gutterBottom color='black'>
-							PASTE NEWS LINK URL
-						</Typography>
-						<Input
-							defaultValue={scrapURL}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								updateScrapURL(e.target.value)
-							}
-						/>
-						<Button
-							variant='contained'
-							sx={{
-								mt: '30px',
-								bgcolor: 'white',
-								color: 'black',
-								'&:hover': { bgcolor: 'white', color: 'black' },
-							}}
-							onClick={getData}
-						>
-							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-							{loading && <CircularProgress size={24} color='inherit' />}
-						</Button>
+						{loading ? (
+							<Box
+								sx={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									flexDirection: 'column',
+								}}
+							>
+								<Box
+									sx={{
+										display: 'flex',
+										gap: 2,
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<CircularProgress
+										sx={{ width: '100%', height: '100%', mt: -2 }}
+									/>
+									<Typography variant='h3' gutterBottom color='black'>
+										Loading ...
+									</Typography>
+								</Box>
+								<Box>
+									<Typography variant='h3' gutterBottom color='black'>
+										<CountdownTimer />
+									</Typography>
+								</Box>
+							</Box>
+						) : (
+							<StyledContainer>
+								<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
+									POSTICLE.AI
+								</Typography>
+								<Typography
+									variant='body1'
+									sx={{ color: 'black' }}
+									gutterBottom
+								>
+									CREATE & SHARE THE LATEST NEWS WITH
+								</Typography>
+							</StyledContainer>
+						)}
 					</StyledContainer>
 				) : (
+					// <StyledContainer>
+					// 	<Typography variant='h4' gutterBottom color='black'>
+					// 		PASTE NEWS LINK URL
+					// 	</Typography>
+					// 	<Input
+					// 		defaultValue={scrapURL}
+					// 		onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+					// 			updateScrapURL(e.target.value)
+					// 		}
+					// 	/>
+					// 	<Button
+					// 		variant='contained'
+					// 		sx={{
+					// 			mt: '30px',
+					// 			bgcolor: 'white',
+					// 			color: 'black',
+					// 			'&:hover': { bgcolor: 'white', color: 'black' },
+					// 		}}
+					// 		onClick={getData}
+					// 	>
+					// 		{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
+					// 		{loading && <CircularProgress size={24} color='inherit' />}
+					// 	</Button>
+					// </StyledContainer>
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
 							POSTICLE.AI

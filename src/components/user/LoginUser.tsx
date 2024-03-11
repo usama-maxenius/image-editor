@@ -1167,7 +1167,7 @@ const LoginUser = () => {
 								display: 'flex',
 								justifyContent: 'center',
 								alignItems: 'center',
-								width: { md: '90%', sm: '95%', xs: '98%' },
+								width: { md: '75%', sm: '95%', xs: '98%' },
 								flexDirection: 'column',
 								gap: 3,
 							}}

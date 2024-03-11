@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { interestOptions, rssOptions } from './config';
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -55,7 +55,7 @@ const News = () => {
 			backgroundColor: '#4B1248',
 			borderRadius: '5px 5px',
 			minHeight: '20px',
-			height: '40px',
+			// height: '40px',
 		},
 		'& .MuiTabs-indicator': {
 			// backgroundColor: '#4B1248',
@@ -234,7 +234,7 @@ const News = () => {
 					>
 						<Box
 							sx={{
-								borderBottom: 1,
+								border: 1,
 								borderColor: 'divider',
 								width: 'auto',
 								display: 'flex',
@@ -441,13 +441,11 @@ import {
 	DialogContent,
 	DialogTitle,
 	Grid,
-	List,
-	ListItem,
-	ListItemText,
 	Stack,
 	Tab,
 	Tabs,
 	TextField,
+	styled,
 	useMediaQuery,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
@@ -648,6 +646,20 @@ import Select, { MultiValue } from 'react-select';
 
 import { updateUserData } from '../../services/userData';
 import { useAuth0 } from '@auth0/auth0-react';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+	<Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+	[`& .${tooltipClasses.tooltip}`]: {
+		backgroundColor: '#f5f5f9',
+		color: 'rgba(0, 0, 0, 0.87)',
+		// maxWidth: 220,
+		maxWidth: '500px',
+		fontSize: theme.typography.pxToRem(12),
+		border: '1px solid #dadde9',
+	},
+}));
 
 function InterestDialog({ open, handleClose }: any) {
 	const { getAccessTokenSilently, user } = useAuth0();
@@ -756,12 +768,68 @@ function InterestDialog({ open, handleClose }: any) {
 			>
 				Add Interests
 			</DialogTitle>
+
 			<DialogContent
 				sx={{ minHeight: '300px', minWidth: { xs: '100%', md: '400px' } }}
 			>
 				<Box
 					sx={{
-						my: 2,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					{userMetaData?.tags?.map((tag: any, index: number) => (
+						<HtmlTooltip
+							key={index}
+							title={
+								<React.Fragment>
+									{/* <b>{tag?.tagName}</b>
+									<br />
+									<u>
+										{'URL'} {tag?.tagUrl}
+									</u> */}
+									<Typography>
+										Lorem ipsum dolor sit amet consectetur adipisicing elit.
+										Maxime mollitia, molestiae quas vel sint commodi repudiandae
+										consequuntur voluptatum laborum numquam blanditiis harum
+										quisquam eius sed odit fugiat iusto fuga praesentium optio,
+										eaque rerum! Provident similique accusantium nemo autem.
+										Veritatis obcaecati tenetur iure eius earum ut molestias
+										architecto voluptate aliquam nihil, eveniet aliquid culpa
+										officia aut! Impedit sit sunt quaerat, odit, tenetur error,
+										harum nesciunt ipsum debitis quas aliquid. Reprehenderit,
+										quia. Quo neque error repudiandae fuga? Ipsa laudantium
+										molestias eos sapiente officiis modi at sunt excepturi
+										expedita sint? Sed quibusdam recusandae alias error harum
+										maxime adipisci amet laborum. Perspiciatis minima nesciunt
+										dolorem! Officiis iure rerum voluptates a cumque velit
+										quibusdam sed amet tempora. Sit laborum ab, eius fugit
+										doloribus tenetur fugiat, temporibus enim commodi iusto
+										libero magni deleniti quod quam consequuntur! Commodi minima
+										excepturi repudiandae velit hic maxime doloremque. Quaerat
+										provident commodi consectetur veniam similique ad earum
+										omnis ipsum saepe, voluptas, hic voluptates pariatur est
+										explicabo fugiat, dolorum eligendi quam cupiditate excepturi
+										mollitia maiores labore suscipit quas? Nulla, placeat.
+										Voluptatem quaerat non architecto ab laudantium modi minima
+										sunt esse temporibus sint culpa, recusandae aliquam numquam
+										totam ratione voluptas quod exercitationem fuga. Possimus
+										quis earum veniam quasi aliquam eligendi, placeat qui
+										corporis!
+									</Typography>
+								</React.Fragment>
+							}
+						>
+							<Button sx={{ fontSize: '16px', textTransform: 'none' }}>
+								{tag?.tagName}
+							</Button>
+						</HtmlTooltip>
+					))}
+				</Box>
+				<Box
+					sx={{
+						mb: 2,
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
@@ -818,56 +886,13 @@ function InterestDialog({ open, handleClose }: any) {
 					>
 						<Typography
 							sx={{
-								fontWeight: 700,
-								fontSize: '24px',
+								textAlign: 'center',
+								fontWeight: 'bold',
+								fontSize: '30px',
 							}}
 						>
-							Interests List
+							Interests
 						</Typography>
-
-						<List component='ol' sx={{ px: 1 }}>
-							{userMetaData?.tags?.map((tag: any, index: number) => (
-								<ListItem
-									key={index}
-									sx={{
-										p: 0.1,
-									}}
-								>
-									<ListItemText />
-									<Box
-										sx={{
-											display: 'flex',
-											justifyContent: 'space-between',
-											alignItems: 'center',
-											width: '100%',
-										}}
-									>
-										<Box
-											sx={{
-												display: 'flex',
-												flexDirection: 'column',
-											}}
-										>
-											<Typography
-												sx={{
-													fontWeight: 'bold',
-													fontSize: '24px',
-												}}
-											>
-												{tag?.tagName}
-											</Typography>
-											<a
-												href={tag?.tagUrl}
-												target='_blank'
-												rel='noopener noreferrer'
-											>
-												{tag?.tagUrl}
-											</a>
-										</Box>
-									</Box>
-								</ListItem>
-							))}
-						</List>
 					</Box>
 				</Box>
 
