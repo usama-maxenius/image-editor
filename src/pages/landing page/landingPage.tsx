@@ -32,9 +32,7 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { scrapURL } = useCanvasContext();
 
 	const [loading, setLoading] = useState(false);
-	console.log('🚀 ~ LandingPage ~ loading:', loading);
-	console.log('BaseURL', BaseURL);
-	console.log('scrapURL', scrapURL);
+
 	const getData = async () => {
 		if (loading) return;
 		if (!loading) {
@@ -45,12 +43,8 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({
-						url: 'https://www.foxnews.com/world/haiti-prime-minister-ariel-henry-resign-civil-war-bowing-international-pressure',
-					}),
+					body: JSON.stringify({ url: scrapURL }),
 				});
-				console.log(`${BaseURL}/scrapping_data`);
-				console.log('response', response);
 				const data = await response.json();
 
 				if (!response.ok) {

@@ -39,8 +39,7 @@ const News = () => {
 	const handleOpen = () => setOpen(true);
 	const [isLoading, setIsLoading] = useState(true);
 	const [newsFeed, setNewsFeed] = useState<any[]>([]);
-	const [value, setValue] = useState(0);
-	console.log('🚀 ~ News ~ value:', value);
+	const [value, setValue] = useState<number>(0);
 
 	const { updateScrapURL, userMetaData, updateUserMetaData } =
 		useCanvasContext();
@@ -110,29 +109,47 @@ const News = () => {
 		);
 
 		if (deletedIndex === 0) {
+			setValue(deletedIndex);
+		} else if (
+			deletedIndex > 0 &&
+			deletedIndex < userMetaData.interests.length - 1
+		) {
+			setValue(deletedIndex - 1);
+		} else if (deletedIndex === userMetaData.interests.length - 1) {
+			setValue(deletedIndex - 1);
+		} else if (deletedIndex > userMetaData.interests.length - 1) {
 			setValue(deletedIndex + 1);
 		}
-		if (deletedIndex > 0) {
-			setValue(deletedIndex - 1);
-		}
 
-		console.log('🚀 ~ handleDelete ~ deletedIndex:', deletedIndex);
+		// if (deletedIndex === 0) {
+		// 	setValue(deletedIndex + 1);
 
-		if (deletedIndex !== undefined && deletedIndex >= 0) {
-			let adjacentValue: string | undefined;
+		// }
+		// if (deletedIndex > 0) {
+		// 	setValue(deletedIndex - 1);
+		// }
+		// if (deletedIndex > userMetaData.interests.length - 1) {
+		// 	setValue(deletedIndex + 1);
+		// }
+		// if (deletedIndex < userMetaData.interests.length - 1) {
+		// 	setValue(deletedIndex - 1);
+		// }
 
-			if (deletedIndex < userMetaData.interests.length - 1) {
-				adjacentValue = userMetaData.interests[deletedIndex + 1].label;
-			} else if (deletedIndex < 0) {
-				adjacentValue = userMetaData.interests[deletedIndex - 1].label;
-			}
+		// if (deletedIndex !== undefined && deletedIndex >= 0) {
+		// 	let adjacentValue: string | undefined;
 
-			if (adjacentValue) {
-				console.log('Adjacent value after deletion:', adjacentValue);
-			} else {
-				console.log('No adjacent value after deletion.');
-			}
-		}
+		// 	if (deletedIndex < userMetaData.interests.length - 1) {
+		// 		adjacentValue = userMetaData.interests[deletedIndex + 1].label;
+		// 	} else if (deletedIndex < 0) {
+		// 		adjacentValue = userMetaData.interests[deletedIndex - 1].label;
+		// 	}
+
+		// 	if (adjacentValue) {
+		// 		console.log('Adjacent value after deletion:', adjacentValue);
+		// 	} else {
+		// 		console.log('No adjacent value after deletion.');
+		// 	}
+		// }
 
 		// Reset news feed and update user metadata
 		setNewsFeed(['']);
