@@ -45,7 +45,6 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					},
 					body: JSON.stringify({ url: scrapURL }),
 				});
-
 				const data = await response.json();
 
 				if (!response.ok) {
