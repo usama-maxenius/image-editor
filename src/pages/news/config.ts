@@ -1,38 +1,39 @@
 export const interestOptions = [
 	{
-		value: 'general',
+		value: 'http://feeds.abcnews.com/abcnews/usheadlines',
 		label: 'General',
 	},
 	{
-		value: 'business',
+		value: 'http://www.nytimes.com/services/xml/rss/nyt/Business.xml',
 		label: 'Business',
 	},
 	{
-		value: 'tech',
+		value: 'http://rss.cnn.com/rss/cnn_tech.rss',
 		label: 'Technology',
 	},
 	{
-		value: 'entertainment',
+		value: 'http://www.buzzfeed.com/tvandmovies.xml',
 		label: 'Entertainment',
 	},
 	{
-		value: 'politics',
+		value: 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
 		label: 'Politics',
 	},
 	{
-		value: 'science',
+		value: 'http://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
 		label: 'Science',
 	},
 	{
-		value: 'sports',
+		value: 'http://rss.nytimes.com/services/xml/rss/nyt/Sports.xml',
 		label: 'Sports',
 	},
 	{
-		value: 'health',
+		value: 'http://rss.cnn.com/rss/cnn_health.rss',
 		label: 'Health',
 	},
 	{
-		value: 'gaming',
+		value:
+			'http://feeds.gawker.com/kotaku/full#_ga=1.111114893.94307673.1446233598',
 		label: 'gaming',
 	},
 ];
