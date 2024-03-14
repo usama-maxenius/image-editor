@@ -30,36 +30,73 @@ interface Props {
 function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
 	const { scrapURL } = useCanvasContext();
+	// console.log('🚀 ~ LandingPage ~ scrapURL:', scrapURL);
 
 	const [loading, setLoading] = useState(false);
 
+	// const getData = async () => {
+	// 	if (loading) return;
+	// 	if (!loading) {
+	// 		try {
+	// 			setLoading(true);
+	// 			const response = await fetch(`${BaseURL}/scrapping_data`, {
+	// 				method: 'POST',
+	// 				headers: {
+	// 					'Content-Type': 'application/json',
+	// 				},
+
+	// 				body: JSON.stringify({ url: scrapURL }),
+	// 			});
+	// 			const data = await response.json();
+
+	// 			if (!response.ok) {
+	// 				setLoading(false);
+	// 				return toast.error(data?.error);
+	// 			}
+
+	// 			await setScrappedData(data);
+	// 			updateStep(2);
+	// 			setLoading(false);
+	// 		} catch (error) {
+	// 			if (error instanceof Error) toast.error(error.message);
+	// 			setLoading(false);
+	// 		}
+	// 	} else updateStep(2);
+	// };
+
 	const getData = async () => {
 		if (loading) return;
-		if (!loading) {
-			try {
-				setLoading(true);
-				const response = await fetch(`${BaseURL}/scrapping_data`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ url: scrapURL }),
-				});
+
+		try {
+			setLoading(true);
+			const response = await fetch(`${BaseURL}/scrapping_data`, {
+				method: 'POST',
+				body: JSON.stringify({ url: scrapURL }),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			// console.log('response ----- ', response);
+			// Check if response status is not OK
+			if (!response.ok) {
 				const data = await response.json();
-
-				if (!response.ok) {
-					setLoading(false);
-					return toast.error(data?.error);
-				}
-
-				await setScrappedData(data);
-				updateStep(2);
 				setLoading(false);
-			} catch (error) {
-				if (error instanceof Error) toast.error(error.message);
-				setLoading(false);
+				// Show error message from the server response
+				return toast.error(data?.error || 'Error fetching data');
 			}
-		} else updateStep(2);
+
+			const data = await response.json();
+			// Set the fetched data
+			await setScrappedData(data);
+			// Assuming updateStep is a function that updates some step state
+			updateStep(2);
+		} catch (error) {
+			// Handle any errors during fetch or parsing JSON
+			toast.error('An error occurred while fetching data');
+		} finally {
+			// Set loading state to false in both success and error cases
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {

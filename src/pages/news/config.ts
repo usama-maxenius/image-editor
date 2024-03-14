@@ -8,7 +8,8 @@ export const interestOptions = [
 		label: 'Business',
 	},
 	{
-		value: 'http://rss.cnn.com/rss/cnn_tech.rss',
+		// value: 'http://rss.cnn.com/rss/cnn_tech.rss',
+		value: 'http://feeds.foxnews.com/foxnews/tech',
 		label: 'Technology',
 	},
 	{
@@ -16,19 +17,23 @@ export const interestOptions = [
 		label: 'Entertainment',
 	},
 	{
-		value: 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
+		// value: 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
+		value: 'http://feeds.foxnews.com/foxnews/politics',
 		label: 'Politics',
 	},
 	{
-		value: 'http://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
+		// value: 'http://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
+		value: 'http://feeds.foxnews.com/foxnews/science',
 		label: 'Science',
 	},
 	{
-		value: 'http://rss.nytimes.com/services/xml/rss/nyt/Sports.xml',
+		// value: 'http://feeds.foxnews.com/foxnews/sports',
+		value: 'http://feeds.foxnews.com/foxnews/sports',
 		label: 'Sports',
 	},
 	{
-		value: 'http://rss.cnn.com/rss/cnn_health.rss',
+		// value: 'http://rss.cnn.com/rss/cnn_health.rss',
+		value: 'https://moxie.foxnews.com/google-publisher/health.xml',
 		label: 'Health',
 	},
 	{
