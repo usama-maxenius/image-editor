@@ -33,33 +33,63 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 
 	const [loading, setLoading] = useState(false);
 
+	// const getData = async () => {
+	// 	if (loading) return;
+	// 	if (!loading) {
+	// 		try {
+	// 			setLoading(true);
+	// 			const response = await fetch(`${BaseURL}/scrapping_data`, {
+	// 				method: 'POST',
+	// 				headers: {
+	// 					'Content-Type': 'application/json',
+	// 				},
+
+	// 				body: JSON.stringify({ url: scrapURL }),
+	// 			});
+	// 			const data = await response.json();
+
+	// 			if (!response.ok) {
+	// 				setLoading(false);
+	// 				return toast.error(data?.error);
+	// 			}
+
+	// 			await setScrappedData(data);
+	// 			updateStep(2);
+	// 			setLoading(false);
+	// 		} catch (error) {
+	// 			if (error instanceof Error) toast.error(error.message);
+	// 			setLoading(false);
+	// 		}
+	// 	} else updateStep(2);
+	// };
+
 	const getData = async () => {
 		if (loading) return;
-		if (!loading) {
-			try {
-				setLoading(true);
-				const response = await fetch(`${BaseURL}/scrapping_data`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ url: scrapURL }),
-				});
+
+		try {
+			setLoading(true);
+			const response = await fetch(`${BaseURL}/scrapping_data`, {
+				method: 'POST',
+				body: JSON.stringify({ url: scrapURL }),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
 				const data = await response.json();
-
-				if (!response.ok) {
-					setLoading(false);
-					return toast.error(data?.error);
-				}
-
-				await setScrappedData(data);
-				updateStep(2);
 				setLoading(false);
-			} catch (error) {
-				if (error instanceof Error) toast.error(error.message);
-				setLoading(false);
+				return toast.error(data?.error || 'Error fetching data');
 			}
-		} else updateStep(2);
+
+			const data = await response.json();
+			await setScrappedData(data);
+			updateStep(2);
+		} catch (error) {
+			toast.error('An error occurred while fetching data');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {

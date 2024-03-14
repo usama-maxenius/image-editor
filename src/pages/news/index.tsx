@@ -255,8 +255,6 @@ const News = () => {
 						return (
 							<CustomTabPanel key={i} value={value} index={i}>
 								<>
-									{/* {`${interest?.label}`} */}
-									{/* {`Value ---${value}`} */}
 									<p style={{ display: 'none' }}>{interest?.label}</p>
 									<Box sx={{ m: '3rem auto' }}>
 										<Grid
