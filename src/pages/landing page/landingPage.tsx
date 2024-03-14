@@ -30,7 +30,6 @@ interface Props {
 function LandingPage({ setScrappedData, updateStep }: Props) {
 	const { isAuthenticated } = useAuth0();
 	const { scrapURL } = useCanvasContext();
-	// console.log('🚀 ~ LandingPage ~ scrapURL:', scrapURL);
 
 	const [loading, setLoading] = useState(false);
 
@@ -76,25 +75,19 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 					'Content-Type': 'application/json',
 				},
 			});
-			// console.log('response ----- ', response);
-			// Check if response status is not OK
+
 			if (!response.ok) {
 				const data = await response.json();
 				setLoading(false);
-				// Show error message from the server response
 				return toast.error(data?.error || 'Error fetching data');
 			}
 
 			const data = await response.json();
-			// Set the fetched data
 			await setScrappedData(data);
-			// Assuming updateStep is a function that updates some step state
 			updateStep(2);
 		} catch (error) {
-			// Handle any errors during fetch or parsing JSON
 			toast.error('An error occurred while fetching data');
 		} finally {
-			// Set loading state to false in both success and error cases
 			setLoading(false);
 		}
 	};
