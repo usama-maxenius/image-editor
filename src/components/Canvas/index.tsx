@@ -159,6 +159,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
+		// const loadCanvas = useCallback(async () => {
+		// 	function importLocale(locale: string) {
+		// 		return import(`../../constants/templates/${locale}.json`);
+		// 	}
+
+		// 	const templateJSON = await importLocale(template.filePath);
+
+		// 	// Load canvas JSON template without adding default images
+		// 	await new Promise((resolve) => {
+		// 		canvas?.loadFromJSON(templateJSON, () => {
+		// 			resolve(null);
+		// 		});
+		// 	});
+		// }, [canvas, template]);
+
 		const loadCanvas = useCallback(async () => {
 			function importLocale(locale: string) {
 				return import(`../../constants/templates/${locale}.json`);
@@ -169,13 +184,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const img1 = '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
 			const img2 = '/images/sample/scott-circle-image.png';
 
+			// const img1 = '';
+			// const img2 = '';
+
 			// Load canvas JSON template
 			await new Promise((resolve) => {
 				canvas?.loadFromJSON(templateJSON, () => {
-					if (template.diptych === 'horizontal')
-						createHorizontalCollage(canvas, [img1, img2]);
-					else if (template.diptych === 'vertical')
-						createVerticalCollage(canvas, [img1, img2]);
+					// if (template.diptych === 'horizontal')
+					// 	createHorizontalCollage(canvas, [img1, img2]);
+					// else if (template.diptych === 'vertical')
+					// 	createVerticalCollage(canvas, [img1, img2]);
 					resolve(null);
 				});
 			});
@@ -187,6 +205,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
 				const isSelectionCleared = canvas?._activeObject === null;
+
 				return setCanvasToolbox((prev) => ({
 					...prev,
 					isDeselectDisabled: isSelectionCleared,
@@ -361,6 +380,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			200
 		);
 
+		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
 
@@ -376,6 +396,35 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				);
 			}
 
+			let currentImageIndex = initialData.backgroundImages?.findIndex(
+				(bgImage: string) => bgImage === imageUrl
+			);
+			console.log('currentImageIndex', currentImageIndex);
+
+			if (!activeObject) {
+				if (template.diptych === 'horizontal') {
+					// createHorizontalCollage(canvas, [imageUrl, imageUrl]);
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createHorizontalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createHorizontalCollage(canvas, [null, imageUrl]);
+					}
+				} else if (template.diptych === 'vertical') {
+					// createVerticalCollage(canvas, [imageUrl, imageUrl]);
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createVerticalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createVerticalCollage(canvas, [null, imageUrl]);
+					}
+					return;
+				}
+			}
 			if (!activeObject) return console.log('Still Object not found');
 
 			if (template.backgroundImage || !template.diptych)
@@ -401,15 +450,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				existingObject.animate(
 					{ opacity: opacity },
 					{
-						duration: 200, // Adjust the duration as needed
+						duration: 200,
 						onChange: canvas.renderAll.bind(canvas),
 					}
 				);
 				if (opacity === 0) {
-					// Remove the object after the animation completes
 					setTimeout(() => {
 						canvas.remove(existingObject);
-					}, 100); // Adjust the duration to match the animation duration
+					}, 100);
 				}
 
 				return;
@@ -570,6 +618,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		}, 100);
 
+		const applySharpenFilter = () => {
+			const canvas = new fabric.Canvas('canvas');
+			const obj = canvas.getActiveObject();
+			if (obj) {
+				const filter = new fabric.Image.filters.Convolute({
+					matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+				});
+				obj.filters.push(filter);
+				obj.applyFilters();
+				canvas.renderAll();
+			}
+		};
+
 		return (
 			<div
 				style={{
@@ -654,6 +715,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Filter
 									</Button>
+
+									<Button
+										className={`${classes.button} ${
+											activeButton === 'Sharpen' && classes.buttonActive
+										}`}
+										variant='text'
+										color='primary'
+										// onClick={() => handleButtonClick('Sharpen')}
+										onClick={applySharpenFilter}
+									>
+										Sharpen
+									</Button>
+
 									{template.diptych && !template.backgroundImage ? (
 										<Button
 											className={`${classes.button} ${
@@ -764,6 +838,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										))}
 									</div>
 								)}
+
+								{activeButton === 'Sharpen' && handleSharpenClick()}
 
 								{activeButton === 'border' && (
 									<Stack
@@ -1026,7 +1102,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						}}
 					>
 						<button
-							style={{ backgroundColor: 'transparent', border: 'none' }}
+							style={{
+								backgroundColor: 'transparent',
+								border: 'none',
+							}}
 							onClick={() => updateActiveTab('background')}
 						>
 							<img
@@ -1115,21 +1194,42 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					<div style={{ width: '300px', height: '480px', padding: '10px' }}>
 						{activeTab == 'background' && (
 							<div>
-								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
+								<h4
+									style={{
+										margin: '0px',
+										padding: '0px',
+									}}
+								>
+									From Article
+								</h4>
 
 								<ImageViewer
 									clickHandler={(img: string) => updateBackgroundImage(img)}
 									images={initialData.backgroundImages}
 								>
 									{template.diptych === 'vertical' ? (
-										<>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-around',
+												py: 1,
+											}}
+										>
 											<div>Top Images</div>
 											<div>Bottom Images</div>
-										</>
+										</Box>
 									) : template.diptych === 'horizontal' ? (
 										<>
-											<div>Left Images</div>
-											<div>Right Images</div>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Left Images</div>
+												<div>Right Images</div>
+											</Box>
 										</>
 									) : null}
 								</ImageViewer>
@@ -1141,14 +1241,28 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									images={initialData.backgroundImages}
 								>
 									{template.diptych === 'vertical' ? (
-										<>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-around',
+												py: 1,
+											}}
+										>
 											<div>Top Images</div>
 											<div>Bottom Images</div>
-										</>
+										</Box>
 									) : template.diptych === 'horizontal' ? (
 										<>
-											<div>Left Images</div>
-											<div>Right Images</div>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Left Images</div>
+												<div>Right Images</div>
+											</Box>
 										</>
 									) : null}
 								</ImageViewer>

@@ -43,6 +43,7 @@ export const templateData: TemplateData = {
 		'/images/sample/scott-circle-image.png',
 		'https://res.cloudinary.com/dkh87tzrg/image/upload/v1671791251/f86duowvpgzgrsz7rfou.jpg',
 		'https://res.cloudinary.com/dkh87tzrg/image/upload/v1665486789/hlfbvilioi8rlkrumq2g.jpg',
+		'https://c.saavncdn.com/749/Calm-Nature-Sleep-Peaceful-Music-for-Relaxation-Restful-Sleep-Deep-Dreams-Soothing-Sounds-to-Calm-Down-Inner-Harmony-Sweet-Dreams-Music-at-Goodnight-English-2017-500x500.jpg',
 	],
 	bubbles: [
 		'/images/sample/scott-circle-image.png',
