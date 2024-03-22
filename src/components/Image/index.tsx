@@ -49,7 +49,7 @@ const ImageViewer = ({ images, clickHandler, children }: Props) => {
 	};
 
 	const evenImages = images.filter((_, index) => index % 2 === 0);
-	console.log('🚀 ~ ImageViewer ~ evenImages:', evenImages);
+	// console.log('🚀 ~ ImageViewer ~ evenImages:', evenImages);
 	const oddImages = images.filter((_, index) => index % 2 !== 0);
 
 	return (

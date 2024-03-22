@@ -31,6 +31,7 @@ export const CanvasContextProvider = ({
 	const [isUserMetaExist, setIsUserMetaExist] = useState(false);
 
 	const navigate = useNavigate();
+
 	const getExistingObject = (type: string) =>
 		canvas?.getObjects()?.find((obj: any) => obj.customType === type);
 

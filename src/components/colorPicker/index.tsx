@@ -1,45 +1,60 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChromePicker } from 'react-color';
 import { Box } from '@mui/material';
-import { Popover } from 'react-tiny-popover'
+import { Popover } from 'react-tiny-popover';
 
 interface Props {
-  value: string
-  changeHandler: (value: string) => void
+	value: string;
+	changeHandler: (value: string) => void;
 }
 
 const CustomColorPicker = ({ value, changeHandler }: Props) => {
-  const [displayColorPicker, setDisplayColorPicker] = useState(false);
+	const [displayColorPicker, setDisplayColorPicker] = useState(false);
 
-  // State to manage the color value
-  const [currentColor, setCurrentColor] = useState(value || '#ffffff');
+	// State to manage the color value
+	const [currentColor, setCurrentColor] = useState(value || '#ffffff');
+	console.log('🚀 currentColor:', currentColor);
+	console.log('🚀  value:', value);
 
-  const handleClick = () =>
-    setDisplayColorPicker(!displayColorPicker);
+	useEffect(() => {
+		setCurrentColor(value);
+	}, []);
 
-  const handleChange = (color: { hex: string }) => {
-    setCurrentColor(color.hex);
-    changeHandler?.(color.hex)
-  };
+	const handleClick = () => setDisplayColorPicker(!displayColorPicker);
 
-  return (
-    <Box sx={{
-      position: 'relative',
-      paddingLeft:'0.2rem',
-      paddingBottom:'0.5rem'
-    }}>
-      <Popover
-        isOpen={displayColorPicker}
-        align='center'
-        onClickOutside={() => setDisplayColorPicker(false)}
-        positions={['top', 'bottom', 'left', 'right']} // preferred positions by priority
-        content={<ChromePicker color={currentColor} onChange={handleChange} />}
-      >
-        <button onClick={handleClick} style={{all:'unset', width: '30px', height: '20px', background: currentColor, outline: 'none' }}></button>
-      </Popover>
+	const handleChange = (color: { hex: string }) => {
+		setCurrentColor(color.hex);
+		changeHandler?.(color.hex);
+	};
 
-    </Box>
-  );
+	return (
+		<Box
+			sx={{
+				position: 'relative',
+				paddingLeft: '0.2rem',
+				paddingBottom: '0.5rem',
+			}}
+		>
+			<Popover
+				isOpen={displayColorPicker}
+				align='center'
+				onClickOutside={() => setDisplayColorPicker(false)}
+				positions={['top', 'bottom', 'left', 'right']} // preferred positions by priority
+				content={<ChromePicker color={currentColor} onChange={handleChange} />}
+			>
+				<button
+					onClick={handleClick}
+					style={{
+						all: 'unset',
+						width: '30px',
+						height: '20px',
+						background: currentColor,
+						outline: 'none',
+					}}
+				></button>
+			</Popover>
+		</Box>
+	);
 };
 
 export default CustomColorPicker;
