@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
-import { Typography, Box, IconButton, Stack } from '@mui/material';
+import { Typography, Box, IconButton, Stack, Alert } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -24,7 +24,11 @@ import {
 import { updateRect } from '../../utils/RectHandler';
 import { saveImage, saveJSON } from '../../utils/ExportHandler';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { createImage, updateImageSource } from '../../utils/ImageHandler';
+import {
+	createImage,
+	createImageLogo,
+	updateImageSource,
+} from '../../utils/ImageHandler';
 import { useCanvasContext } from '../../context/CanvasContext';
 import FontsTab from '../Tabs/EditText/FontsTab';
 import {
@@ -40,6 +44,9 @@ import {
 	updateBubbleElement,
 } from '../../utils/BubbleHandler';
 import { debounce } from 'lodash';
+
+import GridOnIcon from '@mui/icons-material/GridOn';
+import GridOffIcon from '@mui/icons-material/GridOff';
 
 interface CanvasProps {
 	template: Template;
@@ -84,6 +91,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			activeObject: null,
 			isDeselectDisabled: true,
 		});
+		console.log('canvasToolbox...', canvasToolbox);
 		const [initialData, setInitialData] = useState({
 			backgroundImages,
 			bubbles,
@@ -134,11 +142,17 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				name: 'invert',
 				filter: new fabric.Image.filters.Invert({ invert: 1 }),
 			},
+			{
+				name: 'sharpen',
+				filter: new fabric.Image.filters.Convolute({
+					matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+				}),
+			},
+
 			// Add more filters as needed
 		];
 
 		const classes = useStyles();
-
 		useEffect(() => {
 			const options = {
 				width: canvasDimension.width,
@@ -159,6 +173,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const handleButtonClick = (buttonType: string) =>
 			setActiveButton(buttonType);
 
+		// const loadCanvas = useCallback(async () => {
+		// 	function importLocale(locale: string) {
+		// 		return import(`../../constants/templates/${locale}.json`);
+		// 	}
+
+		// 	const templateJSON = await importLocale(template.filePath);
+
+		// 	// Load canvas JSON template without adding default images
+		// 	await new Promise((resolve) => {
+		// 		canvas?.loadFromJSON(templateJSON, () => {
+		// 			resolve(null);
+		// 		});
+		// 	});
+		// }, [canvas, template]);
+
 		const loadCanvas = useCallback(async () => {
 			function importLocale(locale: string) {
 				return import(`../../constants/templates/${locale}.json`);
@@ -169,13 +198,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const img1 = '/images/sample/toa-heftiba-FV3GConVSss-unsplash.jpg';
 			const img2 = '/images/sample/scott-circle-image.png';
 
+			// const img1 = '';
+			// const img2 = '';
+
 			// Load canvas JSON template
 			await new Promise((resolve) => {
 				canvas?.loadFromJSON(templateJSON, () => {
-					if (template.diptych === 'horizontal')
-						createHorizontalCollage(canvas, [img1, img2]);
-					else if (template.diptych === 'vertical')
-						createVerticalCollage(canvas, [img1, img2]);
+					// if (template.diptych === 'horizontal')
+					// 	createHorizontalCollage(canvas, [img1, img2]);
+					// else if (template.diptych === 'vertical')
+					// 	createVerticalCollage(canvas, [img1, img2]);
 					resolve(null);
 				});
 			});
@@ -187,6 +219,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const handleCanvasUpdate = () => {
 				const activeObject = canvas?.getActiveObject();
 				const isSelectionCleared = canvas?._activeObject === null;
+
 				return setCanvasToolbox((prev) => ({
 					...prev,
 					isDeselectDisabled: isSelectionCleared,
@@ -286,6 +319,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 		}, [loadCanvas]);
 
+		const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
+			useCanvasContext();
+
 		const updateBubbleImage = (
 			imgUrl: string | undefined,
 			filter?: { strokeWidth: number; stroke: string }
@@ -325,6 +361,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		 * @param {IBaseFilter} filter - The filter to be applied to the background image.
 		 * @return {void} This function does not return anything.
 		 */
+
 		const updateBackgroundFilters = debounce(
 			(filter: fabric.IBaseFilter, type: string): void => {
 				if (!canvas) return;
@@ -346,7 +383,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							(fil) => fil[type as any]
 						);
 
-						if (index !== -1) {
+						if (type === 'sharpen') {
+							// Check if sharpen filter is already applied
+							const sharpenIndex = existingObject.filters?.findIndex(
+								(fil) => fil instanceof fabric.Image.filters.Convolute
+							);
+							if (sharpenIndex !== -1) {
+								// Remove sharpen filter
+								existingObject.filters?.splice(sharpenIndex, 1);
+							} else {
+								// Add sharpen filter
+								existingObject.filters?.push(filter);
+							}
+						} else if (index !== -1) {
 							existingObject.filters?.splice(index as number, 1, filter);
 							if (!hasBrightnessOrContrast)
 								existingObject.filters?.splice(index as number, 1);
@@ -360,7 +409,49 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 			200
 		);
+		// const updateBackgroundFilters = debounce(
+		// 	(filter: fabric.IBaseFilter, type: string): void => {
+		// 		if (!canvas) return;
 
+		// 		const bgImages = ['bg-1'];
+
+		// 		if (!template.backgroundImage) bgImages.push('bg-2');
+
+		// 		for (const customType of bgImages) {
+		// 			const existingObject: fabric.Image | undefined = getExistingObject(
+		// 				customType
+		// 			) as fabric.Image;
+		// 			if (existingObject) {
+		// 				const hasBrightnessOrContrast =
+		// 					filter.hasOwnProperty('brightness') ||
+		// 					filter.hasOwnProperty('contrast');
+
+		// 				const index: number | undefined = existingObject.filters?.findIndex(
+		// 					(fil) => fil[type as any]
+		// 				);
+
+		// 				if (index !== -1) {
+		// 					existingObject.filters?.splice(index as number, 1, filter);
+		// 					if (!hasBrightnessOrContrast)
+		// 						existingObject.filters?.splice(index as number, 1);
+		// 				} else {
+		// 					existingObject.filters?.push(filter);
+		// 				}
+		// 				existingObject.applyFilters();
+		// 				canvas.renderAll();
+		// 			}
+		// 		}
+		// 	},
+		// 	200
+		// );
+
+		//grid add
+		const [isSelected, setIsSelected] = useState(false);
+
+		const toggleSelection = () => {
+			setIsSelected(!isSelected);
+		};
+		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
 
@@ -376,6 +467,35 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				);
 			}
 
+			let currentImageIndex = initialData.backgroundImages?.findIndex(
+				(bgImage: string) => bgImage === imageUrl
+			);
+			console.log('currentImageIndex', currentImageIndex);
+
+			if (!activeObject) {
+				if (template.diptych === 'horizontal') {
+					// createHorizontalCollage(canvas, [imageUrl, imageUrl]);
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createHorizontalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createHorizontalCollage(canvas, [null, imageUrl]);
+					}
+				} else if (template.diptych === 'vertical') {
+					// createVerticalCollage(canvas, [imageUrl, imageUrl]);
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createVerticalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createVerticalCollage(canvas, [null, imageUrl]);
+					}
+					return;
+				}
+			}
 			if (!activeObject) return console.log('Still Object not found');
 
 			if (template.backgroundImage || !template.diptych)
@@ -401,15 +521,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				existingObject.animate(
 					{ opacity: opacity },
 					{
-						duration: 200, // Adjust the duration as needed
+						duration: 200,
 						onChange: canvas.renderAll.bind(canvas),
 					}
 				);
 				if (opacity === 0) {
-					// Remove the object after the animation completes
 					setTimeout(() => {
 						canvas.remove(existingObject);
-					}, 100); // Adjust the duration to match the animation duration
+					}, 100);
 				}
 
 				return;
@@ -570,6 +689,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		}, 100);
 
+		//---------------------Sharpen --------------------------
+		const [sharpenApplied, setSharpenApplied] = useState(false);
+
 		return (
 			<div
 				style={{
@@ -577,38 +699,73 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					columnGap: '50px',
 					marginTop: 50,
 					marginBottom: 50,
+					border: '1px solid red',
 				}}
 			>
 				<div>
-					<DeselectIcon
-						color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
-						aria-disabled={canvasToolbox.isDeselectDisabled}
-						onClick={deselectObj}
-					/>
-					<DeleteIcon
-						color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
-						aria-disabled={canvasToolbox.isDeselectDisabled}
-						onClick={deleteActiveSelection}
-					/>
-					<img
-						src='/icons/flipX.svg'
-						className={!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''}
-						style={{ width: 25, height: 25, margin: '0 0.3rem' }}
-						onClick={() => flipImage('flipX')}
-					/>
-					<img
-						src='/icons/flipY.svg'
-						className={!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''}
-						style={{ width: 25, height: 25 }}
-						onClick={() => flipImage('flipY')}
-					/>
+					<div
+						style={{
+							background:
+								'repeating-linear-gradient(transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px), repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(0, 0, 0, 0.1) 11px);',
+						}}
+					>
+						<DeselectIcon
+							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
+							aria-disabled={canvasToolbox.isDeselectDisabled}
+							onClick={deselectObj}
+						/>
+
+						<DeleteIcon
+							color={canvasToolbox.isDeselectDisabled ? 'disabled' : 'inherit'}
+							aria-disabled={canvasToolbox.isDeselectDisabled}
+							onClick={deleteActiveSelection}
+						/>
+						<img
+							src='/icons/flipX.svg'
+							className={
+								!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+							}
+							style={{ width: 25, height: 25, margin: '0 0.3rem' }}
+							onClick={() => flipImage('flipX')}
+						/>
+
+						<img
+							src='/icons/flipY.svg'
+							className={
+								!canvasToolbox.isDeselectDisabled ? 'filter-white' : ''
+							}
+							style={{ width: 25, height: 25 }}
+							onClick={() => flipImage('flipY')}
+						/>
+
+						{isSelected ? (
+							<GridOnIcon
+								color={isSelected ? 'primary' : 'disabled'}
+								onClick={toggleSelection}
+								sx={{
+									px: 1,
+									color: 'white',
+								}}
+							/>
+						) : (
+							<GridOffIcon
+								color={isSelected ? 'primary' : 'disabled'}
+								onClick={toggleSelection}
+								sx={{
+									color: 'white',
+									px: 1,
+								}}
+							/>
+						)}
+					</div>
 
 					<canvas
 						style={{ border: '2px solid #ffff' }}
 						width='1080'
 						height='1350'
 						ref={canvasEl}
-					></canvas>
+					/>
+
 					{/* Footer Panel  Start*/}
 					{activeTab == 'background' && dropDown && (
 						<div>
@@ -654,6 +811,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Filter
 									</Button>
+
 									{template.diptych && !template.backgroundImage ? (
 										<Button
 											className={`${classes.button} ${
@@ -751,7 +909,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											<Button
 												key={filter.name}
 												className={`${classes.button} ${
-													selectedFilter === 'greyscale' && classes.buttonActive
+													selectedFilter === filter.name && classes.buttonActive
 												}`}
 												variant='text'
 												color='primary'
@@ -762,8 +920,62 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												{filter.name}
 											</Button>
 										))}
+										{/* {availableFilters.map((filter) => (
+											<Button
+												key={filter.name}
+												className={`${classes.button} ${
+													selectedFilter === 'greyscale' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() =>
+													updateBackgroundFilters(filter.filter, filter.name)
+												}
+											>
+												{filter.name}
+											</Button>
+										))} */}
+										{/* {availableFilters.map((filter) => (
+											<Button
+												key={filter.name}
+												className={`${classes.button} ${
+													selectedFilter === 'greyscale' && classes.buttonActive
+												}`}
+												variant='text'
+												color='primary'
+												onClick={() =>
+													updateBackgroundFilters(filter.filter, filter.name)
+												}
+											>
+												{filter.name}
+											</Button>
+										))} */}
 									</div>
 								)}
+
+								{/* {activeButton === 'Sharpen' && (
+									<div className={classes.sliderContainer}>
+										<Slider
+											className={classes.slider}
+											aria-label='Overlay, Brightness, Contrast'
+											color='secondary'
+											defaultValue={0}
+											min={-1}
+											value={filtersRange.sharpen}
+											max={1}
+											step={0.01}
+											valueLabelDisplay='auto'
+											onChange={(e: any) => {
+												let value = +e.target.value;
+												setFiltersRange({ ...filtersRange, sharpen: value });
+												var filter = new fabric.Image.filters.Convolute({
+													matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+												});
+												updateBackgroundFilters(filter, 'sharpen');
+											}}
+										/>
+									</div>
+								)} */}
 
 								{activeButton === 'border' && (
 									<Stack
@@ -811,7 +1023,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</Paper>
 						</div>
 					)}
-
 					{(activeTab == 'title' || activeTab === 'element') && dropDown && (
 						<div>
 							<Paper className={classes.root}>
@@ -937,7 +1148,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</Paper>
 						</div>
 					)}
-
 					{activeTab == 'bubble' && dropDown && (
 						<div>
 							<Paper className={classes.root}>
@@ -1002,7 +1212,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							</Paper>
 						</div>
 					)}
-
 					<Paper
 						sx={{
 							display: 'flex',
@@ -1017,7 +1226,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					>
 						{dropDown ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
 					</Paper>
-
 					<div
 						style={{
 							display: 'flex',
@@ -1026,7 +1234,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						}}
 					>
 						<button
-							style={{ backgroundColor: 'transparent', border: 'none' }}
+							style={{
+								backgroundColor: 'transparent',
+								border: 'none',
+							}}
 							onClick={() => updateActiveTab('background')}
 						>
 							<img
@@ -1108,28 +1319,48 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				</div>
 
 				{/* Footer Panel  End*/}
-
 				{/* Sidebar Tools Panel */}
 				{/* <Sidebar /> */}
 				<div>
 					<div style={{ width: '300px', height: '480px', padding: '10px' }}>
 						{activeTab == 'background' && (
 							<div>
-								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
+								<h4
+									style={{
+										margin: '0px',
+										padding: '0px',
+									}}
+								>
+									From Article
+								</h4>
 
 								<ImageViewer
 									clickHandler={(img: string) => updateBackgroundImage(img)}
 									images={initialData.backgroundImages}
 								>
 									{template.diptych === 'vertical' ? (
-										<>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-around',
+												py: 1,
+											}}
+										>
 											<div>Top Images</div>
 											<div>Bottom Images</div>
-										</>
+										</Box>
 									) : template.diptych === 'horizontal' ? (
 										<>
-											<div>Left Images</div>
-											<div>Right Images</div>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Left Images</div>
+												<div>Right Images</div>
+											</Box>
 										</>
 									) : null}
 								</ImageViewer>
@@ -1141,14 +1372,28 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									images={initialData.backgroundImages}
 								>
 									{template.diptych === 'vertical' ? (
-										<>
+										<Box
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-around',
+												py: 1,
+											}}
+										>
 											<div>Top Images</div>
 											<div>Bottom Images</div>
-										</>
+										</Box>
 									) : template.diptych === 'horizontal' ? (
 										<>
-											<div>Left Images</div>
-											<div>Right Images</div>
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-around',
+													py: 1,
+												}}
+											>
+												<div>Left Images</div>
+												<div>Right Images</div>
+											</Box>
 										</>
 									) : null}
 								</ImageViewer>
@@ -1274,7 +1519,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														src={element}
 														onClick={() => {
 															const iconSrc = '/icons/swipe.svg';
-															createSwipeGroup(canvas, {}, iconSrc);
+															const color =
+																userMetaData?.company?.color || '#ffffff';
+															createSwipeGroup(canvas, {}, iconSrc, color);
 														}}
 														alt=''
 														width='90px'
@@ -1285,8 +1532,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													/>
 												);
 											})}
+
 											<CustomColorPicker
-												value={overlayTextFiltersState.color}
+												value={userMetaData?.company?.color}
+												// value={overlayTextFiltersState.color}
 												changeHandler={(color: string) => {
 													updateSwipeColor(canvas, color);
 												}}
@@ -1314,7 +1563,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															if (!canvas) return;
 
 															if (imageObject && !imageObject.visible) {
-																imageObject.set({ visible: true });
+																imageObject.set({
+																	visible: true,
+																	// fill: userMetaData?.company?.color,
+																});
+																var filter =
+																	new fabric.Image.filters.BlendColor({
+																		color: userMetaData?.company?.color,
+																		mode: 'tint',
+																		alpha: 1,
+																	});
+																imageObject.filters.push(filter);
+																imageObject.applyFilters();
 																return canvas?.renderAll();
 															} else
 																createImage(canvas, border, {
@@ -1331,10 +1591,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												);
 											})}
 											<CustomColorPicker
-												value={overlayTextFiltersState.color}
+												// value={overlayTextFiltersState.color}
+												value={userMetaData?.company?.color}
 												changeHandler={(color: string) => {
 													const type = 'borders';
-
 													let existingObject = getExistingObject(type) as
 														| fabric.Image
 														| undefined;
@@ -1390,6 +1650,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											}}
 										>
 											{logos?.map((logo: string) => {
+												const logoFillColor =
+													userMetaData?.company?.color || 'black';
 												return (
 													<img
 														key={logo}
@@ -1406,12 +1668,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															)
 																updateTextBox(
 																	canvas,
-																	{ visible: !existingTextObject.visible },
+																	{
+																		visible: !existingTextObject.visible,
+																		fill: userMetaData?.company?.color,
+																	},
 																	'hashtag'
 																);
 															else
 																createTextBox(canvas, {
-																	fill: overlayTextFiltersState.color,
+																	// fill: overlayTextFiltersState.color,
+																	fill: userMetaData?.company?.color,
 																	customType: 'hashtag',
 																});
 														}}
@@ -1424,7 +1690,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												);
 											})}
 											<CustomColorPicker
-												value={overlayTextFiltersState.color}
+												value={userMetaData?.company?.color}
+												// value={overlayTextFiltersState.color}
 												changeHandler={(color: string) => {
 													const type = 'hashtag';
 
@@ -1442,6 +1709,112 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													updateTextBox(canvas, { fill: color }, 'hashtag');
 												}}
 											/>
+										</Box>
+
+										<Box>
+											<Typography>User Details</Typography>
+											{/* <Typography>{`Name: ${userMetaData?.company?.name}`}</Typography> */}
+											<Typography>{`Color :${userMetaData?.company?.color}`}</Typography>
+											<Typography>{`Font :${userMetaData?.company?.font}`}</Typography>
+											{/* <Typography>{`Website Link${userMetaData?.company?.website}`}</Typography>
+											<Typography>{`Plan :${userMetaData?.company?.plan}`}</Typography> */}
+											<Box
+												sx={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'center',
+													mt: 2,
+												}}
+											>
+												<img
+													src={userMetaData?.company?.logo}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																});
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+												<img
+													src={userMetaData?.company?.logo2}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo2,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																});
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+
+												<img
+													src={userMetaData?.company?.logo3}
+													onClick={() => {
+														fabric.Image.fromURL(
+															userMetaData?.company?.logo3,
+															function (img) {
+																img.set({
+																	width: 400,
+																	height: 400,
+																});
+																canvas.add(img);
+																requestAnimationFrame(() => {
+																	canvas.renderAll();
+																});
+															},
+															{
+																crossOrigin: 'anonymous',
+															}
+														);
+													}}
+													alt=''
+													// width='90px'
+													style={{
+														cursor: 'pointer',
+														paddingBottom: '0.5rem',
+														width: '80px',
+														height: '60px',
+													}}
+												/>
+											</Box>
 										</Box>
 									</Box>
 								</>
