@@ -91,7 +91,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			activeObject: null,
 			isDeselectDisabled: true,
 		});
-		console.log('canvasToolbox...', canvasToolbox);
 		const [initialData, setInitialData] = useState({
 			backgroundImages,
 			bubbles,
@@ -153,6 +152,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		];
 
 		const classes = useStyles();
+		const canvasInstanceRef = useRef(null);
 		useEffect(() => {
 			const options = {
 				width: canvasDimension.width,
@@ -161,6 +161,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				preserveObjectStacking: true,
 			};
 			const canvas = new fabric.Canvas(canvasEl.current, options);
+			canvasInstanceRef.current = canvas;
 			// make the fabric.Canvas instance available to your app
 			updateCanvasContext(canvas);
 
@@ -447,10 +448,188 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		//grid add
 		const [isSelected, setIsSelected] = useState(false);
+		//---------------------------------Canvas---------------------------------------------
+
+		//------------------ canvas grid --------------------------------
+		// useEffect(() => {
+		// 	if (!canvasEl.current) return;
+
+		// 	const canvas = new fabric.Canvas(canvasEl.current, {
+		// 		selection: false,
+		// 		// height: window.innerHeight,
+		// 		// width: window.innerWidth,
+		// 		width: 545,
+		// 	});
+
+		// 	const drawGrid = () => {
+		// 		const options = {
+		// 			distance: 10,
+		// 			// width: canvas.width,
+		// 			// height: canvas.height,
+		// 			width: 542,
+		// 			// height: 1200,
+		// 			param: {
+		// 				stroke: '#ebebeb',
+		// 				strokeWidth: 1,
+		// 				selectable: false,
+		// 			},
+		// 		};
+
+		// 		const gridLen = options.width / options.distance;
+
+		// 		for (let i = 0; i < gridLen; i++) {
+		// 			const distance = i * options.distance;
+		// 			const horizontal = new fabric.Line(
+		// 				[distance, 0, distance, options.width],
+		// 				options.param
+		// 			);
+		// 			const vertical = new fabric.Line(
+		// 				[0, distance, options.width, distance],
+		// 				options.param
+		// 			);
+		// 			canvas.add(horizontal);
+		// 			canvas.add(vertical);
+		// 			if (i % 5 === 0) {
+		// 				horizontal.set({ stroke: '#cccccc' });
+		// 				vertical.set({ stroke: '#cccccc' });
+		// 			}
+		// 		}
+		// 	};
+
+		// 	if (isSelected) {
+		// 		drawGrid();
+		// 	}
+
+		// 	return () => {
+		// 		canvas.clear();
+		// 	};
+		// }, [isSelected]);
+
+		// const [imagePath, setImagePath] = useState<string>('');
+
+		// useEffect(() => {
+		// 	if (!canvasEl.current) return;
+
+		// 	const canvas = new fabric.Canvas(canvasEl.current, {
+		// 		selection: false,
+		// 		width: 542, // Initial width
+		// 		height: 660,
+		// 		backgroundColor: 'rgba(0, 0, 0, 0)',
+		// 	});
+
+		// 	const drawGrid = () => {
+		// 		const options = {
+		// 			distance: 10,
+		// 			width: 675,
+		// 			height: 650,
+		// 			param: {
+		// 				stroke: '#ebebeb',
+		// 				strokeWidth: 1,
+		// 				selectable: false,
+		// 				zIndex: 100,
+		// 			},
+		// 		};
+
+		// 		const gridLen = options.width / options.distance;
+
+		// 		for (let i = 0; i < gridLen; i++) {
+		// 			const distance = i * options.distance;
+		// 			const horizontal = new fabric.Line(
+		// 				[distance, 0, distance, options.height],
+		// 				options.param
+		// 			);
+		// 			const vertical = new fabric.Line(
+		// 				[0, distance, options.width, distance],
+		// 				options.param
+		// 			);
+		// 			canvas.add(horizontal);
+		// 			canvas.add(vertical);
+		// 			if (i % 5 === 0) {
+		// 				horizontal.set({ stroke: '#cccccc' });
+		// 				vertical.set({ stroke: '#cccccc' });
+		// 			}
+		// 		}
+
+		// 		requestAnimationFrame(() => {
+		// 			canvas.renderAll();
+		// 		});
+		// 		// canvas.renderAll(); // Render grid
+		// 	};
+
+		// 	if (isSelected) {
+		// 		drawGrid();
+		// 	} else {
+		// 		canvas.clear(); // Clear grid
+		// 	}
+
+		// 	return () => {
+		// 		canvas.dispose(); // Dispose canvas
+		// 	};
+		// }, [isSelected]);
+
+		function draw_grid(canvasRef, grid_size) {
+			const canvas = canvasRef.current;
+			if (!canvas) return; // Check if canvasRef is valid
+
+			const ctx = canvas.getContext('2d');
+			const currentCanvasWidth = canvas.width;
+			const currentCanvasHeight = canvas.height;
+
+			// Drawing vertical lines
+			let x;
+			for (x = 0; x <= currentCanvasWidth; x += grid_size) {
+				ctx.moveTo(x + 0.5, 0);
+				ctx.lineTo(x + 0.5, currentCanvasHeight);
+			}
+
+			// Drawing horizontal lines
+			let y;
+			for (y = 0; y <= currentCanvasHeight; y += grid_size) {
+				ctx.moveTo(0, y + 0.5);
+				ctx.lineTo(currentCanvasWidth, y + 0.5);
+			}
+
+			ctx.strokeStyle = '#ebebeb';
+			ctx.stroke();
+		}
+
+		function hideGrid(canvasRef, originalImage) {
+			const canvas = canvasRef.current;
+			if (!canvas || !originalImage) return;
+
+			const ctx = canvas.getContext('2d');
+			const currentCanvasWidth = canvas.width;
+			const currentCanvasHeight = canvas.height;
+
+			// Clear the canvas by filling it with the background color or any content you want
+			ctx.clearRect(0, 0, currentCanvasWidth, currentCanvasHeight);
+		}
+
+		const darw_Grid_btn = () => {
+			if (canvasEl.current) {
+				draw_grid(canvasEl, 15);
+			}
+		};
 
 		const toggleSelection = () => {
 			setIsSelected(!isSelected);
+			if (isSelected) {
+				darw_Grid_btn();
+			} else {
+				hideGrid(canvasEl, 15);
+			}
 		};
+
+		//------------------------------------------------------------------------------------
+		// const toggleSelection = () => {
+		// 	setIsSelected(!isSelected);
+
+		// 	if (isSelected) {
+		// 		alert(`Selected`);
+		// 	} else {
+		// 		alert(`Not Selected`);
+		// 	}
+		// };
 		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
@@ -470,7 +649,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			let currentImageIndex = initialData.backgroundImages?.findIndex(
 				(bgImage: string) => bgImage === imageUrl
 			);
-			console.log('currentImageIndex', currentImageIndex);
 
 			if (!activeObject) {
 				if (template.diptych === 'horizontal') {
@@ -699,7 +877,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					columnGap: '50px',
 					marginTop: 50,
 					marginBottom: 50,
-					border: '1px solid red',
+					// border: '1px solid red',
 				}}
 			>
 				<div>
@@ -737,7 +915,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							style={{ width: 25, height: 25 }}
 							onClick={() => flipImage('flipY')}
 						/>
-
+						<GridOnIcon
+							color={isSelected ? 'primary' : 'disabled'}
+							onClick={darw_Grid_btn}
+							sx={{
+								px: 1,
+								color: 'white',
+								cursor: 'pointer',
+							}}
+						/>
+						{/* 
 						{isSelected ? (
 							<GridOnIcon
 								color={isSelected ? 'primary' : 'disabled'}
@@ -745,6 +932,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								sx={{
 									px: 1,
 									color: 'white',
+									cursor: 'pointer',
 								}}
 							/>
 						) : (
@@ -754,18 +942,33 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								sx={{
 									color: 'white',
 									px: 1,
+									cursor: 'pointer',
 								}}
 							/>
-						)}
+						)} */}
 					</div>
 
 					<canvas
-						style={{ border: '2px solid #ffff' }}
+						// style={{
+						// 	border: '2px solid red',
+						// 	position: 'relative',
+						// 	zIndex: 1000,
+						// }}
 						width='1080'
 						height='1350'
 						ref={canvasEl}
 					/>
-
+					{/* <div style={{ position: 'relative' }}>
+						<canvas
+							style={{
+								border: '2px solid red',
+								position: 'absolute',
+								top: 0,
+								left: 0,
+							}}
+							ref={canvasEl}
+						/>
+					</div> */}
 					{/* Footer Panel  Start*/}
 					{activeTab == 'background' && dropDown && (
 						<div>

@@ -1,21 +1,22 @@
 export const interestOptions = [
 	{
-		value: 'http://feeds.abcnews.com/abcnews/usheadlines',
+		// value: 'http://feeds.abcnews.com/abcnews/usheadlines',
+		value: 'http://feeds.foxnews.com/foxnews/latest?format=xml',
 		label: 'General',
 	},
-	{
-		value: 'http://www.nytimes.com/services/xml/rss/nyt/Business.xml',
-		label: 'Business',
-	},
+	// {
+	// 	value: 'http://www.nytimes.com/services/xml/rss/nyt/Business.xml',
+	// 	label: 'Business',
+	// },
 	{
 		// value: 'http://rss.cnn.com/rss/cnn_tech.rss',
 		value: 'http://feeds.foxnews.com/foxnews/tech',
 		label: 'Technology',
 	},
-	{
-		value: 'http://www.buzzfeed.com/tvandmovies.xml',
-		label: 'Entertainment',
-	},
+	// {
+	// 	value: 'http://www.buzzfeed.com/tvandmovies.xml',
+	// 	label: 'Entertainment',
+	// },
 	{
 		// value: 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
 		value: 'http://feeds.foxnews.com/foxnews/politics',
@@ -36,11 +37,11 @@ export const interestOptions = [
 		value: 'https://moxie.foxnews.com/google-publisher/health.xml',
 		label: 'Health',
 	},
-	{
-		value:
-			'http://feeds.gawker.com/kotaku/full#_ga=1.111114893.94307673.1446233598',
-		label: 'gaming',
-	},
+	// {
+	// 	value:
+	// 		'http://feeds.gawker.com/kotaku/full#_ga=1.111114893.94307673.1446233598',
+	// 	label: 'gaming',
+	// },
 ];
 
 export const rssOptions = [
