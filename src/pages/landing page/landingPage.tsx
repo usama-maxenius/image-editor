@@ -1,8 +1,14 @@
-import { Typography, CircularProgress, Box } from '@mui/material';
+import {
+	Typography,
+	CircularProgress,
+	Box,
+	Input,
+	Button,
+} from '@mui/material';
 import { styled } from '@mui/system';
 // import Input from '../../components/input/input';
 import CountdownTimer from '../../components/counter/counter';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { BaseURL } from '../../constants';
 
 import { APIResponse } from '../../types';
@@ -33,144 +39,76 @@ function LandingPage({ setScrappedData, updateStep }: Props) {
 
 	const [loading, setLoading] = useState(false);
 
-	// const getData = async () => {
-	// 	if (loading) return;
-	// 	if (!loading) {
-	// 		try {
-	// 			setLoading(true);
-	// 			const response = await fetch(`${BaseURL}/scrapping_data`, {
-	// 				method: 'POST',
-	// 				headers: {
-	// 					'Content-Type': 'application/json',
-	// 				},
-
-	// 				body: JSON.stringify({ url: scrapURL }),
-	// 			});
-	// 			const data = await response.json();
-
-	// 			if (!response.ok) {
-	// 				setLoading(false);
-	// 				return toast.error(data?.error);
-	// 			}
-
-	// 			await setScrappedData(data);
-	// 			updateStep(2);
-	// 			setLoading(false);
-	// 		} catch (error) {
-	// 			if (error instanceof Error) toast.error(error.message);
-	// 			setLoading(false);
-	// 		}
-	// 	} else updateStep(2);
-	// };
-
 	const getData = async () => {
 		if (loading) return;
+		if (!loading) {
+			try {
+				setLoading(true);
+				const response = await fetch(`${BaseURL}/scrapping_data`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
 
-		try {
-			setLoading(true);
-			const response = await fetch(`${BaseURL}/scrapping_data`, {
-				method: 'POST',
-				body: JSON.stringify({ url: scrapURL }),
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-
-			if (!response.ok) {
+					body: JSON.stringify({ url: scrapURL }),
+				});
 				const data = await response.json();
-				setLoading(false);
-				return toast.error(data?.error || 'Error fetching data');
-			}
 
-			const data = await response.json();
-			await setScrappedData(data);
-			updateStep(2);
-		} catch (error) {
-			toast.error('An error occurred while fetching data');
-		} finally {
-			setLoading(false);
-		}
+				if (!response.ok) {
+					setLoading(false);
+					return toast.error(data?.error);
+				}
+
+				await setScrappedData(data);
+				updateStep(2);
+				setLoading(false);
+			} catch (error) {
+				if (error instanceof Error) toast.error(error.message);
+				setLoading(false);
+			}
+		} else updateStep(2);
 	};
 
-	useEffect(() => {
-		scrapURL ? getData() : '';
-	}, []);
+	function updateScrapURL(_value: string): void {
+		throw new Error('Function not implemented.');
+	}
+
+	// useEffect(() => {
+	// 	scrapURL ? getData() : '';
+	// }, []);
 
 	return (
 		<>
 			<Box>
 				{isAuthenticated ? (
 					<StyledContainer>
-						{loading ? (
-							<Box
-								sx={{
-									display: 'flex',
-									justifyContent: 'center',
-									alignItems: 'center',
-									flexDirection: 'column',
-								}}
-							>
-								<Box
-									sx={{
-										display: 'flex',
-										gap: 2,
-										justifyContent: 'center',
-										alignItems: 'center',
-									}}
-								>
-									<CircularProgress
-										sx={{ width: '100%', height: '100%', mt: -2 }}
-									/>
-									<Typography variant='h3' gutterBottom color='black'>
-										Loading ...
-									</Typography>
-								</Box>
-								<Box>
-									<Typography variant='h3' gutterBottom color='black'>
-										<CountdownTimer />
-									</Typography>
-								</Box>
-							</Box>
-						) : (
-							<StyledContainer>
-								<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
-									POSTICLE.AI
-								</Typography>
-								<Typography
-									variant='body1'
-									sx={{ color: 'black' }}
-									gutterBottom
-								>
-									CREATE & SHARE THE LATEST NEWS WITH
-								</Typography>
-							</StyledContainer>
-						)}
+						<Typography variant='h4' gutterBottom color='black'>
+							PASTE NEWS LINK URL
+						</Typography>
+						<Input
+							defaultValue={scrapURL}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								updateScrapURL(e.target.value)
+							}
+							sx={{
+								width: '355px',
+							}}
+						/>
+						<Button
+							variant='contained'
+							sx={{
+								mt: '30px',
+								bgcolor: 'white',
+								color: 'black',
+								'&:hover': { bgcolor: 'white', color: 'black' },
+							}}
+							onClick={getData}
+						>
+							{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
+							{loading && <CircularProgress size={24} color='inherit' />}
+						</Button>
 					</StyledContainer>
 				) : (
-					// <StyledContainer>
-					// 	<Typography variant='h4' gutterBottom color='black'>
-					// 		PASTE NEWS LINK URL
-					// 	</Typography>
-					// 	<Input
-					// 		defaultValue={scrapURL}
-					// 		onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-					// 			updateScrapURL(e.target.value)
-					// 		}
-					// 	/>
-					// 	<Button
-					// 		variant='contained'
-					// 		sx={{
-					// 			mt: '30px',
-					// 			bgcolor: 'white',
-					// 			color: 'black',
-					// 			'&:hover': { bgcolor: 'white', color: 'black' },
-					// 		}}
-					// 		onClick={getData}
-					// 	>
-					// 		{loading ? <CountdownTimer /> : 'GO >>'} &nbsp;&nbsp;{' '}
-					// 		{loading && <CircularProgress size={24} color='inherit' />}
-					// 	</Button>
-					// </StyledContainer>
 					<StyledContainer>
 						<Typography variant='h4' sx={{ color: 'black' }} gutterBottom>
 							POSTICLE.AI
