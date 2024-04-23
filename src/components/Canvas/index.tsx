@@ -2294,18 +2294,21 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                             width="100"
                             height="100"
                             style={{
-                                color: 'white',
+              color: 'white',
                                 fontSize: '30px',
                                 filter: activeTab === 'background' ? filter : undefined,
                             }}
                         />
                     </button>
 
-                    <button style={{ backgroundColor: 'transparent', border: 'none' }} onClick={() => updateActiveTab('title')}>
+                    <button style={{ backgroundColor: 'transparent', 
+                    
+                    border: 'none' }} 
+                    onClick={() => updateActiveTab('title')}>
                         <img
-                            src="/Tab-Icons/Edit-Text.png"
-                            width="100"
-                            height="100"
+               src="/Tab-Icons/Edit-Text.png"
+          width="100"
+        height="100"
                             style={{
                                 color: 'white',
                                 fontSize: '30px',
