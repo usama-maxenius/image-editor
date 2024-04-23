@@ -6,8 +6,6 @@ import UserInfo from "./pages/userInfo";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
-
-	// testing
     return (
         <>
             <Header />
