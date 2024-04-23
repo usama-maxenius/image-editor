@@ -9,8 +9,8 @@
         "preview": "vite preview --port 8080",
         "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
         "precommit": "lint-staged",
-        "prepare": "husky install"
-    },
+        "prepare": "husky install && npx husky add .husky/pre-commit \"npm run lint-fix\""
+      },
     "lint-staged": {
         "*.{js,json,css,scss,html,md}": [
             "prettier --write",
