@@ -12,14 +12,15 @@
         "prepare": "husky install"
     },
     "lint-staged": {
-        "src/**/*.{js,jsx,ts,tsx}": [
-            "eslint --fix"
+        "*.{js,json,css,scss,html,md}": [
+            "prettier --write",
+            "git add"
         ]
     },
     "husky": {
-      "hooks": {
-          "pre-commit": "yarn precommit"
-      }
+        "hooks": {
+            "pre-commit": "yarn precommit"
+        }
     },
     "dependencies": {
         "@auth0/auth0-react": "^2.2.4",
