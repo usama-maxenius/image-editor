@@ -26,8 +26,7 @@ export const createBubbleElement = (
     stroke: "#ffffff",
     strokeUniform: false,
     selectable: true,
-    // ...(existingBubbleStroke && { ...existingBubbleStroke }),
-    // ...options,
+ 
   });
 
   // const existingBubble = getExistingObject(canvas, 'bubble') as fabric.Circle;

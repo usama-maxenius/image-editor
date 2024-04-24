@@ -22,6 +22,7 @@ import { IEvent, IRectOptions } from "fabric/fabric-impl";
 import { canvasDimension, templateData } from "../../constants";
 import CustomColorPicker from "../colorPicker";
 import { Template } from "../../types";
+import { getSummary } from "../../api/write-post/index";
 import DeselectIcon from "@mui/icons-material/Deselect";
 import JSZip from "jszip";
 
@@ -179,8 +180,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const { paginationState, selectedPage, setSelectedPage, addPage, update } =
       usePaginationContext();
 
-    const { userMetaData, updateIsUserMetaExist, updateUserMetaData } =
-      useCanvasContext();
+    const {
+      scrapURL,
+      userMetaData,
+      updateIsUserMetaExist,
+      updateUserMetaData,
+    } = useCanvasContext();
 
     const [canvasToolbox, setCanvasToolbox] = useState({
       activeObject: null,
@@ -254,7 +259,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
     const classes = useStyles();
     const canvasInstanceRef = useRef(null);
     const [color, setColor] = useState("#909AE9");
-    console.log("🚀 ~ color:", color);
+
     const [colorApplied, setColorApplied] = useState(false);
     const [bgColorApplied, setBgColorApplied] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState("#909BEB");
@@ -665,7 +670,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
       }
 
       const activeBubble = canvas.getActiveObject();
-      console.log("🚀 ~ activeBubble:", activeBubble);
+
       const obj = {
         left: activeBubble?.left,
         top: activeBubble?.top,
@@ -681,7 +686,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         zoomX: activeBubble?.customType,
         zoomY: activeBubble?.customType,
       };
-      console.log("🚀 ~ obj:", obj);
 
       if (activeBubble && activeBubble.customType === "bubble") {
         // Remove existing bubble element from canvas
@@ -1540,6 +1544,19 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         toast.error("Please save all templates before exporting.");
       }
     };
+
+    const [summaryContent, setSummaryContent] = useState<{ content: string }>({
+      content: "",
+    });
+
+    useEffect(() => {
+      (async () => {
+        const response = await getSummary(scrapURL);
+
+        if (response?.success)
+          setSummaryContent(response?.data?.data?.response);
+      })();
+    }, []);
 
     return (
       <div
@@ -3607,6 +3624,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             {activeTab == "writePost" && (
               <div>
                 <h2>Write post</h2>
+                {summaryContent?.content && (
+                  <p
+                    onClick={() => {
+                      canvas?.add("text", summaryContent?.content);
+                      canvas?.renderAll();
+                    }}
+                  >
+                    {summaryContent?.content}
+                  </p>
+                )}
               </div>
             )}
           </div>
