@@ -1521,27 +1521,26 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                                 </div>
                             )}
 
-                            {activeButton === 'Contrast' && (
+              {activeButton === 'Contrast' && (
                                 <div className={classes.sliderContainer}>
                                     <Slider
                                         className={classes.slider}
-                                        aria-label="Overlay, Brightness, Contrast"
+                                                        aria-label="Overlay, Brightness, Contrast"
                                         color="secondary"
                                         defaultValue={0}
                                         min={-1}
                                         value={filtersRange.contrast}
-                                        max={1}
-                                        step={0.01}
-                                        valueLabelDisplay="auto"
+                                        max={1}step={0.01}
+                          valueLabelDisplay="auto"
                                         //eslint-disable-next-line
                                         onChange={(e: any) => {
-                                            let value = +e.target.value;
+                                                              let value = +e.target.value;
                                             setFiltersRange({ ...filtersRange, contrast: value });
                                             var filter = new fabric.Image.filters.Contrast({
                                                 contrast: value,
                                             });
-                                            updateBackgroundFilters(filter, 'contrast');
-                                        }}
+                    updateBackgroundFilters(filter, 'contrast');
+                                                         }}
                                     />
                                 </div>
                             )}
@@ -2317,15 +2316,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ updatedSeedData, template })
                         />
                     </button>
 
-                    <button onClick={() => updateActiveTab('bubble')} style={{ backgroundColor: 'transparent', border: 'none' }}>
+           <button onClick={() => updateActiveTab('bubble')} style={{ backgroundColor: 'transparent', border: 'none' }}>
                         <img
-                            src="/Tab-Icons/Add-Bubble.png"
+                                                 src="/Tab-Icons/Add-Bubble.png"
                             width="100"
-                            height="100"
+height="100"
                             style={{
                                 color: 'white',
                                 fontSize: '30px',
-                                filter: activeTab === 'bubble' ? filter : undefined,
+                                filter: activeTab ===                      'bubble' ? filter : undefined,
                             }}
                         />
                     </button>
