@@ -1879,7 +1879,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
               </Paper>
             </div>
           )}
-          {(activeTab == "title" || activeTab === "element") && dropDown && (
+          {(activeTab == "writePost" || activeTab == "title" || activeTab === "element") && dropDown && (
             <div
               style={{
                 width: "555px",
@@ -3624,14 +3624,31 @@ const Canvas: React.FC<CanvasProps> = React.memo(
             {activeTab == "writePost" && (
               <div>
                 <h2>Write post</h2>
-                {summaryContent?.content && (
+                {summaryContent && summaryContent.content && (
                   <p
                     onClick={() => {
-                      canvas?.add("text", summaryContent?.content);
-                      canvas?.renderAll();
+                      const text = summaryContent.content;
+
+                      createTextBox(canvas, {
+                        text,
+                        customType: "title",
+                        fill: "#fff",
+                        width: 303,
+                        height: 39,
+                        top: 504,
+                        left: 34,
+                        scaleX: 1.53,
+                        scaleY: 1.53,
+                        fontSize: 16,
+                      });
+
+                      updateTextBox(canvas, { text });
+
+                      // canvas && canvas.add("text", summaryContent.content);
+                      // canvas && canvas.renderAll();
                     }}
                   >
-                    {summaryContent?.content}
+                    {summaryContent.content}
                   </p>
                 )}
               </div>
