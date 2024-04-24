@@ -4,7 +4,6 @@ export async function getSummary(scrapURL: string) {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
-  console.log("scrapURL", scrapURL);
   const raw = JSON.stringify({
     url: scrapURL,
     vibe: "positive",
