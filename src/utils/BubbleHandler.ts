@@ -5,6 +5,13 @@ import { scaleToFit } from "./ImageHandler";
 
 fabric.Object.prototype.noScaleCache = false;
 
+const generateCustomUUID = (): string => {
+  const now = new Date();
+  const timestamp = now.getTime(); // Get current timestamp
+  const uniqueId = Math.random().toString(36).substr(2, 9); // Generate a random unique identifier
+  return `${timestamp}-${uniqueId}`;
+};
+
 export const createBubbleElement = (
   canvas: fabric.Canvas,
   imgUrl: string
@@ -14,7 +21,7 @@ export const createBubbleElement = (
   // 	canvas,
   // 	'bubbleStroke'
   // ) as fabric.Circle;
-
+  const bubbleUUID = generateCustomUUID();
   var strokeCircle = new fabric.Circle({
     radius: 100,
     left: 350,
@@ -56,6 +63,7 @@ export const createBubbleElement = (
   imageElement.onload = function () {
     var fabricImage = new fabric.Image(imageElement);
     (fabricImage as any).customType = "bubble";
+    (fabricImage as any).customID = bubbleUUID;
 
     fabricImage.clipPath = clipPath;
 
@@ -81,8 +89,12 @@ export const createBubbleElement = (
       .setCoords();
 
     (strokeCircle as any).customType = "bubbleStroke";
+    (strokeCircle as any).customID = bubbleUUID;
+
     // if (existingBubble) canvas?.remove(existingBubble);
     // if (existingBubbleStroke) canvas?.remove(existingBubbleStroke);
+    //  strokeCircle?.customID = bubbleUUID;
+
     canvas.add(strokeCircle);
     canvas.add(fabricImage);
 
@@ -125,6 +137,7 @@ export const createBubbleElement = (
     canvas.renderAll();
   };
 };
+
 export const createBubbleElement1 = (
   canvas: fabric.Canvas,
   imgUrl: string,
@@ -134,6 +147,8 @@ export const createBubbleElement1 = (
     canvas,
     "bubbleStroke"
   ) as fabric.Circle;
+  const bubbleUUID = generateCustomUUID(); // Generate UUID for the bubble
+
   var strokeCircle = new fabric.Circle({
     radius: 100,
     left: 350,
@@ -175,6 +190,7 @@ export const createBubbleElement1 = (
   imageElement.onload = function () {
     var fabricImage = new fabric.Image(imageElement);
     (fabricImage as any).customType = "bubble";
+    // (fabricImage as any).customID = bubbleUUID;
 
     fabricImage.clipPath = clipPath;
 
@@ -199,9 +215,12 @@ export const createBubbleElement1 = (
       })
       .setCoords();
 
+    // when circle is move, Move the image
     (strokeCircle as any).customType = "bubbleStroke";
     if (existingBubble) canvas?.remove(existingBubble);
     if (existingBubbleStroke) canvas?.remove(existingBubbleStroke);
+    // (strokeCircle as any).customID = bubbleUUID;
+
     canvas.insertAt(strokeCircle, 4, false);
     canvas.insertAt(fabricImage, 5, false);
 
@@ -227,6 +246,7 @@ export const createBubbleElement1 = (
         .setCoords();
     });
 
+    // resize the bubble to resize the image
     strokeCircle.on("scaling", function () {
       clipPath.scaleToWidth(strokeCircle.getScaledWidth());
       clipPath.scaleToHeight(strokeCircle.getScaledHeight());

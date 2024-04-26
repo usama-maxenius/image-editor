@@ -121,6 +121,7 @@ import tempJSON from "./temp.json";
 import SwipeVerticalIcon from "@mui/icons-material/SwipeVertical";
 
 import SwipeRightIcon from "@mui/icons-material/SwipeRight";
+import { scaleToFit } from "../../utils/ImageHandler";
 
 type TemplateJSON = any;
 interface PaginationStateItem {
@@ -659,52 +660,171 @@ const Canvas: React.FC<CanvasProps> = React.memo(
           spread: 100,
         };
         requestAnimationFrame(() => {
-          createBubbleElement1(canvas!, imgUrl!, options);
+          createBubbleElement(canvas!, imgUrl!, options);
           canvas.renderAll();
         });
         return;
       }
 
       const activeBubble = canvas.getActiveObject();
-      // console.log("🚀 ~ activeBubble:", activeBubble);
 
-      const obj = {
-        left: activeBubble?.left,
-        top: activeBubble?.top,
-        scaleX: activeBubble?.scaleX,
-        scaleY: activeBubble?.scaleY,
-        angle: activeBubble?.angle,
-        flipX: activeBubble?.flipX,
-        flipY: activeBubble?.flipY,
-        opacity: activeBubble?.opacity,
-        selectable: activeBubble?.selectable,
-        hoverCursor: activeBubble?.hoverCursor,
-        customType: activeBubble?.customType,
-        zoomX: activeBubble?.customType,
-        zoomY: activeBubble?.customType,
-      };
+      console.log("activeBubble", activeBubble?.customId);
 
-      if (activeBubble && activeBubble.customType === "bubble") {
-        canvas.remove(activeBubble);
-        fabric.Image.fromURL(imgUrl, function (img) {
-          img.set({
-            left: activeBubble.left,
-            top: activeBubble.top,
-            scaleX: activeBubble.scaleX,
-            scaleY: activeBubble.scaleY,
-            angle: activeBubble.angle,
-            flipX: activeBubble.flipX,
-            flipY: activeBubble.flipY,
-            opacity: activeBubble.opacity,
-            selectable: activeBubble.selectable,
-            hoverCursor: activeBubble.hoverCursor,
-            customType: activeBubble.customType,
+      let objectFound: fabric.Object | undefined;
+      const objects = canvas.getObjects();
+      for (const object of objects) {
+        if (object?.customId === activeBubble?.customId && object.customType == "bubbleStroke") {
+          objectFound = object;
+          break; // Break the loop once the object is found
+        }
+      }
+
+      var strokeCircle = new fabric.Circle({
+        radius: 100,
+        left: 350,
+        top: 330,
+        originX: "center",
+        originY: "center",
+        fill: "transparent",
+        strokeWidth: 10,
+        stroke: "#ffffff",
+        strokeUniform: false,
+        selectable: true,
+        // ...(existingBubbleStroke && { ...existingBubbleStroke }),
+        // ...options,
+      });
+
+      const existingBubble = getExistingObject(
+        canvas,
+        "bubble"
+      ) as fabric.Circle;
+      var clipPath = new fabric.Circle({
+        radius: strokeCircle.radius!,
+        left: strokeCircle.left,
+        top: strokeCircle.top,
+        originX: "center",
+        originY: "center",
+        fill: "transparent",
+        opacity: 1,
+        visible: true,
+        selectable: true,
+        strokeUniform: true,
+        perPixelTargetFind: true,
+        absolutePositioned: true,
+        ...(existingBubble && { ...existingBubble.clipPath }),
+      });
+
+      if (activeBubble && activeBubble.customType === "bubble" ) {
+        // Add the image to the canvas when needed
+        var imageElement = document.createElement("img");
+        imageElement.src = imgUrl;
+        imageElement.crossOrigin = "anonymous";
+
+        imageElement.onload = function () {
+          var fabricImage = new fabric.Image(imageElement);
+          (fabricImage as any).customType = "bubble";
+
+          fabricImage.clipPath = clipPath;
+
+          var circleCenter = strokeCircle.getCenterPoint();
+          const circleRadius = strokeCircle.radius!;
+          const scaleFactor = Math.max(
+            (circleRadius * 2) / fabricImage.width!,
+            (circleRadius * 2) / fabricImage.height!
+          );
+
+          const imgFitWidth = strokeCircle.width! + 50;
+          const imgFitHeight = strokeCircle.height! + 50;
+
+          scaleToFit(fabricImage, { width: imgFitWidth, height: imgFitHeight });
+
+          fabricImage
+            .set({
+              absolutePositioned: false,
+              perPixelTargetFind: true,
+              left:
+                circleCenter.x - (fabricImage.width! * scaleFactor) / 2 - 30,
+              top:
+                circleCenter.y - (fabricImage.height! * scaleFactor) / 2 - 30,
+            })
+            .setCoords();
+
+          // when circle is move, Move the image
+          (strokeCircle as any).customType = "bubbleStroke";
+          // if (existingBubble) canvas?.remove(existingBubble);
+          // if (existingBubbleStroke) canvas?.remove(existingBubbleStroke);
+          canvas.insertAt(strokeCircle, 4, false);
+          canvas.insertAt(fabricImage, 5, false);
+
+          strokeCircle.on("moving", function () {
+            var circleCenter = strokeCircle.getCenterPoint();
+            var imageCenter = fabricImage.getCenterPoint();
+
+            var offsetX = circleCenter.x - imageCenter.x;
+            var offsetY = circleCenter.y - imageCenter.y;
+
+            fabricImage
+              .set({
+                left: fabricImage.left! + offsetX,
+                top: fabricImage.top! + offsetY,
+              })
+              .setCoords();
+
+            clipPath
+              .set({
+                left: strokeCircle.left,
+                top: strokeCircle.top,
+              })
+              .setCoords();
           });
-          img.clipPath = activeBubble.clipPath;
-          canvas.add(img);
-          canvas.setActiveObject(img);
-          canvas.renderAll();
-        });
+
+          // resize the bubble to resize the image
+          strokeCircle.on("scaling", function () {
+            clipPath.scaleToWidth(strokeCircle.getScaledWidth());
+            clipPath.scaleToHeight(strokeCircle.getScaledHeight());
+            clipPath
+              .set({
+                left: strokeCircle.left,
+                top: strokeCircle.top,
+                scaleX: strokeCircle.scaleX,
+                scaleY: strokeCircle.scaleY,
+                radius: strokeCircle.radius!,
+              })
+              .setCoords();
+          });
+
+          // canvas.renderAll();
+          console.log("activeBubbleImp", activeBubble);
+          console.log("objectFoundImpt", objectFound);
+
+          if (objectFound) {
+        
+            canvas.remove(activeBubble);
+            canvas.remove(objectFound);
+        
+            canvas.renderAll();
+          }
+        };
+        // canvas.remove(activeBubble);
+        // fabric.Image.fromURL(imgUrl, function (img) {
+        //   img.set({
+        //     left: activeBubble.left,
+        //     top: activeBubble.top,
+        //     scaleX: activeBubble.scaleX,
+        //     scaleY: activeBubble.scaleY,
+        //     angle: activeBubble.angle,
+        //     flipX: activeBubble.flipX,
+        //     flipY: activeBubble.flipY,
+        //     opacity: activeBubble.opacity,
+        //     selectable: activeBubble.selectable,
+        //     hoverCursor: activeBubble.hoverCursor,
+        //     customType: activeBubble.customType,
+        //   });
+        //   img.clipPath = activeBubble.clipPath;
+        //   canvas.add(img);
+        //   canvas.setActiveObject(img);
+        //   canvas.renderAll();
+        // });
       }
 
       if (!activeBubble && isChecked) {
@@ -721,7 +841,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
         });
       }
     };
-
+    useEffect(() => {
+      const handleClick = (e) => {
+        const target = e.target;
+        if (target && target.type === 'activeSelection') {
+          // If multiple objects are selected
+          console.log('Selected objects:', target.getObjects());
+        } else if (target) {
+          // If a single object is selected
+          console.log('Selected object:', target);
+        }
+      };
+    
+      canvas?.on('mouse:down', handleClick);
+    
+      return () => {
+        canvas?.off('mouse:down', handleClick);
+      };
+    }, [canvas]);
     //-----------------------------------------------
     // const [bubbleObjectState, setBubbleObjectState] = useState({});
     // console.log("bubbleObjectState", bubbleObjectState);
