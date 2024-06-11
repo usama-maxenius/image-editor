@@ -278,6 +278,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			canvasInstanceRef.current = canvas;
 			useCanvasStore.setState({ canvas });
 			updateCanvasContext(canvas);
+			(window as any)._canvas = canvas;
 
 			// Attach the event listener with the separated function
 			canvas.on('selection:created', handleSelectionUpdated);
@@ -290,6 +291,322 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				canvas.dispose();
 			};
 		}, [canvasDimension, selectedPage, paginationState]);
+
+		useEffect(() => {
+			const canvas = useCanvasStore.getState().canvas;
+			if (!canvas) return false;
+			const events = {
+				object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
+				mouse: ['down', 'up', 'moving', 'over', 'out'],
+			};
+
+			function bindEvents() {
+				events.object.forEach((event) => {
+					if (event === 'added') {
+						canvas.on(`object:${event}`, onObjectAdded);
+					} else if (event === 'moving') {
+						canvas.on(`object:${event}`, onObjectMoving);
+					} else if (event === 'mouseover') {
+						canvas.on(`object:${event}`, onObjectMouseOver);
+					} else if (event === 'moved') {
+						canvas.on(`object:${event}`, onObjectMoved);
+					}
+				});
+			}
+
+			function init() {
+				bindEvents();
+
+				const snappy = new fabric.SnappyText('Hello', {
+					width: 150,
+					height: 150,
+					fill: 'yellow',
+					top: 10,
+					left: 10,
+				});
+
+				canvas.add(snappy).renderAll();
+
+				const snappy2 = new fabric.SnappyText('Hello World', {
+					width: 150,
+					height: 150,
+					fill: 'yellow',
+					top: 10,
+					left: 10,
+				});
+
+				canvas.add(snappy2).renderAll();
+			}
+
+			function onObjectAdded(e: fabric.IEvent<fabric.Object>) {
+				const obj = e.target;
+
+				if (!(obj instanceof fabric.SnappyText)) return false;
+
+				drawObjectGuides(obj);
+			}
+
+			function onObjectMoved(e: fabric.IEvent<fabric.Object>) {
+				const obj = e.target;
+				if (!(obj instanceof fabric.SnappyText)) return false;
+				drawObjectGuides(obj);
+			}
+
+			function onObjectMoving(e: fabric.IEvent<fabric.Object>) {
+				const obj = e.target;
+
+				if (!(obj instanceof fabric.SnappyText)) return false;
+
+				drawObjectGuides(obj);
+
+				const objects = canvas
+					.getObjects()
+					.filter((o) => o.type !== 'line' && o !== obj);
+				const matches = new Set<string>();
+
+				for (const i of objects) {
+					for (const side in (obj as any).guides) {
+						let axis, newPos;
+
+						switch (side) {
+							case 'right':
+								axis = 'left';
+								newPos = (i as any).guides[side][axis] - obj.getScaledWidth();
+								break;
+							case 'bottom':
+								axis = 'top';
+								newPos = (i as any).guides[side][axis] - obj.getScaledHeight();
+								break;
+							case 'centerX':
+								axis = 'left';
+								newPos =
+									(i as any).guides[side][axis] - obj.getScaledWidth() / 2;
+								break;
+							case 'centerY':
+								axis = 'top';
+								newPos =
+									(i as any).guides[side][axis] - obj.getScaledHeight() / 2;
+								break;
+							default:
+								axis = side;
+								newPos = (i as any).guides[side][axis];
+								break;
+						}
+
+						if (
+							inRange(
+								(obj as any).guides[side][axis],
+								(i as any).guides[side][axis]
+							)
+						) {
+							matches.add(side);
+							snapObject(obj, axis, newPos);
+						}
+
+						if (side === 'left') {
+							if (
+								inRange(
+									(obj as any).guides['left'][axis],
+									(i as any).guides['right'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(obj, axis, (i as any).guides['right'][axis]);
+							}
+						} else if (side === 'right') {
+							if (
+								inRange(
+									(obj as any).guides['right'][axis],
+									(i as any).guides['left'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['left'][axis] - obj.getScaledWidth()
+								);
+							}
+						} else if (side === 'top') {
+							if (
+								inRange(
+									(obj as any).guides['top'][axis],
+									(i as any).guides['bottom'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(obj, axis, (i as any).guides['bottom'][axis]);
+							}
+						} else if (side === 'bottom') {
+							if (
+								inRange(
+									(obj as any).guides['bottom'][axis],
+									(i as any).guides['top'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['top'][axis] - obj.getScaledHeight()
+								);
+							}
+						} else if (side === 'centerX') {
+							if (
+								inRange(
+									(obj as any).guides['centerX'][axis],
+									(i as any).guides['left'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['left'][axis] - obj.getScaledWidth() / 2
+								);
+							} else if (
+								inRange(
+									(obj as any).guides['centerX'][axis],
+									(i as any).guides['right'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['right'][axis] - obj.getScaledWidth() / 2
+								);
+							}
+						} else if (side === 'centerY') {
+							if (
+								inRange(
+									(obj as any).guides['centerY'][axis],
+									(i as any).guides['top'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['top'][axis] - obj.getScaledHeight() / 2
+								);
+							} else if (
+								inRange(
+									(obj as any).guides['centerY'][axis],
+									(i as any).guides['bottom'][axis]
+								)
+							) {
+								matches.add(side);
+								snapObject(
+									obj,
+									axis,
+									(i as any).guides['bottom'][axis] - obj.getScaledHeight() / 2
+								);
+							}
+						}
+					}
+				}
+
+				for (const k of matches) {
+					(obj as any).guides[k].set('opacity', 1);
+				}
+
+				obj.setCoords();
+			}
+
+			function onObjectMouseOver(e: fabric.IEvent<fabric.Object>) {
+				const obj = e.target;
+				if (!(obj instanceof fabric.Line)) return false;
+				obj.set('opacity', 1);
+				canvas.renderAll();
+			}
+
+			function drawObjectGuides(obj: fabric.Object) {
+				const w = obj.getScaledWidth();
+				const h = obj.getScaledHeight();
+				drawGuide('top', obj.top, obj);
+				drawGuide('left', obj.left, obj);
+				drawGuide('centerX', obj.left + w / 2, obj);
+				drawGuide('centerY', obj.top + h / 2, obj);
+				drawGuide('right', obj.left + w, obj);
+				drawGuide('bottom', obj.top + h, obj);
+				obj.setCoords();
+			}
+
+			function drawGuide(side: string, pos: number, obj: fabric.Object) {
+				let ln: fabric.Line;
+				const color = 'rgb(178, 207, 255)';
+				const lineProps = {
+					left: 0,
+					top: 0,
+					evented: true,
+					stroke: color,
+					selectable: false,
+					opacity: 0,
+				};
+
+				switch (side) {
+					case 'top':
+						ln = new fabric.Line([0, 0, canvas.width, 0], {
+							...lineProps,
+							top: pos,
+						});
+						break;
+					case 'bottom':
+						ln = new fabric.Line([0, 0, canvas.width, 0], {
+							...lineProps,
+							top: pos,
+						});
+						break;
+					case 'centerY':
+						ln = new fabric.Line([0, 0, canvas.width, 0], {
+							...lineProps,
+							top: pos,
+						});
+						break;
+					case 'left':
+						ln = new fabric.Line([0, canvas.height, 0, 0], {
+							...lineProps,
+							left: pos,
+						});
+						break;
+					case 'right':
+						ln = new fabric.Line([0, canvas.height, 0, 0], {
+							...lineProps,
+							left: pos,
+						});
+						break;
+					case 'centerX':
+						ln = new fabric.Line([0, canvas.height, 0, 0], {
+							...lineProps,
+							left: pos,
+						});
+						break;
+					default:
+						return;
+				}
+
+				if ((obj as any).guides[side] instanceof fabric.Line) {
+					canvas.remove((obj as any).guides[side]);
+					delete (obj as any).guides[side];
+				}
+
+				(obj as any).guides[side] = ln;
+				canvas.add(ln).renderAll();
+			}
+
+			function inRange(a: number, b: number) {
+				return Math.abs(a - b) <= 10;
+			}
+
+			function snapObject(obj: fabric.Object, side: string, pos: number) {
+				obj.set(side, pos);
+				obj.setCoords();
+				drawObjectGuides(obj);
+			}
+
+			init();
+		}, []);
 
 		const handleSelectionUpdated = (e) => {
 			const activeObject = canvasInstanceRef.current!.getActiveObject();
@@ -340,7 +657,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			const templateFound = paginationState?.find(
 				(item) => item?.page === selectedPage
 			);
-
 			await new Promise((resolve) => {
 				canvas?.loadFromJSON(templateFound?.templateJSON, () => {
 					resolve(null);
@@ -349,8 +665,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		}, [canvas, paginationState, selectedPage]);
 
 		useEffect(() => {
-			init();
-			// loadCanvas();
+			loadCanvas();
+			// init().then(() => {
+			// 	loadCanvas();
+			// });
+
 			// init().then(() => {
 			// loadCanvas();
 			// createImage(canvas, template?.overlayImage, {
@@ -1287,6 +1606,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		});
 
 		const handleSelectionChanged = () => {
+			console.log(canvas?.getActiveObject()?.guides);
+			// canvas.getActiveObject().guides = null;
+
 			// clearAllGuides();
 		};
 

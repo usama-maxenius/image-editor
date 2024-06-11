@@ -21,6 +21,7 @@ export const SnappyImage = fabric.util.createClass(fabric.Image, {
 	_drawObjectGuides: function () {
 		const w = this.getScaledWidth();
 		const h = this.getScaledHeight();
+		console.log(this.top);
 		this._drawGuide('top', this.top);
 		this._drawGuide('left', this.left);
 		this._drawGuide('centerX', this.left + w / 2);
@@ -330,7 +331,7 @@ function onObjectMoving(e) {
 		.getObjects()
 		.filter((o) => o.type !== 'line' && o !== obj);
 	const matches = new Set();
-
+	console.log({ objects });
 	for (var i of objects) {
 		for (var side in obj.guides) {
 			var axis, newPos;
