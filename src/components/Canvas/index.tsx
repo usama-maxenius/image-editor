@@ -10,7 +10,7 @@ import {
 	Checkbox,
 } from '@mui/material';
 import { useOnClickOutside } from 'usehooks-ts';
-
+import './fabric-smart-object';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -121,6 +121,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			brightness: 0,
 			contrast: 0,
 		});
+
 		var events = {
 			object: ['added', 'moving', 'moved', 'scaled', 'selected', 'over'],
 			mouse: ['down', 'up', 'moving', 'over', 'out'],
@@ -129,7 +130,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		const bindEvents = useCallback(() => {
 			if (!canvas) return;
 			events.object.forEach((event) => {
-				if (event === 'moving') {
+				if (event === 'added') {
+					canvas.on(`object:${event}`, (e) => onObjectAdded(e, canvas));
+				} else if (event === 'moving') {
 					canvas.on(`object:${event}`, (e) => onObjectMoving(e, canvas));
 				} else if (event === 'mouseover') {
 					canvas.on(`object:${event}`, (e) => onObjectMouseOver(e, canvas));
@@ -364,7 +367,24 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						resolve(null);
 					});
 				});
-				bindEvents();
+				await bindEvents();
+				var snappy = new fabric.SnappyText('Hello', {
+					width: 250,
+					height: 150,
+					fill: 'yellow',
+					top: 10,
+					left: 210,
+				});
+				var snappy2 = new fabric.SnappyText('Hello World', {
+					width: 150,
+					height: 150,
+					fill: 'yellow',
+					top: 10,
+					left: 10,
+				});
+
+				canvas.add(snappy).renderAll();
+				canvas.add(snappy2).renderAll();
 			},
 			[canvas, template, paginationState, selectedPage]
 		);
@@ -2887,7 +2907,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														| fabric.Textbox
 														| undefined;
 
-													if (!existingObject)
+													if (!existingObject) {
 														return createTextBox(canvas, {
 															text,
 															customType: 'title',
@@ -2900,6 +2920,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															scaleY: 1.53,
 															fontSize: 16,
 														});
+													}
 
 													updateTextBox(canvas, { text });
 

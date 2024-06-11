@@ -634,18 +634,6 @@ function InterestDialog({ open, handleClose }: any) {
 			const userData: any = await updateUserData(token, user?.sub, payload);
 
 			updateUserMetaData(userData?.user_metadata);
-			// const payload = {
-			// 	user_metadata: {
-			// 		...userMetaData,
-			// 		interests: userMetaData?.interests
-			// 			? [...userMetaData?.interests, newData]
-			// 			: [newData],
-			// 	},
-			// };
-
-			// const userData: any = await updateUserData(token, user?.sub, payload);
-
-			// updateUserMetaData(userData?.user_metadata);
 			setTagName('');
 			setTagUrl('');
 		}
