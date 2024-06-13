@@ -125,15 +125,16 @@ export const SnappyImage = fabric.util.createClass(fabric.Image, {
 
 fabric.SnappyImage = SnappyImage;
 
-const SnappyText = fabric.util.createClass(fabric.Textbox, {
+export const SnappyText = fabric.util.createClass(fabric.Textbox, {
 	type: 'snappyText',
 
-	initialize: function (options) {
+	initialize: function (options: fabric.ITextboxOptions) {
 		options || (options = {});
 		this.callSuper('initialize', options);
 		this.guides = {};
 	},
-	_render: function (ctx) {
+
+	_render: function (ctx: CanvasRenderingContext2D) {
 		this.callSuper('_render', ctx);
 		this._drawObjectGuides();
 	},
@@ -150,7 +151,7 @@ const SnappyText = fabric.util.createClass(fabric.Textbox, {
 		this.setCoords();
 	},
 
-	_drawGuide: function (side, pos) {
+	_drawGuide: function (side: string, pos: number) {
 		let ln;
 		const color = 'rgb(178, 207, 255)';
 		const lineProps = {
@@ -164,61 +165,20 @@ const SnappyText = fabric.util.createClass(fabric.Textbox, {
 
 		switch (side) {
 			case 'top':
-				ln = new fabric.Line(
-					[0, 0, this.canvas.width, 0],
-					Object.assign(lineProps, {
-						left: 0,
-						top: pos,
-					})
-				);
-				break;
 			case 'bottom':
-				ln = new fabric.Line(
-					[0, 0, this.canvas.width, 0],
-					Object.assign(lineProps, {
-						left: 0,
-						top: pos,
-					})
-				);
-				break;
-
 			case 'centerY':
 				ln = new fabric.Line(
 					[0, 0, this.canvas.width, 0],
-					Object.assign(lineProps, {
-						left: 0,
-						top: pos,
-					})
+					Object.assign(lineProps, { left: 0, top: pos })
 				);
 				break;
 
 			case 'left':
-				ln = new fabric.Line(
-					[0, this.canvas.height, 0, 0],
-					Object.assign(lineProps, {
-						left: pos,
-						top: 0,
-					})
-				);
-				break;
-
 			case 'right':
-				ln = new fabric.Line(
-					[0, this.canvas.height, 0, 0],
-					Object.assign(lineProps, {
-						left: pos,
-						top: 0,
-					})
-				);
-				break;
-
 			case 'centerX':
 				ln = new fabric.Line(
 					[0, this.canvas.height, 0, 0],
-					Object.assign(lineProps, {
-						left: pos,
-						top: 0,
-					})
+					Object.assign(lineProps, { left: pos, top: 0 })
 				);
 				break;
 
@@ -227,12 +187,14 @@ const SnappyText = fabric.util.createClass(fabric.Textbox, {
 		}
 
 		if (this.guides[side] instanceof fabric.Line) {
-			// remove the line
 			this.canvas.remove(this.guides[side]);
-			delete this.guides[side];
 		}
 		this.guides[side] = ln;
 		this.canvas.add(ln);
+	},
+	set: function (key, value) {
+		this.set(key, value);
+		return this;
 	},
 });
 
@@ -393,7 +355,7 @@ export function onObjectMoving(e: MouseEvent, canvas: fabric.Canvas) {
 
 	const objects = canvas
 		.getObjects()
-		.filter((o) => o.type !== 'line' && o !== obj);
+		.filter((o) => o.type !== 'line' && o !== obj && o?.guides);
 	// var {bl,br,tl,tr} = obj.oCoords
 	const matches = new Set();
 

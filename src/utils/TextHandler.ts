@@ -34,39 +34,16 @@ export function createTextBox(
 		...textOptions,
 	});
 	if (options.customType) newText.customType = options.customType;
-	canvas.add(newText);
-	canvas.setActiveObject(newText);
-	canvas.renderAll();
-	return newText;
-}
+	newText.on('object:moving', (e) => {
+		const target = e.target as fabric.Textbox;
+		target.set({
+			left: snapToGrid(target.left),
+			top: snapToGrid(target.top),
+		});
 
-export function createSnappyTextBox(
-	canvas: fabric.Canvas | null,
-	options: FabricTextBox
-): fabric.Textbox | undefined {
-	if (!canvas) return;
-
-	const defaultOptions: ITextboxOptions = {
-		left: 50,
-		top: 50,
-		fontSize: 16,
-		fontWeight: 'bold',
-		fontFamily: 'Fira Sans',
-		textAlign: 'center',
-		fontStyle: 'normal',
-
-		fill: '#000000',
-		lineHeight: 1.16,
-		strokeWidth: 1,
-		text: `${options?.name}` || 'Your text here',
-		selection: true, // Enable text selection
-		cursorWidth: 1, // Set cursor width to enable selecting individual words
-	};
-	const textOptions = { ...defaultOptions, ...options };
-	const newText = new fabric.SnappyText(options.text || 'Your text here', {
-		...textOptions,
+		// Clear previous guidelines and draw new ones
+		clearAndDrawSnappingLines(target, canvas);
 	});
-	if (options.customType) newText.customType = options.customType;
 	canvas.add(newText);
 	canvas.setActiveObject(newText);
 	canvas.renderAll();
@@ -215,4 +192,41 @@ export function updateTextBox(
 	};
 
 	requestAnimationFrame(updateAndRender);
+}
+
+const snapToGrid = (value: number): number => {
+	const gridSize = 20; // Adjust grid size as needed
+	return Math.round(value / gridSize) * gridSize;
+};
+
+function clearAndDrawSnappingLines(
+	target: fabric.Textbox,
+	canvas: fabric.Canvas
+) {
+	// Clear previous guidelines
+	canvas.getObjects('line').forEach((obj) => canvas.remove(obj));
+
+	// Draw snapping center lines
+	const center = {
+		x: target.left + (target.width * target.scaleX) / 2,
+		y: target.top + (target.height * target.scaleY) / 2,
+	};
+
+	const lines = [
+		[center.x, 0, center.x, canvas.height],
+		[0, center.y, canvas.width, center.y],
+	];
+
+	lines.forEach((line) => {
+		const guideline = new fabric.Line(line, {
+			stroke: 'red',
+			strokeWidth: 1,
+			selectable: false,
+			evented: false,
+			perPixelTargetFind: true,
+		});
+		canvas.add(guideline);
+	});
+
+	canvas.renderAll();
 }

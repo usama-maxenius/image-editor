@@ -6,6 +6,7 @@ import { styled } from '@mui/styles';
 import Templates from '../templates/templates';
 import Canvas from '../../components/Canvas';
 import { usePaginationContext } from '../../context/MultiCanvasPaginationContext';
+import ImageEditor from '../../editor/ImageEditor';
 
 const StyledContainer = styled('div')({
 	display: 'flex',
@@ -77,11 +78,13 @@ const HomePage = () => {
 			<Templates updateStep={setStep} />
 		) : step == 2 ? (
 			<StyledContainer>
-				<Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+				<ImageEditor />
+				{/* <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} /> */}
 			</StyledContainer>
 		) : step == 3 ? (
 			<StyledContainer>
-				<Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} />
+				<ImageEditor />
+				{/* <Canvas updatedSeedData={updatedSeedData} template={selectedTemplate} /> */}
 			</StyledContainer>
 		) : (
 			''

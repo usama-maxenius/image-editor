@@ -26,7 +26,6 @@ import DeselectIcon from '@mui/icons-material/Deselect';
 import JSZip from 'jszip';
 
 import {
-	createSnappyTextBox,
 	createSwipeGroup,
 	createTextBox,
 	updateSwipeColor,
@@ -75,6 +74,7 @@ import {
 	onObjectMoving,
 } from './fabric-smart-object';
 import { elementsAssets } from './config';
+import Editor from '../../editor';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -300,6 +300,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
+			new Editor(canvas);
 			updateCanvasContext(canvas);
 
 			// Attach the event listener with the separated function
@@ -1264,11 +1265,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				// Check if the active object exists
 				const { offsetX, offsetY, blur } = shadowValues;
 
-				// Modify the shadow properties of the active object
-				// color: shadow.color || "rgba(0,0,0,0.5)",
-				// offsetX: shadow.offsetX || 10,
-				// offsetY: shadow.offsetY || 10,
-				// blur: shadow.blur || 1,
 				activeObject.set({
 					shadow: {
 						color: shadow.color || 'rgba(0,0,0,0.5)',
@@ -1937,12 +1933,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												</Typography>
 												{activeTab === 'element' && (
 													<>
-														{/* <Typography
-													className={classes.heading}
-													onClick={() => setShow('opacity')}
-												>
-													OPACITY
-												</Typography> */}
 														<Typography
 															className={classes.heading}
 															onClick={() => setShow('element-shadow')}
@@ -2370,14 +2360,12 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											<Typography
 												className={classes.heading}
 												onClick={() => setShow('contrast')}
-												// onClick={() => handleButtonClick("Contrast")}
 											>
 												CONTRAST
 											</Typography>
 											<Typography
 												className={classes.heading}
 												onClick={() => setShow('brightness')}
-												// onClick={() => handleButtonClick("Contrast")}
 											>
 												BRIGHTNESS
 											</Typography>
@@ -2628,7 +2616,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 										backgroundColor: 'transparent',
 										border: 'none',
 									}}
-									// onClick={() => updateActiveTab('background')}
 									onClick={() => {
 										updateActiveTab('background');
 										deselectObj();
@@ -2648,7 +2635,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<button
 									style={{ backgroundColor: 'transparent', border: 'none' }}
-									// onClick={() => updateActiveTab('title')}
 									onClick={() => {
 										updateActiveTab('title');
 										deselectObj();
@@ -2667,7 +2653,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								</button>
 
 								<button
-									// onClick={() => updateActiveTab('bubble')}
 									onClick={() => {
 										updateActiveTab('bubble');
 										deselectObj();
@@ -2934,9 +2919,15 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													const existingObject = getExistingObject('title') as
 														| fabric.Textbox
 														| undefined;
-
-													if (!existingObject)
-														return createSnappyTextBox(canvas, {
+													Editor?.addRectangle({
+														left: 100,
+														top: 100,
+														fill: 'red',
+														width: 50,
+														height: 50,
+													});
+													if (!existingObject) {
+														createTextBox(canvas, {
 															text,
 															customType: 'title',
 															fill: '#fff',
@@ -2948,13 +2939,13 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															scaleY: 1.53,
 															fontSize: 16,
 														});
-
-													updateTextBox(canvas, { text });
-
-													setOverlayTextFiltersState((prev) => ({
-														...prev,
-														text,
-													}));
+													} else {
+														updateTextBox(canvas, { text });
+														setOverlayTextFiltersState((prev) => ({
+															...prev,
+															text,
+														}));
+													}
 												}}
 												style={{
 													margin: '0px',
@@ -3399,64 +3390,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								<Box>
 									<h4>Social Tags</h4>
-									{/* <Box
-										sx={{
-											display: 'flex',
-										}}
-									>
-										{elementsAssets?.socialPlatforms?.map(({ img }, i) => {
-											return (
-												<Box
-													key={i}
-													sx={{
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														width: '100%',
-													}}
-												>
-													<img
-														src={img}
-														onDragStart={(e) => handleDragStart(e, img)}
-														onClick={() => {
-															const left = Math.random() * (400 - 100) + 100;
-															const top = Math.random() * (800 - 400) + 100;
-															fabric.Image.fromURL(
-																img,
-																function (img) {
-																	const snappyImg = new fabric.SnappyImage(
-																		img.getElement(),
-																		{
-																			left: left,
-																			top: top,
-																			scaleX: 0.2,
-																			scaleY: 0.2,
-																		}
-																	);
-																	snappyImg.customType = 'elementImg';
-																	canvas.add(snappyImg);
 
-																	requestAnimationFrame(() => {
-																		canvas.renderAll();
-																	});
-																},
-																{
-																	crossOrigin: 'anonymous',
-																}
-															);
-														}}
-														alt=''
-														style={{
-															cursor: 'pointer',
-															paddingBottom: '0.5rem',
-															width: '30px',
-															height: '30px',
-														}}
-													/>
-												</Box>
-											);
-										})}
-									</Box> */}
 									<Box
 										sx={{
 											display: 'flex',
@@ -3684,38 +3618,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						>
 							{!templateSaved ? 'Share' : 'Loading...'}
 						</button>
-						{/* {!templateSaved ? (
-							<button
-								onClick={handleSaveTemplate}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-
-									cursor: 'pointer',
-								}}
-							>
-								Save All Templates
-							</button>
-						) : (
-							<button
-								onClick={handleExport}
-								style={{
-									width: '100%',
-									height: '42px',
-									borderRadius: '25px',
-									border: 'none',
-									backgroundColor: '#3b0e39',
-									color: 'white',
-									cursor: 'pointer',
-								}}
-							>
-								Share
-							</button>
-						)} */}
 					</div>
 					<div style={{ marginTop: '40%', position: 'relative' }}>
 						<button
