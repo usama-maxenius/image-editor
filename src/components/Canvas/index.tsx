@@ -52,9 +52,13 @@ import {
 } from '../../utils/CollageHandler';
 
 import {
+	createBubble,
 	createBubbleElement,
 	createBubbleElement1,
+	updateBubbleCircle,
 	updateBubbleElement,
+	updateBubbleImageFilters,
+	updateBubbleImageSrc,
 } from '../../utils/BubbleHandler';
 import { debounce } from 'lodash';
 
@@ -2377,10 +2381,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												<CustomColorPicker
 													value={overlayTextFiltersState.color}
 													changeHandler={(color: string) => {
-														updateBubbleImage(undefined, {
+														updateBubbleCircle(canvas, {
 															stroke: color,
 															strokeWidth: filterValues.bubble.strokeWidth,
 														});
+
 														setFilterValues((prev) => ({
 															...prev,
 															bubble: { ...prev.bubble, stroke: color },
@@ -2403,10 +2408,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														const value = +e.target.value;
 														const activeObject = canvas?.getActiveObject();
 
-														updateBubbleImage(undefined, {
+														updateBubbleCircle(canvas, {
 															stroke: activeObject?.stroke,
 															strokeWidth: value,
 														});
+
 														setFilterValues((prev) => ({
 															...prev,
 															bubble: { ...prev.bubble, strokeWidth: value },
@@ -2574,7 +2580,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															...prev,
 															brightness: value,
 														}));
-														updateBubbleImageBrightness();
+														updateBubbleImageFilters(canvas, {
+															brightness: bubbleFilter.brightness,
+														});
+														// updateBubbleImageBrightness();
 													}}
 													step={0.01}
 													valueLabelDisplay='auto'
@@ -2965,7 +2974,18 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
 								<ImageViewer
-									clickHandler={(img: string) => updateBubbleImage(img)}
+									clickHandler={(img: string) => {
+										const activeObject = canvas?.getActiveObject();
+										const isBubbleExist = getExistingObject('bubble');
+
+										if (isChecked && !activeObject) {
+											createBubble(canvas, img);
+										} else if (!isBubbleExist && !activeObject) {
+											createBubble(canvas, img);
+										} else {
+											updateBubbleImageSrc(canvas, img);
+										}
+									}}
 									images={initialData.bubbles}
 								/>
 
