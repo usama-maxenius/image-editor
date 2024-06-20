@@ -1,4 +1,4 @@
-//  // @ts-nocheck
+// @ts-nocheck
 import { fabric } from 'fabric';
 import { getExistingObject } from '.';
 import { scaleToFit } from './ImageHandler';
@@ -308,38 +308,6 @@ export const updateBubbleImage = (canvas: fabric.Canvas, imgUrl: string) => {
 	const top = canvas.getHeight() / 2; //centerY
 
 	const activeBubble = getExistingObject(canvas, 'bubble');
-	// const activeBubbleStroke = getExistingObject(canvas, 'bubbleStroke');
-	// const activeBubbleCircle = getExistingObject(canvas, 'bubbleClipPath');
-
-	// var strokeCircle = new fabric.Circle({
-	// 	radius: 100,
-	// 	left: activeBubbleStroke?.left ? activeBubbleStroke.left : left,
-	// 	top: activeBubbleStroke?.top ? activeBubbleStroke.top : top,
-	// 	originX: 'center',
-	// 	originY: 'center',
-	// 	fill: 'transparent',
-	// 	strokeWidth: 10,
-	// 	stroke: '#ffffff',
-	// 	strokeUniform: false,
-	// 	selectable: true,
-	// 	...activeBubbleStroke,
-	// });
-
-	// var clipPath = new fabric.Circle({
-	// 	radius: strokeCircle.radius!,
-	// 	left: strokeCircle.left,
-	// 	top: strokeCircle.top,
-	// 	originX: 'center',
-	// 	originY: 'center',
-	// 	fill: 'transparent',
-	// 	opacity: 1,
-	// 	visible: true,
-	// 	selectable: true,
-	// 	strokeUniform: true,
-	// 	perPixelTargetFind: true,
-	// 	absolutePositioned: true,
-	// 	...activeBubbleCircle,
-	// });
 
 	activeBubble?.setSourcePath(imgUrl);
 	canvas.renderAll();
