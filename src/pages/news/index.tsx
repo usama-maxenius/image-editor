@@ -287,12 +287,12 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useCanvasContext } from '../../context/CanvasContext';
 function MultiActionAreaCard({ feed, updateScrapURL }: any) {
-	// const [feedImage, setFeedImage] = useState<string | undefined>(undefined);
-	// useEffect(() => {
-	// 	if (feed?.feed?.image !== undefined) {
-	// 		setFeedImage(feed.feed.image);
-	// 	}
-	// }, [feed]);
+	const [feedImage, setFeedImage] = useState<string | undefined>(undefined);
+	useEffect(() => {
+		if (feed?.feed?.image !== undefined) {
+			setFeedImage(feed.feed.image);
+		}
+	}, [feed]);
 	const navigate = useNavigate();
 
 	return (
@@ -316,7 +316,7 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 				<Card key={i} sx={{ my: 1 }}>
 					<CardActionArea style={{ display: 'flex', alignItems: 'center' }}>
 						<div style={{ flex: 1, padding: '10px' }}>
-							{/* <div style={{ display: 'flex', alignItems: 'center' }}>
+							<div style={{ display: 'flex', alignItems: 'center' }}>
 								<div style={{ height: '20px', marginRight: '10px' }}>
 									<Link to={item?.link} style={{ textDecoration: 'none' }}>
 										{feedImage && (
@@ -342,7 +342,7 @@ function MultiActionAreaCard({ feed, updateScrapURL }: any) {
 										)}
 									</Link>
 								</div>
-							</div> */}
+							</div>
 							<Box
 								sx={{
 									display: 'flex',
