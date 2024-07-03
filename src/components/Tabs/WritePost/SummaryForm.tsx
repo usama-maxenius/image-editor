@@ -207,7 +207,11 @@ Props) => {
 						textTransform: 'capitalize',
 						mt: 2,
 					}}
-					endIcon={isLoading ? <CircularProgress size={20} /> : null}
+					endIcon={
+						isLoading ? (
+							<CircularProgress sx={{ color: '#ffffff' }} size={20} />
+						) : null
+					}
 				>
 					Generate
 				</Button>

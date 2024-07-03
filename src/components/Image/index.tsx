@@ -18,6 +18,9 @@ const ImageViewer = ({
 	children,
 	onDragStart,
 }: Props) => {
+	//new code add
+	const slides = images.length % 2 !== 0 ? [...images, ''] : images;
+	//end
 	var settings = {
 		dots: true,
 		infinite: false,
@@ -57,7 +60,55 @@ const ImageViewer = ({
 		<Box id='custom-slider'>
 			{children}
 			<Slider touchMove={false} {...settings}>
-				{images.map((img, i) => {
+				{slides.map((img, i) => {
+					return (
+						<Box
+							key={i}
+							sx={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: 2,
+							}}
+							className='slider-container'
+						>
+							<Box
+								sx={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									height: '150px',
+									margin: '4px',
+								}}
+							>
+								{img ? (
+									<img
+										style={{
+											cursor: 'pointer',
+											height: '100%',
+											width: '100%',
+											borderRadius: '10px',
+										}}
+										onDragStart={(e) => onDragStart(e, img)}
+										onClick={() => clickHandler(img)}
+										srcSet={`${img}`}
+										src={`${img}`}
+										loading='lazy'
+									/>
+								) : (
+									<Box
+										sx={{
+											height: '100%',
+											width: '100%',
+										}}
+									></Box>
+								)}
+							</Box>
+						</Box>
+					);
+				})}
+
+				{/* {images.map((img, i) => {
 					return (
 						<Box
 							key={i}
@@ -94,7 +145,7 @@ const ImageViewer = ({
 							</Box>
 						</Box>
 					);
-				})}
+				})} */}
 			</Slider>
 			<br />
 			<br />
