@@ -53,9 +53,13 @@ import {
 } from '../../utils/CollageHandler';
 
 import {
-	createBubbleElement,
-	createBubbleElement1,
-	updateBubbleElement,
+	createBubble,
+	// createBubbleElement,
+	// createBubbleElement1,
+	updateBubbleCircle,
+	updateBubbleImageFilters,
+	updateBubbleImageSrc,
+	updateBubbleShadow,
 } from '../../utils/BubbleHandler';
 import { debounce } from 'lodash';
 
@@ -99,6 +103,8 @@ interface FilterState {
 	overlay: number;
 	text: string;
 	fontSize: number;
+	elementFontSize: number;
+	writePostfontSize: number;
 	color: string;
 	fontFamily: string;
 	fontWeight: number;
@@ -560,17 +566,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				return;
 			}
 			const activeObject = canvas.getActiveObject();
-
-			if (activeObject?.customType === 'bubbleStroke') {
-				if (filter && !imgUrl && existingBubbleStroke) {
-					const newOptions: fabric.ICircleOptions = {
-						stroke: filter?.stroke || 'blue',
-						strokeWidth: filter?.strokeWidth || 15,
-					};
-					updateBubbleElement(canvas, existingBubbleStroke, newOptions);
-					canvas.renderAll();
-				}
-			}
 			if (shadow) {
 				const activeBubble = canvas.getActiveObject();
 				const newOptions: fabric.ICircleOptions = {
@@ -581,62 +576,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 						blur: shadow.blur || 1,
 					},
 				};
-				updateBubbleElement(canvas, activeBubble, newOptions);
+				updateBubbleShadow(canvas, activeBubble, newOptions);
 				canvas.renderAll();
 				return;
 			}
-			if (!isChecked) {
-				let options: fabric.ICircleOptions = {
-					...existingBubbleStroke,
-					...(!existingBubbleStroke &&
-						template?.diptych === 'horizontal' && { top: 150 }),
-					...(!existingBubbleStroke &&
-						template?.diptych === 'horizontal' && { left: 150, radius: 80 }),
-				};
-				requestAnimationFrame(() => {
-					// createBubbleElement(canvas!, imgUrl!);
-					createBubbleElement1(canvas!, imgUrl!);
-					canvas.renderAll();
-				});
-				return;
-			}
-			// deselectObj();
-			const activeBubble = canvas.getActiveObject();
-			var c_id = activeBubble?.customId;
-			if (
-				(!activeBubble && isChecked) ||
-				(isChecked && activeBubble.customType === 'bubbleStroke')
-			) {
-				requestAnimationFrame(() => {
-					deselectObj();
-					createBubbleElement(canvas!, imgUrl!);
-					canvas.renderAll();
-				});
-			}
-
-			// update slection bubble
-			if (activeBubble && activeBubble.customType === 'bubble' && imgUrl) {
-				const obj = {
-					left: Math.floor(activeBubble?.clipPath?.left),
-					top: Math.floor(activeBubble?.clipPath?.top),
-				};
-				const getExistingObject = canvas
-					?.getObjects()
-					?.filter((obj: any) => obj.customId === c_id);
-				getExistingObject?.forEach((obj) => {
-					if (
-						obj?.customType === 'bubble' ||
-						obj?.customType === 'bubbleStroke'
-					) {
-						canvas.remove(obj);
-					}
-				});
-				createBubbleElement(canvas!, imgUrl!, obj);
-				return canvas.renderAll();
-			}
 		};
-
-		//---------------------------------------------
 		/**
 		 * Updates the background filters of the canvas.
 		 * @param {IBaseFilter} filter - The filter to be applied to the background image.
@@ -1163,9 +1107,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			// addPage(obj);
 			setSelectedPage(highestPageNumber);
-
 			setPageLoading(true);
-
 			setTimeout(() => {
 				addPage(obj);
 				loadCanvas(highestPageNumber);
@@ -1505,6 +1447,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				'canvasID',
 				'custom-slider',
 				'react-tiny-popover-container',
+				'AiBubbleID',
 			];
 			let isClickInside = false;
 
@@ -2430,7 +2373,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														className={classes.slider}
 														aria-label='size'
 														color='secondary'
-														value={overlayTextFiltersState.writePostfontSize}
+														value={overlayTextFiltersState?.writePostfontSize}
 														min={10}
 														max={72}
 														onChange={(e: any) => {
@@ -2648,7 +2591,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												<CustomColorPicker
 													value={overlayTextFiltersState.color}
 													changeHandler={(color: string) => {
-														updateBubbleImage(undefined, {
+														// updateBubbleImage(undefined, {
+														// 	stroke: color,
+														// 	strokeWidth: filterValues.bubble.strokeWidth,
+														// });
+														updateBubbleCircle(canvas, {
 															stroke: color,
 															strokeWidth: filterValues.bubble.strokeWidth,
 														});
@@ -2673,11 +2620,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													onChange={(e: any) => {
 														const value = +e.target.value;
 														const activeObject = canvas?.getActiveObject();
-
-														updateBubbleImage(undefined, {
+														updateBubbleCircle(canvas, {
 															stroke: activeObject?.stroke,
 															strokeWidth: value,
 														});
+														// updateBubbleImage(undefined, {
+														// 	stroke: activeObject?.stroke,
+														// 	strokeWidth: value,
+														// });
 														setFilterValues((prev) => ({
 															...prev,
 															bubble: { ...prev.bubble, strokeWidth: value },
@@ -2845,7 +2795,10 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															...prev,
 															brightness: value,
 														}));
-														updateBubbleImageBrightness();
+														updateBubbleImageFilters(canvas, {
+															brightness: bubbleFilter.brightness,
+														});
+														// updateBubbleImageBrightness();
 													}}
 													step={0.01}
 													valueLabelDisplay='auto'
@@ -3225,25 +3178,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													const existingObject = getExistingObject('title') as
 														| fabric.Textbox
 														| undefined;
-
-													// 												if (!existingObject)
-													// 													const centerX = canvas.getWidth() / 2; //centerX
-													// const centerY = canvas.getHeight() / 2;
-													// 													return createTextBox(canvas, {
-													// 														text,
-													// 														customType: 'title',
-													// 														fill: '#fff',
-													// 														width: 303,
-													// 														height: 39,
-													// 														top: 550,
-													// 														left: 34,
-													// 														scaleX: 1.53,
-													// 														scaleY: 1.53,
-													// 														fontSize: overlayTextFiltersState.fontSize,
-													// 														textAlign:'center'
-													// 													});
 													if (!existingObject) {
-														const centerX = canvas.getWidth() / 2; //centerX
+														const centerX = canvas.getWidth() / 2;
 														const centerY = canvas.getHeight() / 2;
 
 														return createTextBox(canvas, {
@@ -3289,11 +3225,36 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div>
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
-								<ImageViewer
+								{/* <ImageViewer
 									clickHandler={(img: string) => updateBubbleImage(img)}
 									images={initialData.bubbles}
-								/>
+								/> */}
 
+								<ImageViewer
+									clickHandler={(img: string) => {
+										const activeObject = canvas?.getActiveObject();
+										const isBubbleExist = getExistingObject('bubble');
+
+										if (
+											(isChecked &&
+												activeObject?.customType === 'bubbleStroke') ||
+											(isChecked && activeObject?.customType === 'strokeCircle')
+										) {
+											canvas.discardActiveObject();
+											canvas?.renderAll();
+										}
+
+										if (isChecked && !canvas?.getActiveObject())
+											createBubble(canvas, img);
+
+										if (!isBubbleExist && !canvas?.getActiveObject())
+											createBubble(canvas, img);
+
+										if (activeObject && activeObject?.customType === 'bubble')
+											updateBubbleImageSrc(canvas, img);
+									}}
+									images={initialData.bubbles}
+								/>
 								<Box
 									sx={{
 										width: '100%',
@@ -3364,6 +3325,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											borderRadius: '4px',
 										}}
 									/>
+									{/* -----Bubble Generate AI Bubble */}
 									<Button
 										onClick={generateTextToImageHanlder}
 										style={{
@@ -3385,28 +3347,63 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Generate
 									</Button>
-									{generatedImages?.length > 0 && (
-										<ImageViewer
-											clickHandler={(img: string) => {
-												const activeBubble = canvas?.getActiveObject();
+									<div id='AiBubbleID'>
+										{generatedImages?.length > 0 && (
+											<ImageViewer
+												clickHandler={(img: string) => {
+													const activeObject = canvas?.getActiveObject();
+													const isBubbleExist = getExistingObject('bubble');
 
-												if (
-													isChecked &&
-													activeBubble?.customType === 'bubbleStroke'
-												) {
-													canvas.discardActiveObject();
-													canvas?.renderAll();
-												}
-												updateBubbleImage(img);
-											}}
-											images={generatedImages}
-											onDragStart={(e, imageUrl) => {
-												const background = false;
-												const bubble = true;
-												handleDragStart(e, imageUrl, background, true);
-											}}
-										>
-											{/* {template?.diptych === 'vertical' ? (
+													if (
+														(isChecked &&
+															activeObject?.customType === 'bubbleStroke') ||
+														(isChecked &&
+															activeObject?.customType === 'strokeCircle')
+													) {
+														canvas.discardActiveObject();
+														canvas?.renderAll();
+													}
+
+													if (isChecked && !canvas?.getActiveObject())
+														createBubble(canvas, img);
+
+													if (!isBubbleExist && !canvas?.getActiveObject())
+														createBubble(canvas, img);
+
+													if (
+														activeObject &&
+														activeObject?.customType === 'bubble'
+													)
+														updateBubbleImageSrc(canvas, img);
+												}}
+												images={generatedImages}
+												// images={initialData.bubbles}
+												onDragStart={(e, imageUrl) => {
+													const background = false;
+													const bubble = true;
+													handleDragStart(e, imageUrl, background, true);
+												}}
+												// clickHandler={(img: string) => {
+												// 	const activeObject = canvas?.getActiveObject();
+												// 	const isBubbleExist = getExistingObject('bubble');
+
+												// 	if (isChecked && !activeObject) {
+												// 		createBubble(canvas, img);
+												// 	} else if (!isBubbleExist && !activeObject) {
+												// 		createBubble(canvas, img);
+												// 	} else {
+												// 		updateBubbleImageSrc(canvas, img);
+												// 	}
+												// }}
+												// images={generatedImages}
+												// // images={initialData.bubbles}
+												// onDragStart={(e, imageUrl) => {
+												// 	const background = false;
+												// 	const bubble = true;
+												// 	handleDragStart(e, imageUrl, background, true);
+												// }}
+											>
+												{/* {template?.diptych === 'vertical' ? (
 												<Box
 													sx={{
 														display: 'flex',
@@ -3414,7 +3411,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														py: 1,
 													}}
 												>
-													<div>Top Images 2</div>
+													<div>Top Images</div>
 													<div>Bottom Images</div>
 												</Box>
 											) : template?.diptych === 'horizontal' ? (
@@ -3431,8 +3428,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													</Box>
 												</>
 											) : null} */}
-										</ImageViewer>
-									)}
+											</ImageViewer>
+										)}
+									</div>
 								</>
 							</div>
 						)}
@@ -3651,7 +3649,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											alignItems: 'center',
 										}}
 									>
-										{borders?.map((border: string, i) => {
+										{borders?.map((border: string, i: any) => {
 											return (
 												<img
 													key={i}
@@ -3884,48 +3882,81 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<h2>Write post</h2>
 
 								{summaryContent && summaryContent?.content ? (
-									<h5
-										onClick={() => {
-											const existingObject = getExistingObject('writePost') as
-												| fabric.Textbox
-												| undefined;
-											const centerX = canvas.getWidth() / 2;
-											const centerY = canvas.getHeight() / 2;
-											const text = summaryContent?.content;
+									<>
+										<Button
+											onClick={() => {
+												const textToCopy = summaryContent?.content;
+												if (textToCopy) {
+													navigator.clipboard.writeText(textToCopy).then(
+														() => {
+															console.log('Text copied to clipboard');
+															toast.success('Text copied to clipboard');
+														},
+														(err) => {
+															console.error('Could not copy text: ', err);
+														}
+													);
+												}
+											}}
+											style={{
+												cursor: 'pointer',
+												padding: '10px 20px',
+												// backgroundColor: '#4CAF50',
+												color: 'white',
+												border: 'none',
+												borderRadius: '5px',
+											}}
+											variant='contained'
+											sx={{
+												textTransform: 'capitalize',
+												mt: 2,
+											}}
+										>
+											Copy Text
+										</Button>
+										<h5
+											onClick={() => {
+												const existingObject = getExistingObject(
+													'writePost'
+												) as fabric.Textbox | undefined;
+												const centerX = canvas?.getWidth() / 2;
+												const centerY = canvas?.getHeight() / 2;
+												const text = summaryContent?.content;
 
-											if (!existingObject) {
-												return createTextBox(canvas, {
+												if (!existingObject) {
+													return createTextBox(canvas, {
+														text,
+														customType: 'writePost',
+														fill: '#fff',
+														width: 303,
+														height: 39,
+														top: centerY,
+														left: centerX,
+														scaleX: 1.53,
+														scaleY: 1.53,
+														fontSize: overlayTextFiltersState.writePostfontSize,
+														textAlign: 'center',
+														originX: 'center',
+														originY: 'center',
+													});
+												}
+												updateTextBox(canvas, { text });
+												setOverlayTextFiltersState((prev) => ({
+													...prev,
 													text,
-													customType: 'writePost',
-													fill: '#fff',
-													width: 303,
-													height: 39,
-													top: centerY,
-													left: centerX,
-													scaleX: 1.53,
-													scaleY: 1.53,
-													fontSize: overlayTextFiltersState.writePostfontSize,
-													textAlign: 'center',
-													originX: 'center',
-													originY: 'center',
-												});
-											}
-											updateTextBox(canvas, { text });
-											setOverlayTextFiltersState((prev) => ({
-												...prev,
-												text,
-											}));
-										}}
-										style={{
-											userSelect: 'text',
-											margin: '0px',
-											marginBottom: '15px',
-											cursor: 'pointer',
-											color: '#a19d9d',
-										}}
-									>
-										{summaryContent?.content}
-									</h5>
+												}));
+											}}
+											style={{
+												userSelect: 'text',
+												margin: '0px',
+												marginBottom: '15px',
+												cursor: 'pointer',
+												color: '#a19d9d',
+											}}
+										>
+											{summaryContent?.content}
+										</h5>
+									</>
 								) : (
 									<SummaryForm
 										setSummaryContent={setSummaryContent}
