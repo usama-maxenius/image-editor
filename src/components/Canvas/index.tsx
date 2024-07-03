@@ -3988,32 +3988,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 								{summaryContent && summaryContent?.content ? (
 									<>
-										{/* <button
-											onClick={() => {
-												const textToCopy = summaryContent?.content;
-												if (textToCopy) {
-													navigator.clipboard.writeText(textToCopy).then(
-														() => {
-															console.log('Text copied to clipboard');
-															toast.success('Text copied to clipboard');
-														},
-														(err) => {
-															console.error('Could not copy text: ', err);
-														}
-													);
-												}
-											}}
-											style={{
-												cursor: 'pointer',
-												padding: '10px 20px',
-												backgroundColor: '#4CAF50',
-												color: 'white',
-												border: 'none',
-												borderRadius: '5px',
-											}}
-										>
-											Copy Text
-										</button> */}
 										<Button
 											onClick={() => {
 												const textToCopy = summaryContent?.content;
