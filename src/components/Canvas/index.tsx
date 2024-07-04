@@ -1092,8 +1092,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			try {
 				templateJSON = await import(
-					`../../constants/templates/${template.filePath}.json` &&
-						console.log('templateJSON', templateJSON)
+					`../../constants/templates/${template.filePath}.json`
 				);
 			} catch (error) {
 				console.error('Error importing JSON file:', error);
