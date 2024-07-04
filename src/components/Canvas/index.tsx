@@ -147,15 +147,16 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 		const background = ['bg-1', 'bg-2'];
 		const title = ['title'];
-		const bubble = ['bubble', 'bubbleStroke'];
-		const element = [
-			'element',
+		const bubble = [
+			'bubble',
+			'bubbleStroke',
 			'swipeGroup',
-			'borders',
-			'hashtag',
-			'elementImg',
+			'bubbleClipPath',
+			'strokeCircle',
 		];
+		const element = ['element', 'borders', 'hashtag', 'elementImg'];
 		const writePost = ['writePost', 'customTypeText'];
+		const res = canvas?.getObjects();
 
 		useEffect(() => {
 			if (canvas) {
@@ -1091,7 +1092,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 
 			try {
 				templateJSON = await import(
-					`../../constants/templates/${template.filePath}.json`
+					`../../constants/templates/${template.filePath}.json` &&
+						console.log('templateJSON', templateJSON)
 				);
 			} catch (error) {
 				console.error('Error importing JSON file:', error);
@@ -1104,6 +1106,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				templateJSON: templateJSON,
 				...templateFound,
 			};
+			// console.log('🚀 ~ addTemplate ~ obj:', obj);
 
 			// addPage(obj);
 			setSelectedPage(highestPageNumber);
@@ -3233,6 +3236,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 								<ImageViewer
 									clickHandler={(img: string) => {
 										const activeObject = canvas?.getActiveObject();
+										console.log('🚀 ~ activeObject:', activeObject);
 										const isBubbleExist = getExistingObject('bubble');
 
 										if (
