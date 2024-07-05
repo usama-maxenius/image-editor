@@ -3378,7 +3378,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 													handleDragStart(e, imageUrl, background, true);
 												}}
 											>
-												{template?.diptych === 'vertical' ? (
+												{/* {template?.diptych === 'vertical' ? (
 													<Box
 														sx={{
 															display: 'flex',
@@ -3402,7 +3402,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															<div>Right Images</div>
 														</Box>
 													</>
-												) : null}
+												) : null} */}
 											</ImageViewer>
 										)}
 									</div>
