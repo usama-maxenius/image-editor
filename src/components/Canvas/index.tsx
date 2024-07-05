@@ -247,15 +247,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			},
 		});
 
-		// useEffect(() => {
-		// 	const activeObject = canvas?.getActiveObject();
-		// 	console.log('activeObject?.fontSize', activeObject);
-		// 	setOverlayTextFiltersState((prev) => ({
-		// 		...prev,
-		// 		fontSize: activeObject?.fontSize,
-		// 	}));
-		// }, [canvas?._activeObject]);
-
 		const availableFilters: { name: string; filter: fabric.IBaseFilter }[] = [
 			{
 				name: 'grayscale',
@@ -305,9 +296,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				renderOnAddRemove: false,
 				preserveObjectStacking: true,
 				selection: true,
-				// stopContextMenu:true,
-				// fireRightClick: true,
-				// fireMiddleClick: true,
 			};
 			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
@@ -373,19 +361,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 		};
 
-		// const loadCanvas = useCallback(async () => {
-		// 	if (!canvas) return;
-
-		// 	const templateFound = paginationState?.find(
-		// 		(item) => item?.page === selectedPage
-		// 	);
-
-		// 	await new Promise((resolve) => {
-		// 		canvas?.loadFromJSON(templateFound?.templateJSON, () => {
-		// 			resolve(null);
-		// 		});
-		// 	});
-		// }, [canvas, paginationState, selectedPage]);
 		const loadCanvas = useCallback(async () => {
 			if (!canvas) return;
 			const templateFound = paginationState?.find(
@@ -398,6 +373,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				});
 			});
 		}, [canvas, template, paginationState, selectedPage]);
+
 		useEffect(() => {
 			loadCanvas();
 			const handleCanvasUpdate = () => {

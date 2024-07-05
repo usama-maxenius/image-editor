@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { fabric } from 'fabric';
-// import { getExistingObject } from '.';
 import { scaleToFit } from './ImageHandler';
 
 fabric.Object.prototype.noScaleCache = false;
