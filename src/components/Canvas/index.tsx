@@ -730,11 +730,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
-			// console.log('🚀 ~ updateBackgroundImage ~ imageUrl:', imageUrl);
 
 			let activeObject: fabric.Object | undefined | null =
 				canvas.getActiveObject() || getExistingObject('bg-1');
-			// console.log('activeObject', activeObject);
 
 			if (!template.backgroundImage && !canvas.getActiveObject()) {
 				let currentImageIndex = initialData.backgroundImages?.findIndex(
@@ -746,6 +744,60 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			}
 
 			let currentImageIndex = initialData.backgroundImages?.findIndex(
+				(bgImage: string) => bgImage === imageUrl
+			);
+
+			if (!activeObject) {
+				if (template?.diptych === 'horizontal') {
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createHorizontalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createHorizontalCollage(canvas, [null, imageUrl]);
+					}
+				} else if (template?.diptych === 'vertical') {
+					if (currentImageIndex !== undefined && currentImageIndex % 2 === 0) {
+						createVerticalCollage(canvas, [imageUrl, null]);
+					} else if (
+						currentImageIndex !== undefined &&
+						currentImageIndex % 2 !== 0
+					) {
+						createVerticalCollage(canvas, [null, imageUrl]);
+					}
+					return;
+				}
+			}
+
+			if (!activeObject) return console.log('Still Object not found');
+
+			if (template?.backgroundImage || !template?.diptych)
+				updateImageSource(canvas, imageUrl, activeObject);
+			else if (template?.diptych === 'vertical')
+				updateVerticalCollageImage(canvas, imageUrl, activeObject);
+			else updateHorizontalCollageImage(canvas, imageUrl, activeObject);
+		}, 100);
+
+		// GenerRate bg images
+		const generatUpdateBackgroundImage = debounce((imageUrl: string) => {
+			if (!canvas) return;
+
+			if (!generatedImages) return;
+
+			let activeObject: fabric.Object | undefined | null =
+				canvas.getActiveObject() || getExistingObject('bg-1');
+
+			if (!template.backgroundImage && !canvas.getActiveObject()) {
+				let currentImageIndex = generatedImages?.findIndex(
+					(bgImage: string) => bgImage === imageUrl
+				);
+				activeObject = getExistingObject(
+					currentImageIndex % 2 === 0 ? 'bg-1' : 'bg-2'
+				);
+			}
+
+			let currentImageIndex = generatedImages?.findIndex(
 				(bgImage: string) => bgImage === imageUrl
 			);
 
@@ -1083,11 +1135,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				templateJSON: templateJSON,
 				...templateFound,
 			};
-			// console.log('🚀 ~ addTemplate ~ obj:', obj);
 
 			// addPage(obj);
 			setSelectedPage(highestPageNumber);
 			setPageLoading(true);
+
 			setTimeout(() => {
 				addPage(obj);
 				loadCanvas(highestPageNumber);
@@ -1359,9 +1411,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			background: any,
 			bubble: any
 		) => {
+			// const activeObject = canvas?.getActiveObject();
+			// console.log('🚀 ~ activeObject:', activeObject);
+
 			if (bubble) {
 				dndBubble.current = true;
-
 				const dt = e.dataTransfer;
 				dt.setData('text/plain', imageUrl);
 			}
@@ -1371,7 +1425,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				dt.setData('text/plain', imageUrl);
 			} else {
 				dndBackground.current = false;
-
 				const dt = e.dataTransfer;
 				dt.setData('text/plain', imageUrl);
 			}
@@ -1437,6 +1490,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				'custom-slider',
 				'react-tiny-popover-container',
 				'AiBubbleID',
+				'aiBg',
 			];
 			let isClickInside = false;
 
@@ -3101,11 +3155,14 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 									>
 										Generate
 									</Button>
-									<Box>
+									<div id='aiBg'>
+										{/* bg prompt */}
+
 										{generatedImages?.length > 0 && (
 											<ImageViewer
 												clickHandler={(img: string) =>
-													updateBackgroundImage(img)
+													// updateBackgroundImage(img)
+													generatUpdateBackgroundImage(img)
 												}
 												images={generatedImages}
 												onDragStart={(e, imageUrl) => {
@@ -3140,7 +3197,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												) : null} */}
 											</ImageViewer>
 										)}
-									</Box>
+									</div>
 								</Box>
 								<br />
 							</>
