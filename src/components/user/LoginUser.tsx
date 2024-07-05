@@ -79,10 +79,6 @@ const LoginUser = () => {
 				plan: 'free',
 			},
 		});
-	console.log(
-		'🚀 ~ handleTagClick ~ tags:',
-		userMetaDataPayload?.company?.selectedTags
-	);
 
 	React.useEffect(() => {
 		if (userMetaData?.company) setUserMetaDataPayload(userMetaData);

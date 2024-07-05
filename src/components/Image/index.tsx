@@ -20,6 +20,7 @@ const ImageViewer = ({
 }: Props) => {
 	//new code add
 	const slides = images.length % 2 !== 0 ? [...images, ''] : images;
+
 	//end
 	var settings = {
 		dots: true,
@@ -56,6 +57,7 @@ const ImageViewer = ({
 			},
 		],
 	};
+
 	return (
 		<Box id='custom-slider'>
 			{children}
