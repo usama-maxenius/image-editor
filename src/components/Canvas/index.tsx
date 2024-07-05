@@ -1093,7 +1093,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				loadCanvas(highestPageNumber);
 				setPageLoading(false);
 				updateActiveTab('background');
-			}, 3000);
+			}, 5000);
 		};
 		//pagination click--------handler-----------
 
