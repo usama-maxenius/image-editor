@@ -1163,6 +1163,8 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 					resolve(null);
 				});
 			});
+			updateActiveTab('background');
+			handleButtonClick('Overlay');
 
 			// rebind the events
 			setTimeout(() => {
