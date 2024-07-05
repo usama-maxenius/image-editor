@@ -53,9 +53,8 @@ import {
 } from '../../utils/CollageHandler';
 
 import {
+	bindBubbleEvents,
 	createBubble,
-	// createBubbleElement,
-	// createBubbleElement1,
 	updateBubbleCircle,
 	updateBubbleImageFilters,
 	updateBubbleImageSrc,
@@ -81,6 +80,7 @@ import {
 import { elementsAssets } from './config';
 import { initAligningGuidelines } from '../../utils/canvasHelper';
 import { initCenteringGuidelines } from '../../utils/centeringGuidelines';
+import { rebindAllEvents } from '../../utils/Events';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -1126,11 +1126,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 				templateJSON: currentTemplateJSON,
 			});
 			await setSelectedPage(item?.page);
+
+			// load the template
 			await new Promise((resolve) => {
 				canvas?.loadFromJSON(item?.templateJSON, () => {
 					resolve(null);
 				});
 			});
+
+			// rebind the events
+			setTimeout(() => {
+				rebindAllEvents(canvas);
+			}, 500);
+
+			canvas.renderAll();
 		};
 
 		const exportMultiCanvases = async () => {
@@ -3227,15 +3236,9 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 							<div>
 								<h4 style={{ margin: '0px', padding: '0px' }}>From Article</h4>
 
-								{/* <ImageViewer
-									clickHandler={(img: string) => updateBubbleImage(img)}
-									images={initialData.bubbles}
-								/> */}
-
 								<ImageViewer
 									clickHandler={(img: string) => {
 										const activeObject = canvas?.getActiveObject();
-										console.log('🚀 ~ activeObject:', activeObject);
 										const isBubbleExist = getExistingObject('bubble');
 
 										if (
@@ -3247,13 +3250,20 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											canvas?.renderAll();
 										}
 
-										if (isChecked && !canvas?.getActiveObject())
+										if (isChecked && !canvas?.getActiveObject()) {
 											createBubble(canvas, img);
+											return;
+										}
 
-										if (!isBubbleExist && !canvas?.getActiveObject())
+										if (!isBubbleExist && !canvas?.getActiveObject()) {
 											createBubble(canvas, img);
+											return;
+										}
 
-										if (activeObject && activeObject?.customType === 'bubble')
+										if (
+											(activeObject && activeObject?.customType === 'bubble') ||
+											(activeObject && !isChecked)
+										)
 											updateBubbleImageSrc(canvas, img);
 									}}
 									images={initialData.bubbles}

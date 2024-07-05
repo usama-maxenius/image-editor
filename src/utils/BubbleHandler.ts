@@ -26,6 +26,7 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
 		selectable: true,
 	});
 	(strokeCircle as any).customType = 'strokeCircle';
+	(strokeCircle as any).customId = new Date().getTime();
 
 	var clipPath = new fabric.Circle({
 		radius: strokeCircle.radius!,
@@ -51,6 +52,7 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
 	imageElement.onload = function () {
 		var fabricImage = new fabric.Image(imageElement);
 		(fabricImage as any).customType = 'bubble';
+		(fabricImage as any).customId = new Date().getTime();
 
 		fabricImage.clipPath = clipPath;
 
@@ -78,54 +80,7 @@ export const createBubble = (canvas: fabric.Canvas, imgUrl: string) => {
 		canvas.add(strokeCircle);
 		canvas.add(fabricImage);
 
-		let prevLeft = strokeCircle.left!;
-		let prevTop = strokeCircle.top!;
-
-		strokeCircle.on('moving', function () {
-			// Get the current position of the strokeCircle
-			const currentLeft = strokeCircle.left!;
-			const currentTop = strokeCircle.top!;
-
-			// Calculate the delta (difference) in position
-			const deltaX = currentLeft - prevLeft;
-			const deltaY = currentTop - prevTop;
-
-			// Update the previous position to the current position for the next move
-			prevLeft = currentLeft;
-			prevTop = currentTop;
-
-			// Update the image position by the same delta
-			fabricImage
-				.set({
-					left: fabricImage.left! + deltaX,
-					top: fabricImage.top! + deltaY,
-				})
-				.setCoords();
-
-			// Update the clipPath position to match the strokeCircle
-			clipPath
-				.set({
-					left: strokeCircle.left,
-					top: strokeCircle.top,
-				})
-				.setCoords();
-
-			canvas.renderAll();
-		});
-
-		strokeCircle.on('scaling', function () {
-			clipPath.scaleToWidth(strokeCircle.getScaledWidth());
-			clipPath.scaleToHeight(strokeCircle.getScaledHeight());
-			clipPath
-				.set({
-					left: strokeCircle.left,
-					top: strokeCircle.top,
-					scaleX: strokeCircle.scaleX,
-					scaleY: strokeCircle.scaleY,
-					radius: strokeCircle.radius!,
-				})
-				.setCoords();
-		});
+		bindBubbleEvents(strokeCircle, fabricImage, canvas);
 
 		canvas.renderAll();
 	};
@@ -212,4 +167,63 @@ export const updateBubbleShadow = (
 		});
 		canvas?.requestRenderAll();
 	}
+};
+
+// Function to bind moving and scaling events to the circle
+export const bindBubbleEvents = (
+	strokeCircle: fabric.Circle,
+	fabricImage: fabric.Image,
+	canvas: fabric.Canvas
+) => {
+	let prevLeft = strokeCircle.left!;
+	let prevTop = strokeCircle.top!;
+	const clipPath = fabricImage.clipPath;
+
+	strokeCircle.on('moving', function () {
+		// Get the current position of the strokeCircle
+		const currentLeft = strokeCircle.left!;
+		const currentTop = strokeCircle.top!;
+
+		// Calculate the delta (difference) in position
+		const deltaX = currentLeft - prevLeft;
+		const deltaY = currentTop - prevTop;
+
+		// Update the previous position to the current position for the next move
+		prevLeft = currentLeft;
+		prevTop = currentTop;
+
+		// Update the image position by the same delta
+		fabricImage
+			.set({
+				left: fabricImage.left! + deltaX,
+				top: fabricImage.top! + deltaY,
+			})
+			.setCoords();
+
+		// Update the clipPath position to match the strokeCircle
+		clipPath
+			.set({
+				left: strokeCircle.left,
+				top: strokeCircle.top,
+			})
+			.setCoords();
+
+		canvas.renderAll();
+	});
+
+	strokeCircle.on('scaling', function () {
+		clipPath.scaleToWidth(strokeCircle.getScaledWidth());
+		clipPath.scaleToHeight(strokeCircle.getScaledHeight());
+		clipPath
+			.set({
+				left: strokeCircle.left,
+				top: strokeCircle.top,
+				scaleX: strokeCircle.scaleX,
+				scaleY: strokeCircle.scaleY,
+				radius: strokeCircle.radius!,
+			})
+			.setCoords();
+	});
+
+	canvas.renderAll();
 };
