@@ -66,7 +66,12 @@ function EgBanner({ updateStep }: Props) {
 					//   addPage(page, filePath, templateJSON);
 					// }}
 					onClick={() => onClickHandler(template)}
-					style={{ width: 300, height: 400, objectFit: 'contain' }}
+					style={{
+						width: 300,
+						height: 400,
+						objectFit: 'contain',
+						cursor: 'pointer',
+					}}
 					src={template.placeholderImage}
 				/>
 			))}
