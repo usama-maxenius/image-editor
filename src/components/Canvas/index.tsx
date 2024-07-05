@@ -754,9 +754,11 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 		//old code
 		const updateBackgroundImage = debounce((imageUrl: string) => {
 			if (!canvas) return;
+			// console.log('🚀 ~ updateBackgroundImage ~ imageUrl:', imageUrl);
 
 			let activeObject: fabric.Object | undefined | null =
 				canvas.getActiveObject() || getExistingObject('bg-1');
+			// console.log('activeObject', activeObject);
 
 			if (!template.backgroundImage && !canvas.getActiveObject()) {
 				let currentImageIndex = initialData.backgroundImages?.findIndex(
@@ -3366,7 +3368,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												clickHandler={(img: string) => {
 													const activeObject = canvas?.getActiveObject();
 													const isBubbleExist = getExistingObject('bubble');
-
 													if (
 														(isChecked &&
 															activeObject?.customType === 'bubbleStroke') ||
@@ -3377,58 +3378,31 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														canvas?.renderAll();
 													}
 
-													if (isChecked && !canvas?.getActiveObject())
+													if (isChecked && !canvas?.getActiveObject()) {
 														createBubble(canvas, img);
+														return;
+													}
 
-													if (!isBubbleExist && !canvas?.getActiveObject())
+													if (!isBubbleExist && !canvas?.getActiveObject()) {
 														createBubble(canvas, img);
+														return;
+													}
 
 													if (
-														activeObject &&
-														activeObject?.customType === 'bubble'
+														(activeObject &&
+															activeObject?.customType === 'bubble') ||
+														(activeObject && !isChecked)
 													)
 														updateBubbleImageSrc(canvas, img);
 												}}
 												images={generatedImages}
-												// images={initialData.bubbles}
 												onDragStart={(e, imageUrl) => {
 													const background = false;
 													const bubble = true;
 													handleDragStart(e, imageUrl, background, true);
 												}}
-												// clickHandler={(img: string) => {
-												// 	const activeObject = canvas?.getActiveObject();
-												// 	const isBubbleExist = getExistingObject('bubble');
-
-												// 	if (isChecked && !activeObject) {
-												// 		createBubble(canvas, img);
-												// 	} else if (!isBubbleExist && !activeObject) {
-												// 		createBubble(canvas, img);
-												// 	} else {
-												// 		updateBubbleImageSrc(canvas, img);
-												// 	}
-												// }}
-												// images={generatedImages}
-												// // images={initialData.bubbles}
-												// onDragStart={(e, imageUrl) => {
-												// 	const background = false;
-												// 	const bubble = true;
-												// 	handleDragStart(e, imageUrl, background, true);
-												// }}
 											>
-												{/* {template?.diptych === 'vertical' ? (
-												<Box
-													sx={{
-														display: 'flex',
-														justifyContent: 'space-around',
-														py: 1,
-													}}
-												>
-													<div>Top Images</div>
-													<div>Bottom Images</div>
-												</Box>
-											) : template?.diptych === 'horizontal' ? (
-												<>
+												{template?.diptych === 'vertical' ? (
 													<Box
 														sx={{
 															display: 'flex',
@@ -3436,11 +3410,23 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															py: 1,
 														}}
 													>
-														<div>Left Images</div>
-														<div>Right Images</div>
+														<div>Top Images</div>
+														<div>Bottom Images</div>
 													</Box>
-												</>
-											) : null} */}
+												) : template?.diptych === 'horizontal' ? (
+													<>
+														<Box
+															sx={{
+																display: 'flex',
+																justifyContent: 'space-around',
+																py: 1,
+															}}
+														>
+															<div>Left Images</div>
+															<div>Right Images</div>
+														</Box>
+													</>
+												) : null}
 											</ImageViewer>
 										)}
 									</div>
@@ -3902,7 +3888,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												if (textToCopy) {
 													navigator.clipboard.writeText(textToCopy).then(
 														() => {
-															console.log('Text copied to clipboard');
+															// console.log('Text copied to clipboard');
 															toast.success('Text copied to clipboard');
 														},
 														(err) => {
@@ -3913,7 +3899,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											}}
 											style={{
 												cursor: 'pointer',
-												padding: '10px 20px',
+												// padding: '10px 20px',
 												// backgroundColor: '#4CAF50',
 												color: 'white',
 												border: 'none',
@@ -3922,7 +3908,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											variant='contained'
 											sx={{
 												textTransform: 'capitalize',
-												mt: 2,
+												my: 2,
 											}}
 										>
 											Copy Text
