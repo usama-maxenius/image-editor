@@ -19,7 +19,7 @@ export function saveImage(canvas: fabric.Canvas | null): void {
 	link.href = dataUrl;
 	link.download = 'canvas-export.jpeg';
 	link.click();
-	console.log('Canvas is .', canvas);
+	// console.log('Canvas is .', canvas);
 }
 
 /**
