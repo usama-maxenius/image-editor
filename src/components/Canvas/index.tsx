@@ -3923,7 +3923,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												if (textToCopy) {
 													navigator.clipboard.writeText(textToCopy).then(
 														() => {
-															// console.log('Text copied to clipboard');
 															toast.success('Text copied to clipboard');
 														},
 														(err) => {
@@ -3934,8 +3933,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 											}}
 											style={{
 												cursor: 'pointer',
-												// padding: '10px 20px',
-												// backgroundColor: '#4CAF50',
 												color: 'white',
 												border: 'none',
 												borderRadius: '5px',
@@ -3953,32 +3950,32 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 												const existingObject = getExistingObject(
 													'writePost'
 												) as fabric.Textbox | undefined;
-												const centerX = canvas?.getWidth() / 2;
-												const centerY = canvas?.getHeight() / 2;
+												// const centerX = canvas?.getWidth() / 2;
+												// const centerY = canvas?.getHeight() / 2;
 												const text = summaryContent?.content;
 
-												if (!existingObject) {
-													return createTextBox(canvas, {
-														text,
-														customType: 'writePost',
-														fill: '#fff',
-														width: 303,
-														height: 39,
-														top: centerY,
-														left: centerX,
-														scaleX: 1.53,
-														scaleY: 1.53,
-														fontSize: overlayTextFiltersState.writePostfontSize,
-														textAlign: 'center',
-														originX: 'center',
-														originY: 'center',
-													});
-												}
-												updateTextBox(canvas, { text });
-												setOverlayTextFiltersState((prev) => ({
-													...prev,
-													text,
-												}));
+												// if (!existingObject) {
+												// 	return createTextBox(canvas, {
+												// 		text,
+												// 		customType: 'writePost',
+												// 		fill: '#fff',
+												// 		width: 303,
+												// 		height: 39,
+												// 		top: centerY,
+												// 		left: centerX,
+												// 		scaleX: 1.53,
+												// 		scaleY: 1.53,
+												// 		fontSize: overlayTextFiltersState?.writePostfontSize,
+												// 		textAlign: 'center',
+												// 		originX: 'center',
+												// 		originY: 'center',
+												// 	});
+												// }
+												// updateTextBox(canvas, { text });
+												// setOverlayTextFiltersState((prev) => ({
+												// 	...prev,
+												// 	text,
+												// }));
 											}}
 											style={{
 												userSelect: 'text',
