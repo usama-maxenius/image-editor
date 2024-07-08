@@ -210,18 +210,37 @@ export const bindBubbleEvents = (
 		canvas.renderAll();
 	});
 
-	strokeCircle.on('scaling', function () {
-		clipPath.scaleToWidth(strokeCircle.getScaledWidth());
-		clipPath.scaleToHeight(strokeCircle.getScaledHeight());
+	strokeCircle.on('scaling', function (e) {
+		const scaleX = strokeCircle.scaleX!;
+		const scaleY = strokeCircle.scaleY!;
+		const newRadius = strokeCircle.radius!;
+
+		prevLeft = strokeCircle.left!;
+		prevTop = strokeCircle.top!;
+
 		clipPath
 			.set({
 				left: strokeCircle.left,
 				top: strokeCircle.top,
-				scaleX: strokeCircle.scaleX,
-				scaleY: strokeCircle.scaleY,
-				radius: strokeCircle.radius!,
+				scaleX: scaleX,
+				scaleY: scaleY,
+				radius: newRadius,
 			})
 			.setCoords();
+
+		// fabricImage
+		// 	.set({
+		// 		// scaleX: scaleX,
+		// 		// scaleY: scaleY,
+		// 		left: fabricImage.left,
+		// 		top: fabricImage.top,
+		// 		scaleX: scaleX,
+		// 		scaleY: scaleY,
+		// 		radius: newRadius,
+		// 	})
+		// 	.setCoords();
+
+		canvas.renderAll();
 	});
 
 	canvas.renderAll();
