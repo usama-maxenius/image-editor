@@ -96,9 +96,9 @@ export function initCenteringGuidelines(canvas: fabric.Canvas) {
 		}
 	});
 
-	// canvas.on('before:render', function () {
-	// 	canvas.clearContext(canvas.contextTop);
-	// });
+	canvas.on('before:render', function () {
+		canvas.clearContext(canvas.contextTop);
+	});
 
 	canvas.on('after:render', function () {
 		if (isInVerticalCenter) {
