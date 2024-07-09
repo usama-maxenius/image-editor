@@ -36,7 +36,7 @@ const Header = () => {
 	return (
 		<AppBar
 			position='static'
-			sx={{ backgroundColor: '#e9295d', userSelect: 'none' }}
+			sx={{ backgroundColor: '#e62358', userSelect: 'none' }}
 		>
 			<Toolbar>
 				<IconButton
@@ -46,17 +46,20 @@ const Header = () => {
 					aria-label='menu'
 					sx={{ mr: 2 }}
 				></IconButton>
+
+				<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
+					<img
+						src='/logo/logo_banner.jpeg'
+						alt='logo'
+						style={{ width: 150, height: 60, objectFit: 'cover', marginTop: 4 }}
+					/>
+				</Link>
 				<Box
 					sx={{
 						flexGrow: 1,
 						display: { xs: 'none', md: 'flex' },
 					}}
 				>
-					<Typography variant='h6' component='div'>
-						<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
-							Posticle
-						</Link>
-					</Typography>
 					{isAuthenticated ? (
 						<Box sx={{ ml: { md: 10 } }}>
 							<Button color='inherit'>

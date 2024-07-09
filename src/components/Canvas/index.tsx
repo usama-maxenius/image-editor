@@ -72,15 +72,11 @@ import SwipeRightIcon from '@mui/icons-material/SwipeRight';
 import { textToImage } from '../../api/text-to-image/index';
 import toast from 'react-hot-toast';
 import SummaryForm from '../Tabs/WritePost/SummaryForm';
-import {
-	clearAllGuides,
-	onObjectAdded,
-	onObjectMoved,
-} from './fabric-smart-object';
+
 import { elementsAssets } from './config';
-import { initAligningGuidelines } from '../../utils/canvasHelper';
 import { initCenteringGuidelines } from '../../utils/centeringGuidelines';
 import { rebindAllEvents } from '../../utils/Events';
+import { clearAllGuides } from './fabric-smart-object';
 type TemplateJSON = any;
 interface PaginationStateItem {
 	page: number;
@@ -299,7 +295,6 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 			};
 			const canvas = new fabric.Canvas(canvasEl?.current, options);
 			canvasInstanceRef.current = canvas;
-			initAligningGuidelines(canvas);
 			initCenteringGuidelines(canvas);
 			updateCanvasContext(canvas);
 
@@ -3230,7 +3225,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 														const centerX = canvas.getWidth() / 2;
 														const centerY = canvas.getHeight() / 2;
 
-														return createTextBox(canvas, {
+														createTextBox(canvas, {
 															text,
 															customType: 'title',
 															fill: '#fff',
@@ -3245,6 +3240,7 @@ const Canvas: React.FC<CanvasProps> = React.memo(
 															originX: 'center',
 															originY: 'center',
 														});
+														return;
 													}
 
 													updateTextBox(canvas, { text });
