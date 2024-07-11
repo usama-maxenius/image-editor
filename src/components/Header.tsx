@@ -36,24 +36,40 @@ const Header = () => {
 	return (
 		<AppBar
 			position='static'
-			sx={{ backgroundColor: '#e62358', userSelect: 'none' }}
+			sx={{
+				backgroundColor: '#E92D58',
+				userSelect: 'none',
+			}}
+			//#E92D58 new
+			//#e62358 old
 		>
 			<Toolbar>
-				<IconButton
+				{/* <IconButton
 					size='large'
 					edge='start'
 					color='inherit'
 					aria-label='menu'
 					sx={{ mr: 2 }}
-				></IconButton>
+				></IconButton> */}
+				<Box
+					sx={{
+						ml: { md: 8, sm: 6, xs: 1 },
+					}}
+				>
+					<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
+						<img
+							src='/logo/logo_bnr.png'
+							// src='/logo/logo_banner.jpeg'
+							alt='logo'
+							style={{
+								width: 'auto',
+								height: 60,
+								objectFit: 'cover',
+							}}
+						/>
+					</Link>
+				</Box>
 
-				<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
-					<img
-						src='/logo/logo_banner.jpeg'
-						alt='logo'
-						style={{ width: 150, height: 60, objectFit: 'cover', marginTop: 4 }}
-					/>
-				</Link>
 				<Box
 					sx={{
 						flexGrow: 1,
