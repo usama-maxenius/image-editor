@@ -29,7 +29,7 @@ export const CanvasContextProvider = ({
 	const [userMetaData, setUserMetaData] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isUserMetaExist, setIsUserMetaExist] = useState(false);
-
+	const [step, setStep] = useState<number>(1);
 	const navigate = useNavigate();
 
 	const getExistingObject = (type: string) =>
@@ -93,6 +93,8 @@ export const CanvasContextProvider = ({
 				getExistingObject,
 				updateCanvasContext,
 				updateScrapURL,
+				step,
+				setStep,
 			}}
 		>
 			{children}

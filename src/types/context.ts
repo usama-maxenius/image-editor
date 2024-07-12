@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 export type activeTabs =
 	| 'background'
 	| 'title'
@@ -12,6 +14,8 @@ export interface CanvasContextProps {
 	isLoading: boolean;
 	isUserMetaExist: boolean;
 	userMetaData: any;
+	step: number;
+	setStep: Dispatch<SetStateAction<number>>;
 	updateUserMetaData: (val: any) => void;
 	updateIsUserMetaExist: (val: boolean) => void;
 	updateActiveTab: (tab: activeTabs) => void;
