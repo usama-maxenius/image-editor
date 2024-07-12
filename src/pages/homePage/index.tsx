@@ -6,6 +6,7 @@ import { styled } from '@mui/styles';
 import Templates from '../templates/templates';
 import Canvas from '../../components/Canvas';
 import { usePaginationContext } from '../../context/MultiCanvasPaginationContext';
+import { useCanvasContext } from '../../context/CanvasContext';
 
 const StyledContainer = styled('div')({
 	display: 'flex',
@@ -33,7 +34,8 @@ interface PaginationStateItem {
 }
 
 const HomePage = () => {
-	const [step, setStep] = useState(1);
+	// const [step, setStep] = useState(1);
+	const { step, setStep } = useCanvasContext();
 	const [selectedTemplate, setSelectedTemplate] = useState<
 		PaginationStateItem | undefined
 	>(undefined);

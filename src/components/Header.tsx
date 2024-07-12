@@ -13,8 +13,10 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCanvasContext } from '../context/CanvasContext';
 
 const Header = () => {
+	const { setStep } = useCanvasContext();
 	const { isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
 	const [, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 	const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -56,10 +58,13 @@ const Header = () => {
 						ml: { md: 8, sm: 6, xs: 1 },
 					}}
 				>
-					<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
+					<Link
+						to='/'
+						onClick={() => setStep(1)}
+						style={{ textDecoration: 'none', color: 'white' }}
+					>
 						<img
 							src='/logo/logo_bnr.png'
-							// src='/logo/logo_banner.jpeg'
 							alt='logo'
 							style={{
 								width: 'auto',
@@ -79,7 +84,11 @@ const Header = () => {
 					{isAuthenticated ? (
 						<Box sx={{ ml: { md: 10 } }}>
 							<Button color='inherit'>
-								<Link to='/' style={{ textDecoration: 'none', color: 'white' }}>
+								<Link
+									to='/'
+									onClick={() => setStep(1)}
+									style={{ textDecoration: 'none', color: 'white' }}
+								>
 									CREATE POST
 								</Link>
 							</Button>
